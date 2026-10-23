@@ -1,0 +1,1 @@
+M15b changed the system prompt (write_file, delete_file) and max_tokens (1024 -> 4096); replay keys no longer match. Re-record with free Gemini.

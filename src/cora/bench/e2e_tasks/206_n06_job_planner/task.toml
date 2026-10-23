@@ -1,0 +1,21 @@
+id = "e2e_n06"
+title = "Job planner and schedule simulation"
+difficulty = "hard"
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["jobplan/loader.py", "jobplan/graph.py", "jobplan/simulate.py", "jobplan/report.py", "tests/test_jobplan.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.06
+max_iterations = 30
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"
+
+[reference]
+dir = "reference"
+delete = []

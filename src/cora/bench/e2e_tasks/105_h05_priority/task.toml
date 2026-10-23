@@ -1,0 +1,21 @@
+id = "e2e_h05"
+title = "Add task priority across the tracker"
+difficulty = "hard"           # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["tracker/models.py", "tracker/storage.py", "tracker/service.py", "tracker/cli.py", "tracker/formatting.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.05
+max_iterations = 30
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

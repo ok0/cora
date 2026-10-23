@@ -1,0 +1,21 @@
+id = "e2e_md_to_html"
+title = "Markdown to HTML converter"
+difficulty = "medium"          # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["md2html.py"]
+
+[limits]
+wall_s = 900
+cost_usd = 0.04
+max_iterations = 25
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

@@ -1,0 +1,31 @@
+# SYNTHETIC / EXAMPLE - 실제 측정값 아님 (NOT MEASURED).
+# Illustrative round numbers that only show the baseline.toml schema for
+# `cora bench compare`. They are not Claude Code / Codex results. Copy this file,
+# replace every value with your own measurements and set synthetic = false.
+
+[meta]
+tool = "example-tool"
+model = "example-model"
+date = "2026-01-01"
+source = "SYNTHETIC / EXAMPLE - 실제 측정값 아님; replace with how the numbers were measured"
+synthetic = true
+
+[tasks.fix_off_by_one]
+solved = true
+cost_usd = 0.01
+wall_s = 10.0
+n = 1
+note = "SYNTHETIC example value"
+
+[tasks.fix_mutable_default]
+solved = 0.5
+cost_usd = 0.02
+wall_s = 20.0
+n = 4
+note = "SYNTHETIC example value"
+
+[tasks.explore_find_port]
+solved = false
+cost_usd = 0.01
+wall_s = 10.0
+note = "SYNTHETIC example value; n omitted means n = 1"

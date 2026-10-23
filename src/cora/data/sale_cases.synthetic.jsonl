@@ -1,0 +1,9 @@
+{"id": "syn-01", "task": "Fix a typo in README.md", "plan": {"steps": 1, "files": 1, "tool_risk": 0.0, "uncertainty": 0.0}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-02", "task": "Rename one variable in utils.py", "plan": {"steps": 2, "files": 1, "tool_risk": 0.5, "uncertainty": 0.0}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-03", "task": "What does parse_args return?", "plan": {"steps": 1, "files": 0, "tool_risk": 0.0, "uncertainty": 0.0}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-04", "task": "Turn on the verbose flag in config.toml", "plan_text": "1. read config.toml\n2. edit config.toml to set the flag", "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-05", "task": "Implement retry with backoff in client.py, then add tests", "plan": {"steps": 8, "files": 5, "tool_risk": 0.6, "uncertainty": 0.6}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-06", "task": "Refactor the storage module and migrate the data", "plan": {"steps": 10, "files": 6, "tool_risk": 0.7, "uncertainty": 0.5}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-07", "task": "Debug the failing sync job", "plan_text": "1. investigate why sync fails in sync/a.py and sync/b.py\n2. maybe change sync/c.py and sync/d.py\n3. edit sync/e.py\n4. run tests in tests/test_sync.py\n5. delete the old cache code\n6. write a migration\n7. run the full test suite\n8. update docs/sync.md", "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-08", "task": "Add caching to the API layer", "plan": {"steps": 9, "files": 4, "tool_risk": 0.5, "uncertainty": 0.5}, "outcomes": {"cheap": {"success": false, "cost": 1.5}, "strong": {"success": true, "cost": 12.0}}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}
+{"id": "syn-09", "task": "Rewrite the whole build system", "plan": {"steps": 24, "files": 12, "tool_risk": 0.8, "uncertainty": 0.8}, "note": "SYNTHETIC / PLACEHOLDER, 실측 아님"}

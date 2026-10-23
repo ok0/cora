@@ -1,0 +1,169 @@
+# Router labelled prompt set (M12, charter R34a). Labels may be relabelled by the user (A14).
+# Label rule:
+#   simple   = question or explanation, no code change
+#   ordinary = code change confined to at most 2 files or one well-specified function/feature
+#   complex  = change across 3 or more files with several dependent steps or design choices
+# source: live = cora.bench.live_tasks.LIVE_TASKS, multi = MULTI_TASKS, e2e = cora.bench.e2e.agent_prompt(task)
+#         (prompts copied verbatim; a test checks they match the code), written = written for this set
+
+[[prompts]]
+id = "fix_off_by_one"
+source = "live"
+label = "ordinary"
+prompt = "test_rng.py fails. Fix the bug in rng.py so that `python -m pytest -q` passes. Do not modify the tests."
+
+[[prompts]]
+id = "fix_mutable_default"
+source = "live"
+label = "ordinary"
+prompt = "test_counter.py fails. Fix the bug in counter.py so that `python -m pytest -q` passes. Do not modify the tests."
+
+[[prompts]]
+id = "fix_sort_order"
+source = "live"
+label = "ordinary"
+prompt = "test_people.py fails. Fix oldest_first in people.py so that `python -m pytest -q` passes. Do not modify the tests."
+
+[[prompts]]
+id = "implement_is_palindrome"
+source = "live"
+label = "ordinary"
+prompt = "Implement is_palindrome in text_tools.py as described in its docstring so that `python -m pytest -q` passes."
+
+[[prompts]]
+id = "implement_fizzbuzz"
+source = "live"
+label = "ordinary"
+prompt = "Implement fizzbuzz in fb.py as described in its docstring so that `python -m pytest -q` passes."
+
+[[prompts]]
+id = "implement_parse_kv"
+source = "live"
+label = "ordinary"
+prompt = "Implement parse_kv in kv.py as described in its docstring so that `python -m pytest -q` passes."
+
+[[prompts]]
+id = "refactor_rename"
+source = "live"
+label = "ordinary"
+prompt = "Rename the function calc_total in shop/cart.py to compute_total and update every usage in the shop package. Behaviour must not change and the old name must not remain anywhere (no alias)."
+
+[[prompts]]
+id = "refactor_extract_constant"
+source = "live"
+label = "ordinary"
+prompt = "In tax.py, introduce a module-level constant TAX_RATE = 0.08 and use it in both functions instead of the literals 1.08 and 0.08. Behaviour must not change."
+
+[[prompts]]
+id = "explore_find_port"
+source = "live"
+label = "simple"
+prompt = "Which TCP port number is the app in this directory configured to use? Answer with just the number."
+
+[[prompts]]
+id = "explore_count_todos"
+source = "live"
+label = "simple"
+prompt = "How many lines containing the text TODO are there across all .py files in this directory tree (other file types do not count)? Answer with just the number."
+
+[[prompts]]
+id = "explore_find_raiser"
+source = "live"
+label = "simple"
+prompt = "Which function raises ValueError(\"empty input\")? Answer with just the function name."
+
+[[prompts]]
+id = "query_client_timeout"
+source = "multi"
+label = "simple"
+prompt = "In this repository, what timeout in seconds does a Client created with no arguments end up using? Answer with just the number."
+
+[[prompts]]
+id = "query_total_backoff"
+source = "multi"
+label = "simple"
+prompt = "With default settings and no SVC_* environment variables set, what is the total of all retry delays, in milliseconds, returned by Client().schedule()? Answer with just the number."
+
+[[prompts]]
+id = "query_env_override"
+source = "multi"
+label = "simple"
+prompt = "Suppose the environment variable SVC_RETRIES is set to 5 (as the string \"5\", like every environment variable). What happens when Client().schedule() is called? If it returns a list, answer with the number of delays; if it raises, answer with just the exception class name."
+
+[[prompts]]
+id = "multi_edit_delay_cap"
+source = "multi"
+label = "complex"
+prompt = "Add a cap on retry delays in the svc package: add \"max_delay_ms\": 500 to DEFAULTS in svc/config.py; change delays in svc/backoff.py to delays(retries, max_ms) so every delay is at most max_ms; make Client.schedule() in svc/client.py pass config.get(\"max_delay_ms\"). Behaviour must otherwise stay the same."
+
+[[prompts]]
+id = "multi_edit_rename_cents"
+source = "multi"
+label = "ordinary"
+prompt = "Rename the function to_cents in svc/units.py to as_cents and update every usage in the svc package (some modules import the function, others use the module attribute). Behaviour must not change and the old name must not remain anywhere (no alias)."
+
+[[prompts]]
+id = "multi_edit_region"
+source = "multi"
+label = "complex"
+prompt = "Add region support to the svc package: (1) Client(timeout_s=None, region=None): when region is None use config.get(\"region\"), read when the Client is created; (2) add Client.endpoint() returning \"https://<region>.svc.example/v1\"; (3) change svc/cli.py so main(argv=None) accepts an optional \"--region <name>\" argument (argv defaults to sys.argv[1:]) and prints only the endpoint of a Client built with that region. Keep timeouts and schedule() unchanged."
+
+[[prompts]]
+id = "e2e_todo_cli"
+source = "e2e"
+label = "ordinary"
+prompt = "Read REQUIREMENTS.md in the current directory and implement everything it asks for in this directory. Required files: todo.py. Work only inside this directory. When you are done, reply with a short final answer that summarises what you built."
+
+[[prompts]]
+id = "e2e_text_stats"
+source = "e2e"
+label = "ordinary"
+prompt = "Read REQUIREMENTS.md in the current directory and implement everything it asks for in this directory. Required files: textstats.py, test_textstats.py. Work only inside this directory. When you are done, reply with a short final answer that summarises what you built."
+
+[[prompts]]
+id = "e2e_rest_notes"
+source = "e2e"
+label = "ordinary"
+prompt = "Read REQUIREMENTS.md in the current directory and implement everything it asks for in this directory. Required files: app.py. Work only inside this directory. When you are done, reply with a short final answer that summarises what you built."
+
+[[prompts]]
+id = "e2e_md_to_html"
+source = "e2e"
+label = "ordinary"
+prompt = "Read REQUIREMENTS.md in the current directory and implement everything it asks for in this directory. Required files: md2html.py. Work only inside this directory. When you are done, reply with a short final answer that summarises what you built."
+
+[[prompts]]
+id = "e2e_refactor_inventory"
+source = "e2e"
+label = "complex"
+prompt = "Read REQUIREMENTS.md in the current directory and implement everything it asks for in this directory. Required files: inventory/__init__.py, inventory/models.py, inventory/core.py, test_inventory.py. Work only inside this directory. When you are done, reply with a short final answer that summarises what you built."
+
+[[prompts]]
+id = "written_explain_router"
+source = "written"
+label = "simple"
+prompt = "Explain how CORA decides between the cheap and the strong model."
+
+[[prompts]]
+id = "written_fix_calc"
+source = "written"
+label = "ordinary"
+prompt = "Fix the failing test in src/calc.py: add() returns the wrong result"
+
+[[prompts]]
+id = "written_fix_calc_ko"
+source = "written"
+label = "ordinary"
+prompt = "calc.py의 버그를 수정하고 테스트를 통과시켜줘"
+
+[[prompts]]
+id = "written_plugin_system"
+source = "written"
+label = "complex"
+prompt = "Add a plugin system to the app package:\n1. Create app/plugins/base.py with a Plugin base class that has name, setup(app) and teardown() methods.\n2. Add a registry in app/plugins/registry.py that discovers plugins from the entry point group app.plugins and loads them in a stable order.\n3. Call setup() for every plugin in app/main.py at startup and teardown() at shutdown, then add tests in tests/test_plugins.py for discovery, ordering and a plugin that raises in setup()."
+
+[[prompts]]
+id = "written_auth_ko"
+source = "written"
+label = "complex"
+prompt = "사용자 인증 기능을 구현해줘. 1. auth/models.py에 User 클래스를 추가하고 비밀번호 해시를 저장한다.\n2. auth/service.py에 login, logout, register 함수를 구현한다.\n3. api/routes.py에 /login, /logout, /register 엔드포인트를 연결하고, 그리고 각 함수에 대한 테스트를 tests/test_auth.py에 작성한다. 세션 저장 방식(메모리 또는 파일)은 설정으로 고를 수 있게 하고, 기존 api/routes.py의 다른 엔드포인트 동작은 바뀌면 안 된다. 실패한 로그인은 횟수를 세어 5회가 넘으면 잠시 막는다. 에러 메시지는 영어로 통일한다. 변경 후 전체 테스트가 통과해야 한다."

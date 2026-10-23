@@ -1,0 +1,21 @@
+id = "e2e_h02"
+title = "Ledger balances and reports"
+difficulty = "medium"         # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["ledger/book.py", "ledger/report.py", "ledger/importer.py", "tests/test_ledger.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.05
+max_iterations = 25
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

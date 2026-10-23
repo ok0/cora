@@ -1,0 +1,21 @@
+id = "e2e_n14"
+title = "Text buffer with undo"
+difficulty = "medium"
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["editbuf/buffer.py", "editbuf/history.py"]
+
+[limits]
+wall_s = 1800
+cost_usd = 0.09
+max_iterations = 25
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"
+
+[reference]
+dir = "reference"
+delete = []

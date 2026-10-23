@@ -1,0 +1,21 @@
+id = "e2e_h04"
+title = "Expression calculator"
+difficulty = "hard"           # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["calc/tokens.py", "calc/parser.py", "calc/evaluator.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.10
+max_iterations = 30
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

@@ -1,0 +1,462 @@
+{
+  "billed": [
+    {
+      "billed": 0.1444013,
+      "id": "M19-01",
+      "report": "tests/fixtures/m19/reports/a-m1-i01.json",
+      "report_cost": 0.1444013
+    },
+    {
+      "billed": 0.24060322000000012,
+      "id": "M19-02",
+      "report": "tests/fixtures/m19/reports/a-m1-i02.json",
+      "report_cost": 0.24060322
+    },
+    {
+      "billed": 0.1495678800000002,
+      "id": "M19-03",
+      "report": "tests/fixtures/m19/reports/a-m1-i03.json",
+      "report_cost": 0.14956788
+    },
+    {
+      "billed": 0.0926615,
+      "id": "M19-04",
+      "report": "tests/fixtures/m19/reports/a-m1-i04.json",
+      "report_cost": 0.0926615
+    },
+    {
+      "billed": 0.02067563,
+      "id": "M19-05",
+      "report": "tests/fixtures/m19/reports/a-m1-i05.json",
+      "report_cost": 0.02067563
+    },
+    {
+      "billed": 0.06974807000000016,
+      "id": "M19-06",
+      "report": "tests/fixtures/m19/reports/a-m2-i01.json",
+      "report_cost": 0.06878767
+    },
+    {
+      "billed": 0.05196877000000022,
+      "id": "M19-07",
+      "report": "tests/fixtures/m19/reports/a-m2-i02.json",
+      "report_cost": 0.049046690000000004
+    },
+    {
+      "billed": 0.11097498999999988,
+      "id": "M19-08",
+      "report": "tests/fixtures/m19/reports/a-m2-i03.json",
+      "report_cost": 0.08830941
+    },
+    {
+      "billed": 0.03474358999999971,
+      "id": "M19-09",
+      "report": "tests/fixtures/m19/reports/a-m2-i04.json",
+      "report_cost": 0.02952362
+    },
+    {
+      "billed": 0.0054404699999999195,
+      "id": "M19-10",
+      "report": "tests/fixtures/m19/reports/a-m2-i05.json",
+      "report_cost": 0.0036841
+    },
+    {
+      "billed": 0.03858846000000016,
+      "id": "M19-11",
+      "report": "tests/fixtures/m19/reports/e-i01.json",
+      "report_cost": 0.03858846
+    },
+    {
+      "billed": 0.0276909,
+      "id": "M19-12",
+      "report": "tests/fixtures/m19/reports/e-i02.json",
+      "report_cost": 0.0276909
+    },
+    {
+      "billed": 0.03189973649,
+      "id": "M19-13",
+      "report": "tests/fixtures/m19/reports/e-i03.json",
+      "report_cost": 0.03189973649
+    },
+    {
+      "billed": 0.01535314000000021,
+      "id": "M19-14",
+      "report": "tests/fixtures/m19/reports/e-i04.json",
+      "report_cost": 0.01535314
+    },
+    {
+      "billed": 0.0244296603,
+      "id": "M19-15",
+      "report": "tests/fixtures/m19/reports/e-i05.json",
+      "report_cost": 0.0244296603
+    },
+    {
+      "billed": 0.01882671883,
+      "id": "M19-16",
+      "report": "tests/fixtures/m19/reports/e-i06.json",
+      "report_cost": 0.01882671883
+    },
+    {
+      "billed": 0.04173051999999977,
+      "id": "M19-17",
+      "report": "tests/fixtures/m19/reports/e-i07.json",
+      "report_cost": 0.03798912
+    },
+    {
+      "billed": 0.05003762000000034,
+      "id": "M19-18",
+      "report": "tests/fixtures/m19/reports/e-i08.json",
+      "report_cost": 0.05003762
+    },
+    {
+      "billed": 0.05943876,
+      "id": "M19-19",
+      "report": "tests/fixtures/m19/reports/e-i09.json",
+      "report_cost": 0.05943876
+    },
+    {
+      "billed": 0.03914356119,
+      "id": "M19-20",
+      "report": "tests/fixtures/m19/reports/e-i10.json",
+      "report_cost": 0.03914356119
+    },
+    {
+      "billed": 0.021405988999999792,
+      "id": "M19-21",
+      "report": "tests/fixtures/m19/reports/e-i11.json",
+      "report_cost": 0.0123490572
+    },
+    {
+      "billed": 0.04615702,
+      "id": "M19-22",
+      "report": "tests/fixtures/m19/reports/e-i12.json",
+      "report_cost": 0.04615702
+    },
+    {
+      "billed": 0.02999508,
+      "id": "M19-23",
+      "report": "tests/fixtures/m19/reports/e-i13.json",
+      "report_cost": 0.02999508
+    },
+    {
+      "billed": 0.02451572000000013,
+      "id": "M19-24",
+      "report": "tests/fixtures/m19/reports/e-i14.json",
+      "report_cost": 0.02451572
+    },
+    {
+      "billed": 0.023339680000000307,
+      "id": "M19-25",
+      "report": "tests/fixtures/m19/reports/e-i15.json",
+      "report_cost": 0.02333968
+    },
+    {
+      "billed": 0.0055414799999997655,
+      "id": "M19-26",
+      "report": "tests/fixtures/m19/reports/e-i16.json",
+      "report_cost": 0.0007202
+    },
+    {
+      "billed": 0.025137680000000273,
+      "id": "M19-27",
+      "report": "tests/fixtures/m19/reports/e-i17.json",
+      "report_cost": 0.02513768
+    },
+    {
+      "billed": 0.0224962825,
+      "id": "M19-28",
+      "report": "tests/fixtures/m19/reports/e-i18.json",
+      "report_cost": 0.0224962825
+    },
+    {
+      "billed": 0.01377894,
+      "id": "RR-01",
+      "report": "tests/fixtures/m19/reports/rerun-01.json",
+      "report_cost": 0.01377894
+    },
+    {
+      "billed": 0.005951610000000329,
+      "id": "RR-02",
+      "report": "tests/fixtures/m19/reports/rerun-02.json",
+      "report_cost": 0.00595161
+    },
+    {
+      "billed": 0.00805476,
+      "id": "RR-03",
+      "report": "tests/fixtures/m19/reports/rerun-03.json",
+      "report_cost": 0.00805476
+    },
+    {
+      "billed": 0.05197062,
+      "id": "RR-04",
+      "report": "tests/fixtures/m19/reports/rerun-04.json",
+      "report_cost": 0.05197062
+    },
+    {
+      "billed": 0.020969402000000414,
+      "id": "RR-05",
+      "report": "tests/fixtures/m19/reports/rerun-05.json",
+      "report_cost": 0.017803883740000002
+    },
+    {
+      "billed": 0.0231925,
+      "id": "M19-29",
+      "report": "tests/fixtures/m19/reports/e-i19.json",
+      "report_cost": 0.0231925
+    },
+    {
+      "billed": 0.02083687321,
+      "id": "M19-30",
+      "report": "tests/fixtures/m19/reports/e-i20.json",
+      "report_cost": 0.02083687321
+    },
+    {
+      "billed": 0.017873824000000482,
+      "id": "M19-31",
+      "report": "tests/fixtures/m19/reports/e-i21.json",
+      "report_cost": 0.017873824
+    },
+    {
+      "billed": 0.04782079222,
+      "id": "M19-32",
+      "report": "tests/fixtures/m19/reports/e-i22.json",
+      "report_cost": 0.04782079222
+    },
+    {
+      "billed": 0.02349716,
+      "id": "M19-33",
+      "report": "tests/fixtures/m19/reports/e-i23.json",
+      "report_cost": 0.02349716
+    },
+    {
+      "billed": 0.0204760738,
+      "id": "M19-34",
+      "report": "tests/fixtures/m19/reports/e-i24.json",
+      "report_cost": 0.0204760738
+    },
+    {
+      "billed": 0.17688939700000006,
+      "id": "M19-35",
+      "report": "tests/fixtures/m19/reports/c_s-m1-i01.json",
+      "report_cost": 0.17033257100000002
+    },
+    {
+      "billed": 0.12686089,
+      "id": "M19-36",
+      "report": "tests/fixtures/m19/reports/c_s-m1-i02.json",
+      "report_cost": 0.12686089
+    },
+    {
+      "billed": 0.20934474121,
+      "id": "M19-37",
+      "report": "tests/fixtures/m19/reports/c_s-m1-i03.json",
+      "report_cost": 0.20934474121
+    },
+    {
+      "billed": 0.06380488000000017,
+      "id": "M19-38",
+      "report": "tests/fixtures/m19/reports/c_s-m1-i04.json",
+      "report_cost": 0.06380488000000001
+    },
+    {
+      "billed": 0.04351645,
+      "id": "M19-39",
+      "report": "tests/fixtures/m19/reports/c_s-m1-i05.json",
+      "report_cost": 0.04351645
+    },
+    {
+      "billed": 0.04530845000000028,
+      "id": "M19-40",
+      "report": "tests/fixtures/m19/reports/d1-m1-i01.json",
+      "report_cost": 0.04530845
+    },
+    {
+      "billed": 0.23538502758,
+      "id": "M19-41",
+      "report": "tests/fixtures/m19/reports/c_s-m2-i01.json",
+      "report_cost": 0.23538502758
+    },
+    {
+      "billed": 0.07720822000000016,
+      "id": "M19-42",
+      "report": "tests/fixtures/m19/reports/c_s-m2-i02.json",
+      "report_cost": 0.07720822
+    },
+    {
+      "billed": 0.05087568838,
+      "id": "M19-43",
+      "report": "tests/fixtures/m19/reports/c_s-m2-i03.json",
+      "report_cost": 0.05087568838
+    },
+    {
+      "billed": 0.0536627628,
+      "id": "RR-06",
+      "report": "tests/fixtures/m19/reports/rerun-06.json",
+      "report_cost": 0.0536627628
+    },
+    {
+      "billed": 0.0462253752,
+      "id": "RR-07",
+      "report": "tests/fixtures/m19/reports/rerun-07.json",
+      "report_cost": 0.0462253752
+    },
+    {
+      "billed": 0.017720360000000213,
+      "id": "RR-08",
+      "report": "tests/fixtures/m19/reports/rerun-08.json",
+      "report_cost": 0.01772036
+    },
+    {
+      "billed": 0.009238810000000264,
+      "id": "RR-09",
+      "report": "tests/fixtures/m19/reports/rerun-09.json",
+      "report_cost": 0.00923881
+    },
+    {
+      "billed": 0.058750311999999916,
+      "id": "M19-44",
+      "report": "tests/fixtures/m19/reports/c_s-m2-i04.json",
+      "report_cost": 0.043149217399999995
+    },
+    {
+      "billed": 0.031010272,
+      "id": "RR-10",
+      "report": "tests/fixtures/m19/reports/rerun-10.json",
+      "report_cost": 0.031010272
+    },
+    {
+      "billed": 0.0347718764,
+      "id": "M19-45",
+      "report": "tests/fixtures/m19/reports/c_s-m2-i05.json",
+      "report_cost": 0.0347718764
+    },
+    {
+      "billed": 0.06366157000000072,
+      "id": "M19-46",
+      "report": "tests/fixtures/m19/reports/d1-m2-i01.json",
+      "report_cost": 0.06230196
+    },
+    {
+      "billed": 0.07045179625,
+      "id": "M19-47",
+      "report": "tests/fixtures/m19/reports/a-m3-i01.json",
+      "report_cost": 0.07045179625
+    },
+    {
+      "billed": 0.08167019625,
+      "id": "M19-48",
+      "report": "tests/fixtures/m19/reports/a-m3-i02.json",
+      "report_cost": 0.08167019625
+    },
+    {
+      "billed": 0.07725528749999999,
+      "id": "M19-49",
+      "report": "tests/fixtures/m19/reports/a-m3-i03.json",
+      "report_cost": 0.07725528749999999
+    },
+    {
+      "billed": 0.0346075325,
+      "id": "M19-50",
+      "report": "tests/fixtures/m19/reports/a-m3-i04.json",
+      "report_cost": 0.0346075325
+    },
+    {
+      "billed": 0.028214602499999998,
+      "id": "M19-51",
+      "report": "tests/fixtures/m19/reports/a-m3-i05.json",
+      "report_cost": 0.028214602499999998
+    }
+  ],
+  "reruns": [
+    {
+      "id": "RR-01",
+      "of": "M19-08",
+      "orig_report": "tests/fixtures/m19/reports/a-m2-i03.json",
+      "repeat_index": 0,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-01.json",
+      "status": "executed",
+      "task": "e2e_h04"
+    },
+    {
+      "id": "RR-02",
+      "of": "M19-08",
+      "orig_report": "tests/fixtures/m19/reports/a-m2-i03.json",
+      "repeat_index": 2,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-02.json",
+      "status": "executed",
+      "task": "e2e_h05"
+    },
+    {
+      "id": "RR-03",
+      "of": "M19-09",
+      "orig_report": "tests/fixtures/m19/reports/a-m2-i04.json",
+      "repeat_index": 0,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-03.json",
+      "status": "executed",
+      "task": "e2e_h06"
+    },
+    {
+      "id": "RR-04",
+      "of": "M19-21",
+      "orig_report": "tests/fixtures/m19/reports/e-i11.json",
+      "repeat_index": 0,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-04.json",
+      "status": "executed",
+      "task": "e2e_h04"
+    },
+    {
+      "id": "RR-05",
+      "of": "M19-26",
+      "orig_report": "tests/fixtures/m19/reports/e-i16.json",
+      "repeat_index": 0,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-05.json",
+      "status": "executed",
+      "task": "e2e_h06"
+    },
+    {
+      "id": "RR-06",
+      "of": "M19-43",
+      "orig_report": "tests/fixtures/m19/reports/c_s-m2-i03.json",
+      "repeat_index": 0,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-06.json",
+      "status": "executed",
+      "task": "e2e_h04"
+    },
+    {
+      "id": "RR-07",
+      "of": "M19-43",
+      "orig_report": "tests/fixtures/m19/reports/c_s-m2-i03.json",
+      "repeat_index": 1,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-07.json",
+      "status": "executed",
+      "task": "e2e_h04"
+    },
+    {
+      "id": "RR-08",
+      "of": "M19-43",
+      "orig_report": "tests/fixtures/m19/reports/c_s-m2-i03.json",
+      "repeat_index": 2,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-08.json",
+      "status": "executed",
+      "task": "e2e_h04"
+    },
+    {
+      "id": "RR-09",
+      "of": "M19-43",
+      "orig_report": "tests/fixtures/m19/reports/c_s-m2-i03.json",
+      "repeat_index": 2,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-09.json",
+      "status": "executed",
+      "task": "e2e_h05"
+    },
+    {
+      "id": "RR-10",
+      "of": "M19-44",
+      "orig_report": "tests/fixtures/m19/reports/c_s-m2-i04.json",
+      "repeat_index": 2,
+      "rerun_report": "tests/fixtures/m19/reports/rerun-10.json",
+      "status": "executed",
+      "task": "e2e_h06"
+    }
+  ]
+}

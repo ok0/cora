@@ -1,0 +1,14 @@
+You are rating how hard a coding task is for a small, cheap coding model working alone in the repository described below. You see only the task prompt, the spec files the prompt names, and a summary of the repository. You do not see any solution, test result or grader. Do not use any tool; answer from the text below only.
+
+Score each criterion 0-3 (0 = not at all, 3 = very much):
+c1 files_to_touch: how many files must be created or changed (0 = one file, 1 = two, 2 = three or four, 3 = five or more).
+c2 spec_ambiguity: how much the spec leaves open or could be read two ways.
+c3 hidden_requirement_risk: how likely an unstated detail (edge case, exact output format, error handling) decides success.
+c4 repo_exploration: how much existing code must be read and understood before editing (0 = none).
+c5 algorithmic_difficulty: how hard the core logic is (0 = plumbing, 3 = non-trivial algorithm or state handling).
+c6 verification_gap: how hard it is to check the work locally (0 = runnable tests or exact examples are given, 3 = nothing to check against).
+c7 cross_module_consistency: how much separate parts must agree on names, signatures or data formats.
+c8 instruction_volume: how many distinct requirements must all be met (0 = one or two, 3 = more than ten).
+
+total = c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 (0-24). Higher = a stronger model is more likely needed.
+Answer with the total only, as an integer from 0 to 24.

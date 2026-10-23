@@ -1,0 +1,172 @@
+authoring_note = "All tasks authored fresh for M19e2 (no external source). Task designs and REQUIREMENTS.md were written without consulting the M19e1 rubric, judge prompts, signals.md or any signal output, and are not shaped to favour or defeat a signal."
+price_in_per_mtok = 0.10
+price_out_per_mtok = 0.40
+replaced = []
+
+[[task]]
+id = "e2e_n01"
+dir = "201_n01_gradebook"
+tier = "medium"
+criterion = "files"
+rationale = "Weighted averages, letter grades, ranking ties and a CSV report CLI with exact error messages."
+changed_files = 2
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n01|r0"
+cal_input_tokens = 61484
+cal_output_tokens = 7281
+
+[[task]]
+id = "e2e_n02"
+dir = "202_n02_slugify"
+tier = "easy"
+criterion = "files"
+rationale = "Single-function slug helper with accent folding, separator collapsing and a max_length cut at word boundaries."
+changed_files = 1
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n02|r0"
+cal_input_tokens = 29607
+cal_output_tokens = 2979
+
+[[task]]
+id = "e2e_n03"
+dir = "203_n03_layered_config"
+tier = "hard"
+criterion = "cross_module"
+rationale = "Four-module config loader: line-numbered parser, layered env overrides with source tracking, recursive interpolation with cycle errors, typed getters."
+changed_files = 4
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n03|r0"
+cal_input_tokens = 232196
+cal_output_tokens = 14350
+
+[[task]]
+id = "e2e_n04"
+dir = "204_n04_rle"
+tier = "easy"
+criterion = "files"
+rationale = "Run-length encode and decode with digit rejection and strict malformed-input detection."
+changed_files = 1
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n04|r0"
+cal_input_tokens = 77535
+cal_output_tokens = 6444
+
+[[task]]
+id = "e2e_n05"
+dir = "205_n05_rate_limiter"
+tier = "medium"
+criterion = "files"
+rationale = "Token bucket with continuous refill and a keyed limiter with idle eviction driven by an injected clock."
+changed_files = 2
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n05|r0"
+cal_input_tokens = 113025
+cal_output_tokens = 7098
+
+[[task]]
+id = "e2e_n06"
+dir = "206_n06_job_planner"
+tier = "hard"
+criterion = "cross_module"
+rationale = "Job loader with error messages, dependency validation with cycle reporting, priority ordering and a multi-worker schedule simulation."
+changed_files = 4
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n06|r0"
+cal_input_tokens = 135062
+cal_output_tokens = 10951
+
+[[task]]
+id = "e2e_n07"
+dir = "207_n07_temp_cli"
+tier = "easy"
+criterion = "files"
+rationale = "Temperature converter CLI with negative-value arguments, absolute-zero errors and usage errors."
+changed_files = 1
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n07|r0"
+cal_input_tokens = 60305
+cal_output_tokens = 1165
+
+[[task]]
+id = "e2e_n08"
+dir = "208_n08_contact_dedupe"
+tier = "medium"
+criterion = "files"
+rationale = "Contact normalization (gmail and phone rules), keep-first de-duplication with field filling, and a CSV CLI."
+changed_files = 3
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n08|r0"
+cal_input_tokens = 22793
+cal_output_tokens = 4784
+
+[[task]]
+id = "e2e_n09"
+dir = "209_n09_span_merge"
+tier = "easy"
+criterion = "files"
+rationale = "Half-open interval merge with touching spans, empty-span removal, non-mutation and an invalid-span error."
+changed_files = 1
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n09|r0"
+cal_input_tokens = 66617
+cal_output_tokens = 3577
+
+[[task]]
+id = "e2e_n10"
+dir = "210_n10_shift_rota"
+tier = "hard"
+criterion = "edge_cases"
+rationale = "Weekly rota with overnight shifts, ordered can-take reasons (unavailable, overlap, rest, hours), greedy assignment and CSV and summary export."
+changed_files = 4
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n10|r0"
+cal_input_tokens = 243280
+cal_output_tokens = 7190
+
+[[task]]
+id = "e2e_n11"
+dir = "211_n11_markdown_toc"
+tier = "medium"
+criterion = "interacting"
+rationale = "Markdown TOC where fenced blocks, slug rules, duplicate counting outside the level range and level bounds all interact in one module."
+changed_files = 1
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n11|r0"
+cal_input_tokens = 117645
+cal_output_tokens = 8636
+
+[[task]]
+id = "e2e_n12"
+dir = "212_n12_dotenv"
+tier = "easy"
+criterion = "files"
+rationale = "dotenv parser with export prefix, quoting and escapes, inline comments and line-numbered errors."
+changed_files = 1
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n12|r0"
+cal_input_tokens = 171194
+cal_output_tokens = 12425
+
+[[task]]
+id = "e2e_n13"
+dir = "213_n13_event_bus"
+tier = "hard"
+criterion = "edge_cases"
+rationale = "In-process event bus with topic wildcards, priority ordering, error collection, once semantics, mutation during publish and history replay."
+changed_files = 3
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n13|r0"
+cal_input_tokens = 208599
+cal_output_tokens = 10303
+
+[[task]]
+id = "e2e_n14"
+dir = "214_n14_undo_buffer"
+tier = "medium"
+criterion = "files"
+rationale = "Text buffer with undo and redo, typing coalescence with word boundaries and a bounded undo stack."
+changed_files = 2
+source = "authored"
+cal_run_id = "-|gemini-3.5-flash-lite|react|e2e_n14|r0"
+cal_input_tokens = 212925
+cal_output_tokens = 14038

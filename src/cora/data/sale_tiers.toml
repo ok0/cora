@@ -1,0 +1,15 @@
+# MEASURED tier table - M15 measurement cycle 0 (실측).
+# Source: .docs/bench-results.md "## M15 측정 사이클 0" (reports .cora/bench/m15/merged, date 2026-10-16).
+# cheap = google/gemini-2.5-flash-lite (arm A), strong = deepseek/deepseek-v3.2 (arm C); cost = mean USD per task run, solve_rate = k/n over reported cells.
+placeholder = false
+unit = "usd per task run"
+
+[[tiers]]
+name = "cheap"
+cost = 0.006590
+solve_rate = 0.4545
+
+[[tiers]]
+name = "strong"
+cost = 0.01570
+solve_rate = 0.5152

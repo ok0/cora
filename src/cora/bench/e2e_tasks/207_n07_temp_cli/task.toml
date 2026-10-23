@@ -1,0 +1,21 @@
+id = "e2e_n07"
+title = "Temperature converter CLI"
+difficulty = "easy"           # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["temps.py"]
+
+[limits]
+wall_s = 900
+cost_usd = 0.05
+max_iterations = 20
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

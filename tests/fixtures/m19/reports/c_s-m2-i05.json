@@ -1,0 +1,853 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-21T04:46:54+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.24,
+    "max_task_cost_usd": 0.08,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_hx2"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": true,
+      "tripwire": true,
+      "max_retries": 3,
+      "feedback_chars": 2000,
+      "source": "auto",
+      "no_check_tasks": []
+    },
+    "models": [
+      {
+        "id": "qwen/qwen3-coder-30b-a3b-instruct",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.07,
+        "output_usd_per_mtok": 0.28,
+        "supports_tools": true
+      },
+      {
+        "id": "deepseek/deepseek-v3.2",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.28,
+        "output_usd_per_mtok": 0.42,
+        "supports_tools": true
+      }
+    ],
+    "ab": {
+      "arms": [
+        "auto-routed"
+      ],
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "strong_model": "deepseek/deepseek-v3.2",
+      "escalation_target": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "delegation_tool_groups": [
+        "core",
+        "delegate"
+      ],
+      "delegation": {
+        "explore_concurrency": 3,
+        "explore_max_calls": 6,
+        "max_steps": 6,
+        "max_tokens": 20000,
+        "summary_max_chars": 1200
+      },
+      "difficulty_thresholds_min": [
+        2.0,
+        10.0
+      ]
+    },
+    "repeats": 3,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_hx2",
+          "wall_s": 2400.0,
+          "cost_usd": 0.08,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.0347718764,
+  "total_calls": 71,
+  "provider_cost_calls": 71,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    },
+    {
+      "model": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_hx2",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 119264,
+      "output_tokens": 3941,
+      "cost_usd": 0.009318786400000001,
+      "provider_cost_calls": 30,
+      "latency_s": 168.0278179999441,
+      "detail": "end_reason=max_iterations score=0.33",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        3.052,
+        5.221,
+        2.996,
+        9.411,
+        4.36,
+        12.262,
+        3.152,
+        9.142,
+        3.324,
+        13.22,
+        3.044,
+        4.888,
+        2.763,
+        7.179,
+        3.263,
+        4.228,
+        4.546,
+        1.652,
+        10.628,
+        2.956,
+        3.529,
+        4.114,
+        2.458,
+        6.005,
+        3.991,
+        7.505,
+        17.294,
+        3.961,
+        4.704,
+        2.98
+      ],
+      "run_id": "auto-routed|auto|react|e2e_hx2|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.3333333333333333,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.3333333333333333,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "no_round_money_uses",
+            "passed": false,
+            "detail": "round_money is still referenced outside shop/compat.py"
+          },
+          {
+            "name": "no_deprecation_warning",
+            "passed": false,
+            "detail": "DeprecationWarning"
+          },
+          {
+            "name": "compat_shim_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "totals",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "vat",
+            "passed": false,
+            "detail": "vat_amount does not return Decimal"
+          },
+          {
+            "name": "coupons",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "shipping",
+            "passed": false,
+            "detail": "shipping_cost does not return Decimal"
+          },
+          {
+            "name": "invoice",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "loyalty",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"round_money is still referenced outside shop/compat.py\", \"name\": \"no_round_money_uses\", \"passed\": false}, {\"detail\": \"DeprecationWarning\", \"name\": \"no_deprecation_warning\", \"passed\": false}, {\"detail\": \"\", \"name\": \"compat_shim_kept\", \"passed\": true}, {\"detail\": \"TypeError\", \"name\": \"totals\", \"passed\": false}, {\"detail\": \"vat_amount does not return Decimal\", \"name\": \"vat\", \"passed\": false}, {\"detail\": \"\", \"name\": \"coupons\", \"passed\": true}, {\"detail\": \"shipping_cost does not return Decimal\", \"name\": \"shipping\", \"passed\": false}, {\"detail\": \"TypeError\", \"name\": \"invoice\", \"passed\": false}, {\"detail\": \"\", \"name\": \"loyalty\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 30,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx2",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 238601,
+      "output_tokens": 15290,
+      "cost_usd": 0.01862732,
+      "provider_cost_calls": 30,
+      "latency_s": 478.31917499983683,
+      "detail": "end_reason=max_iterations score=0.33",
+      "check_runs": 1,
+      "sensor_retries": 1,
+      "sensor_calls": 14,
+      "sensor_cost_usd": 0.012210209999999999,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        2.629,
+        5.021,
+        2.955,
+        4.39,
+        2.854,
+        9.294,
+        7.783,
+        8.78,
+        4.805,
+        8.479,
+        137.979,
+        10.886,
+        21.808,
+        11.689,
+        8.324,
+        10.314,
+        8.203,
+        4.775,
+        4.075,
+        5.27,
+        28.733,
+        16.934,
+        4.264,
+        19.541,
+        26.454,
+        27.396,
+        34.471,
+        20.538,
+        14.086,
+        4.879
+      ],
+      "run_id": "auto-routed|auto|react|e2e_hx2|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.3333333333333333,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.3333333333333333,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "no_round_money_uses",
+            "passed": false,
+            "detail": "round_money is still referenced outside shop/compat.py"
+          },
+          {
+            "name": "no_deprecation_warning",
+            "passed": false,
+            "detail": "DeprecationWarning"
+          },
+          {
+            "name": "compat_shim_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "totals",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "vat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "coupons",
+            "passed": false,
+            "detail": "apply_percent does not return Decimal"
+          },
+          {
+            "name": "shipping",
+            "passed": false,
+            "detail": "shipping_cost does not return Decimal"
+          },
+          {
+            "name": "invoice",
+            "passed": false,
+            "detail": "item line missing or not half-up: 'bolt: 2.67\\nTOTAL: 2.67'"
+          },
+          {
+            "name": "loyalty",
+            "passed": false,
+            "detail": "points_value does not return Decimal"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"round_money is still referenced outside shop/compat.py\", \"name\": \"no_round_money_uses\", \"passed\": false}, {\"detail\": \"DeprecationWarning\", \"name\": \"no_deprecation_warning\", \"passed\": false}, {\"detail\": \"\", \"name\": \"compat_shim_kept\", \"passed\": true}, {\"detail\": \"\", \"name\": \"totals\", \"passed\": true}, {\"detail\": \"\", \"name\": \"vat\", \"passed\": true}, {\"detail\": \"apply_percent does not return Decimal\", \"name\": \"coupons\", \"passed\": false}, {\"detail\": \"shipping_cost does not return Decimal\", \"name\": \"shipping\", \"passed\": false}, {\"detail\": \"item line missing or not half-up: 'bolt: 2.67\\\\nTOTAL: 2.67'\", \"name\": \"invoice\", \"passed\": false}, {\"detail\": \"points_value does not return Decimal\", \"name\": \"loyalty\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 34,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T04:35:29.207742+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from shop.money import quantize, fmt; print('quantize test:', quantize('123.456')); print('fmt test:', fmt(quantize('123.456'))); print('All good')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx2",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 11,
+      "calls": 11,
+      "input_tokens": 72083,
+      "output_tokens": 6357,
+      "cost_usd": 0.00682577,
+      "provider_cost_calls": 11,
+      "latency_s": 250.80153300007805,
+      "detail": "end_reason=final_answer score=0.33",
+      "check_runs": 2,
+      "sensor_retries": 1,
+      "sensor_calls": 4,
+      "sensor_cost_usd": 0.00337099,
+      "escalated": false,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        27.383,
+        34.243,
+        28.052,
+        26.17,
+        6.4,
+        51.263,
+        8.751,
+        15.837,
+        18.892,
+        20.416,
+        12.128
+      ],
+      "run_id": "auto-routed|auto|react|e2e_hx2|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.3333333333333333,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.3333333333333333,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "no_round_money_uses",
+            "passed": false,
+            "detail": "round_money is still referenced outside shop/compat.py"
+          },
+          {
+            "name": "no_deprecation_warning",
+            "passed": false,
+            "detail": "DeprecationWarning"
+          },
+          {
+            "name": "compat_shim_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "totals",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "vat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "coupons",
+            "passed": false,
+            "detail": "apply_percent does not return Decimal"
+          },
+          {
+            "name": "shipping",
+            "passed": false,
+            "detail": "shipping_cost does not return Decimal"
+          },
+          {
+            "name": "invoice",
+            "passed": false,
+            "detail": "item line missing or not half-up: 'bolt: 2.67\\nTOTAL: 2.67'"
+          },
+          {
+            "name": "loyalty",
+            "passed": false,
+            "detail": "points_value does not return Decimal"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"round_money is still referenced outside shop/compat.py\", \"name\": \"no_round_money_uses\", \"passed\": false}, {\"detail\": \"DeprecationWarning\", \"name\": \"no_deprecation_warning\", \"passed\": false}, {\"detail\": \"\", \"name\": \"compat_shim_kept\", \"passed\": true}, {\"detail\": \"\", \"name\": \"totals\", \"passed\": true}, {\"detail\": \"\", \"name\": \"vat\", \"passed\": true}, {\"detail\": \"apply_percent does not return Decimal\", \"name\": \"coupons\", \"passed\": false}, {\"detail\": \"shipping_cost does not return Decimal\", \"name\": \"shipping\", \"passed\": false}, {\"detail\": \"item line missing or not half-up: 'bolt: 2.67\\\\nTOTAL: 2.67'\", \"name\": \"invoice\", \"passed\": false}, {\"detail\": \"points_value does not return Decimal\", \"name\": \"loyalty\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 32,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T04:43:11.177021+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p shop",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 3,
+    "sensor_retries": 2,
+    "extra_calls": 18,
+    "extra_cost_usd": 0.0155812,
+    "escalations": 2
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "auto-routed",
+      "bin": "hard",
+      "tasks": 3,
+      "solved": 0,
+      "cost_usd": 0.0347718764,
+      "wall_s": 897.148525999859
+    }
+  ],
+  "ab": {
+    "arms": [
+      "auto-routed"
+    ],
+    "rows": [
+      {
+        "arm": "auto-routed",
+        "alias": null,
+        "model": "auto",
+        "attempted": 3,
+        "solved": 0,
+        "skipped": 0,
+        "solve_rate": 0.0,
+        "total_cost_usd": 0.0347718764,
+        "cost_per_solved_usd": null,
+        "resolved_per_dollar": 0.0,
+        "wall_s": 897.148525999859,
+        "avg_latency_s": 299.04950866661966,
+        "deleg_invocations": 0,
+        "deleg_attempts": 0,
+        "deleg_attempts_unparsed": 0,
+        "deleg_explore": 0,
+        "deleg_general": 0,
+        "deleg_ok": 0,
+        "deleg_failed": 0,
+        "deleg_refused": 0,
+        "deleg_input_tokens": 0,
+        "deleg_output_tokens": 0,
+        "deleg_cost_usd": 0.0,
+        "deleg_wall_s": 0.0,
+        "deleg_max_fanout": 0,
+        "deleg_avoided_tokens_est": 0
+      }
+    ],
+    "per_task_tiers": [
+      {
+        "task": "e2e_hx2",
+        "difficulty": "hard",
+        "cheap_only": null,
+        "strong_only": null,
+        "auto_routed": "failed",
+        "auto_tiers": [
+          "cheap"
+        ],
+        "flags": []
+      }
+    ],
+    "note": "avoided_tokens_est is an estimate (sub-agent tool-result tokens minus the summary tokens returned to the main agent), not a counterfactual measurement. Each cell is one attempt: directional only."
+  },
+  "aborted": null,
+  "cells": {
+    "executed": 3,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 897.1679219999351,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 897.148525999859,
+    "configs": [
+      {
+        "config": "auto-routed",
+        "calls": 71,
+        "p50_s": 7.505,
+        "max_s": 137.979,
+        "stalled_calls": 1,
+        "stall": true
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_hx2",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 4.170999999999999,
+        "max_s": 17.294,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_hx2",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 8.6295,
+        "max_s": 137.979,
+        "stalled_calls": 1,
+        "stall": true
+      },
+      {
+        "task": "e2e_hx2",
+        "config": "auto-routed",
+        "calls": 11,
+        "p50_s": 20.416,
+        "max_s": 51.263,
+        "stalled_calls": 0,
+        "stall": false
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 3,
+  "runs_completed": 3,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_hx2",
+        "config": "auto-routed",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.011590625466666666,
+          "median": 0.009318786400000001,
+          "stdev": 0.0062201354614871245
+        },
+        "tokens": {
+          "mean": 151845.33333333334,
+          "median": 123205.0,
+          "stdev": 91164.49347379348
+        },
+        "wall_s": {
+          "mean": 299.04950866661966,
+          "median": 250.80153300007805,
+          "stdev": 160.67383708665238
+        },
+        "total_cost_usd": 0.0347718764,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.3333333333333333
+      }
+    ],
+    "configs": [
+      {
+        "config": "auto-routed",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "total_cost_usd": 0.0347718764,
+        "cost_per_solved_usd": null,
+        "solved_per_dollar": 0.0,
+        "mean_cost_usd": 0.011590625466666666,
+        "score_mean": 0.3333333333333333
+      }
+    ],
+    "overall": {
+      "n": 3,
+      "solved": 0,
+      "total_cost_usd": 0.0347718764,
+      "solved_per_dollar": 0.0,
+      "score_mean": 0.3333333333333333
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 3,
+    "max_cost_usd": 0.24,
+    "runs": 3,
+    "total_max_usd": 0.24,
+    "exceeds": false,
+    "suggested_repeats": 3,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_hx2",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.08,
+        "per_run_usd": 0.08,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.24
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 3,
+    "full_pass": 0,
+    "mean_score": 0.3333333333333333,
+    "human_interventions_total": 0,
+    "policy_deny_total": 2,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

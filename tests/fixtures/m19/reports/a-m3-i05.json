@@ -1,0 +1,755 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-21T12:02:07+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.24,
+    "max_task_cost_usd": 0.08,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_hx2"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": false,
+      "tripwire": false,
+      "max_retries": 3,
+      "feedback_chars": 2000
+    },
+    "models": [
+      {
+        "id": "mistralai/mistral-small-3.2-24b-instruct",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.09375,
+        "output_usd_per_mtok": 0.25,
+        "supports_tools": true
+      }
+    ],
+    "repeats": 3,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_hx2",
+          "wall_s": 2400.0,
+          "cost_usd": 0.08,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.028214602499999998,
+  "total_calls": 90,
+  "provider_cost_calls": 90,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "attempted": 3,
+      "solved": 0,
+      "failed": 3,
+      "skipped": 0,
+      "solve_rate": 0.0,
+      "total_cost_usd": 0.028214602499999998,
+      "cost_per_solved_usd": null,
+      "input_tokens": 313535,
+      "output_tokens": 7778,
+      "avg_calls": 30.0,
+      "avg_latency_s": 120.76293399976566
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_hx2",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 94175,
+      "output_tokens": 2066,
+      "cost_usd": 0.00762663,
+      "provider_cost_calls": 30,
+      "latency_s": 76.30137800006196,
+      "detail": "end_reason=max_iterations score=0.22",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        2.581,
+        2.544,
+        1.36,
+        1.621,
+        0.982,
+        1.423,
+        1.302,
+        1.587,
+        1.431,
+        2.19,
+        1.161,
+        1.589,
+        1.721,
+        3.463,
+        5.837,
+        3.332,
+        2.83,
+        2.702,
+        2.742,
+        2.763,
+        2.095,
+        2.022,
+        3.468,
+        0.986,
+        3.185,
+        5.039,
+        2.728,
+        3.514,
+        4.5,
+        3.146
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_hx2|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.2222222222222222,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.2222222222222222,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "no_round_money_uses",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "no_deprecation_warning",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "compat_shim_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "totals",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "vat",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "coupons",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "shipping",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "invoice",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "loyalty",
+            "passed": false,
+            "detail": "points_value does not return Decimal"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"no_round_money_uses\", \"passed\": true}, {\"detail\": \"NameError\", \"name\": \"no_deprecation_warning\", \"passed\": false}, {\"detail\": \"\", \"name\": \"compat_shim_kept\", \"passed\": true}, {\"detail\": \"NameError\", \"name\": \"totals\", \"passed\": false}, {\"detail\": \"TypeError\", \"name\": \"vat\", \"passed\": false}, {\"detail\": \"NameError\", \"name\": \"coupons\", \"passed\": false}, {\"detail\": \"TypeError\", \"name\": \"shipping\", \"passed\": false}, {\"detail\": \"NameError\", \"name\": \"invoice\", \"passed\": false}, {\"detail\": \"points_value does not return Decimal\", \"name\": \"loyalty\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 30,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx2",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 98811,
+      "output_tokens": 2447,
+      "cost_usd": 0.00853517,
+      "provider_cost_calls": 30,
+      "latency_s": 100.99881899962202,
+      "detail": "end_reason=max_iterations score=0.33",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.157,
+        2.998,
+        2.428,
+        3.099,
+        2.664,
+        2.819,
+        1.915,
+        2.267,
+        2.02,
+        3.95,
+        1.867,
+        2.366,
+        2.059,
+        8.785,
+        2.471,
+        3.771,
+        4.116,
+        1.431,
+        1.803,
+        2.263,
+        1.392,
+        2.309,
+        6.256,
+        8.868,
+        3.438,
+        6.034,
+        3.327,
+        2.333,
+        5.227,
+        4.903
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_hx2|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.3333333333333333,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.3333333333333333,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "no_round_money_uses",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "no_deprecation_warning",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "compat_shim_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "totals",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "vat",
+            "passed": false,
+            "detail": "vat_amount half-up: expected Decimal('0.22'), got Decimal('0.215')"
+          },
+          {
+            "name": "coupons",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "shipping",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "invoice",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "loyalty",
+            "passed": false,
+            "detail": "points_value does not return Decimal"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"no_round_money_uses\", \"passed\": true}, {\"detail\": \"TypeError\", \"name\": \"no_deprecation_warning\", \"passed\": false}, {\"detail\": \"\", \"name\": \"compat_shim_kept\", \"passed\": true}, {\"detail\": \"NameError\", \"name\": \"totals\", \"passed\": false}, {\"detail\": \"vat_amount half-up: expected Decimal('0.22'), got Decimal('0.215')\", \"name\": \"vat\", \"passed\": false}, {\"detail\": \"TypeError\", \"name\": \"coupons\", \"passed\": false}, {\"detail\": \"TypeError\", \"name\": \"shipping\", \"passed\": false}, {\"detail\": \"\", \"name\": \"invoice\", \"passed\": true}, {\"detail\": \"points_value does not return Decimal\", \"name\": \"loyalty\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 27,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T11:57:26.135202+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p shop",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx2",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 120549,
+      "output_tokens": 3265,
+      "cost_usd": 0.0120528025,
+      "provider_cost_calls": 30,
+      "latency_s": 184.98860499961302,
+      "detail": "end_reason=max_iterations score=0.11",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.736,
+        2.756,
+        2.246,
+        5.553,
+        11.742,
+        3.343,
+        7.647,
+        4.132,
+        7.47,
+        3.482,
+        6.817,
+        1.804,
+        6.916,
+        3.413,
+        6.835,
+        1.965,
+        11.964,
+        3.407,
+        12.476,
+        3.787,
+        14.544,
+        3.083,
+        13.782,
+        3.342,
+        4.782,
+        4.144,
+        13.523,
+        3.309,
+        9.442,
+        5.291
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_hx2|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.1111111111111111,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.1111111111111111,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "no_round_money_uses",
+            "passed": false,
+            "detail": "round_money is still referenced outside shop/compat.py"
+          },
+          {
+            "name": "no_deprecation_warning",
+            "passed": false,
+            "detail": "DeprecationWarning"
+          },
+          {
+            "name": "compat_shim_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "totals",
+            "passed": false,
+            "detail": "line_total does not return Decimal"
+          },
+          {
+            "name": "vat",
+            "passed": false,
+            "detail": "vat_amount does not return Decimal"
+          },
+          {
+            "name": "coupons",
+            "passed": false,
+            "detail": "apply_percent does not return Decimal"
+          },
+          {
+            "name": "shipping",
+            "passed": false,
+            "detail": "shipping_cost does not return Decimal"
+          },
+          {
+            "name": "invoice",
+            "passed": false,
+            "detail": "item line missing or not half-up: 'bolt: 2.67\\nTOTAL: 2.67'"
+          },
+          {
+            "name": "loyalty",
+            "passed": false,
+            "detail": "points_value does not return Decimal"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"round_money is still referenced outside shop/compat.py\", \"name\": \"no_round_money_uses\", \"passed\": false}, {\"detail\": \"DeprecationWarning\", \"name\": \"no_deprecation_warning\", \"passed\": false}, {\"detail\": \"\", \"name\": \"compat_shim_kept\", \"passed\": true}, {\"detail\": \"line_total does not return Decimal\", \"name\": \"totals\", \"passed\": false}, {\"detail\": \"vat_amount does not return Decimal\", \"name\": \"vat\", \"passed\": false}, {\"detail\": \"apply_percent does not return Decimal\", \"name\": \"coupons\", \"passed\": false}, {\"detail\": \"shipping_cost does not return Decimal\", \"name\": \"shipping\", \"passed\": false}, {\"detail\": \"item line missing or not half-up: 'bolt: 2.67\\\\nTOTAL: 2.67'\", \"name\": \"invoice\", \"passed\": false}, {\"detail\": \"points_value does not return Decimal\", \"name\": \"loyalty\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 30,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 0,
+    "sensor_retries": 0,
+    "extra_calls": 0,
+    "extra_cost_usd": 0.0,
+    "escalations": 0
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "mistralai/mistral-small-3.2-24b-instruct react",
+      "bin": "hard",
+      "tasks": 3,
+      "solved": 0,
+      "cost_usd": 0.028214602499999998,
+      "wall_s": 362.288801999297
+    }
+  ],
+  "ab": null,
+  "aborted": null,
+  "cells": {
+    "executed": 3,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 362.2914430000819,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 362.288801999297,
+    "configs": [
+      {
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 90,
+        "p50_s": 3.091,
+        "max_s": 14.544,
+        "stalled_calls": 0,
+        "stall": false
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_hx2",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 30,
+        "p50_s": 2.5625,
+        "max_s": 5.837,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_hx2",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 30,
+        "p50_s": 2.5675,
+        "max_s": 8.868,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_hx2",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 30,
+        "p50_s": 4.463,
+        "max_s": 14.544,
+        "stalled_calls": 0,
+        "stall": false
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 3,
+  "runs_completed": 3,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": null,
+        "model": "mistralai/mistral-small-3.2-24b-instruct",
+        "protocol": "react",
+        "task": "e2e_hx2",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.009404867499999999,
+          "median": 0.00853517,
+          "stdev": 0.0023377405878473234
+        },
+        "tokens": {
+          "mean": 107104.33333333333,
+          "median": 101258.0,
+          "stdev": 14686.806743922702
+        },
+        "wall_s": {
+          "mean": 120.76293399976566,
+          "median": 100.99881899962202,
+          "stdev": 56.975376343795766
+        },
+        "total_cost_usd": 0.028214602499999998,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.2222222222222222
+      }
+    ],
+    "configs": [
+      {
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "total_cost_usd": 0.028214602499999998,
+        "cost_per_solved_usd": null,
+        "solved_per_dollar": 0.0,
+        "mean_cost_usd": 0.009404867499999999,
+        "score_mean": 0.2222222222222222
+      }
+    ],
+    "overall": {
+      "n": 3,
+      "solved": 0,
+      "total_cost_usd": 0.028214602499999998,
+      "solved_per_dollar": 0.0,
+      "score_mean": 0.2222222222222222
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 3,
+    "max_cost_usd": 0.24,
+    "runs": 3,
+    "total_max_usd": 0.15803999999999999,
+    "exceeds": false,
+    "suggested_repeats": 3,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": null,
+        "model": "mistralai/mistral-small-3.2-24b-instruct",
+        "protocol": "react",
+        "task": "e2e_hx2",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.08,
+        "per_run_usd": 0.05268,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.15803999999999999
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 3,
+    "full_pass": 0,
+    "mean_score": 0.2222222222222222,
+    "human_interventions_total": 0,
+    "policy_deny_total": 1,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

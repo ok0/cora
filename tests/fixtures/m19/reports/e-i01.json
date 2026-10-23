@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-20T00:20:47+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.3,
+    "max_task_cost_usd": 0.3,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_h01"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": false,
+      "tripwire": false,
+      "max_retries": 3,
+      "feedback_chars": 2000
+    },
+    "models": [
+      {
+        "id": "deepseek/deepseek-v3.2",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.28,
+        "output_usd_per_mtok": 0.42,
+        "supports_tools": true
+      }
+    ],
+    "repeats": 1,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_h01",
+          "wall_s": 2400.0,
+          "cost_usd": 0.3,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.03858846,
+  "total_calls": 30,
+  "provider_cost_calls": 30,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "attempted": 1,
+      "solved": 0,
+      "failed": 1,
+      "skipped": 0,
+      "solve_rate": 0.0,
+      "total_cost_usd": 0.03858846,
+      "cost_per_solved_usd": null,
+      "input_tokens": 218605,
+      "output_tokens": 11618,
+      "avg_calls": 30.0,
+      "avg_latency_s": 659.7036709999666
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_h01",
+      "kind": "e2e",
+      "model": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 218605,
+      "output_tokens": 11618,
+      "cost_usd": 0.03858846,
+      "provider_cost_calls": 30,
+      "latency_s": 659.7036709999666,
+      "detail": "end_reason=max_iterations score=0.62",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:deepseek/deepseek-v3.2"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        4.118,
+        2.184,
+        5.533,
+        5.203,
+        54.87,
+        52.679,
+        10.655,
+        3.783,
+        10.446,
+        3.127,
+        50.956,
+        7.013,
+        30.604,
+        3.445,
+        1.183,
+        69.331,
+        4.908,
+        41.961,
+        1.486,
+        40.285,
+        3.525,
+        20.621,
+        4.78,
+        1.704,
+        65.635,
+        3.175,
+        2.685,
+        3.906,
+        1.471,
+        27.495
+      ],
+      "run_id": "-|deepseek/deepseek-v3.2|react|e2e_h01|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.625,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.625,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_simple",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_quoted",
+            "passed": false,
+            "detail": "ValueError"
+          },
+          {
+            "name": "parse_line_endings",
+            "passed": false,
+            "detail": "empty line skipped: expected [['a'], ['b']], got [['a'], [''], ['b']]"
+          },
+          {
+            "name": "parse_unterminated",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_blank_and_empty",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_errors",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_output_and_exit_codes",
+            "passed": false,
+            "detail": "exit code: expected 0, got 1"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"parse_simple\", \"passed\": true}, {\"detail\": \"ValueError\", \"name\": \"parse_quoted\", \"passed\": false}, {\"detail\": \"empty line skipped: expected [['a'], ['b']], got [['a'], [''], ['b']]\", \"name\": \"parse_line_endings\", \"passed\": false}, {\"detail\": \"\", \"name\": \"parse_unterminated\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_blank_and_empty\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_errors\", \"passed\": true}, {\"detail\": \"exit code: expected 0, got 1\", \"name\": \"cli_output_and_exit_codes\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 33,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T00:12:03.551553+00:00",
+            "tool": "run_shell",
+            "args": "cd /private/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-e2e-_tpw5127/ws && python -m pytest tests/test_csvreport.py -q",
+            "decision": "deny",
+            "rule": "confine:cd",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 0,
+    "sensor_retries": 0,
+    "extra_calls": 0,
+    "extra_cost_usd": 0.0,
+    "escalations": 0
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "deepseek/deepseek-v3.2 react",
+      "bin": "hard",
+      "tasks": 1,
+      "solved": 0,
+      "cost_usd": 0.03858846,
+      "wall_s": 659.7036709999666
+    }
+  ],
+  "ab": null,
+  "aborted": null,
+  "cells": {
+    "executed": 1,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 659.7044839998707,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 659.7036709999666,
+    "configs": [
+      {
+        "config": "deepseek/deepseek-v3.2 react",
+        "calls": 30,
+        "p50_s": 5.0555,
+        "max_s": 69.331,
+        "stalled_calls": 2,
+        "stall": true
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_h01",
+        "config": "deepseek/deepseek-v3.2 react",
+        "calls": 30,
+        "p50_s": 5.0555,
+        "max_s": 69.331,
+        "stalled_calls": 2,
+        "stall": true
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 1,
+  "runs_completed": 1,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": null,
+        "model": "deepseek/deepseek-v3.2",
+        "protocol": "react",
+        "task": "e2e_h01",
+        "config": "deepseek/deepseek-v3.2 react",
+        "n": 1,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.03858846,
+          "median": 0.03858846,
+          "stdev": null
+        },
+        "tokens": {
+          "mean": 230223.0,
+          "median": 230223.0,
+          "stdev": null
+        },
+        "wall_s": {
+          "mean": 659.7036709999666,
+          "median": 659.7036709999666,
+          "stdev": null
+        },
+        "total_cost_usd": 0.03858846,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.625
+      }
+    ],
+    "configs": [
+      {
+        "config": "deepseek/deepseek-v3.2 react",
+        "n": 1,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "low_n": true,
+        "total_cost_usd": 0.03858846,
+        "cost_per_solved_usd": null,
+        "solved_per_dollar": 0.0,
+        "mean_cost_usd": 0.03858846,
+        "score_mean": 0.625
+      }
+    ],
+    "overall": {
+      "n": 1,
+      "solved": 0,
+      "total_cost_usd": 0.03858846,
+      "solved_per_dollar": 0.0,
+      "score_mean": 0.625
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 1,
+    "max_cost_usd": 0.3,
+    "runs": 1,
+    "total_max_usd": 0.1473024,
+    "exceeds": false,
+    "suggested_repeats": 1,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": null,
+        "model": "deepseek/deepseek-v3.2",
+        "protocol": "react",
+        "task": "e2e_h01",
+        "repeats": 1,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.3,
+        "per_run_usd": 0.1473024,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.1473024
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 1,
+    "full_pass": 0,
+    "mean_score": 0.625,
+    "human_interventions_total": 0,
+    "policy_deny_total": 1,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

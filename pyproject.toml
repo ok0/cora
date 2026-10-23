@@ -1,0 +1,40 @@
+[project]
+name = "cora"
+version = "0.1.0"
+description = "CORA - Cost-Oriented Routing Agent"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["httpx>=0.27", "typer>=0.16", "prompt_toolkit>=3.0.50", "rich>=13.7"]
+
+[project.scripts]
+cora = "cora.cli.main:app"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cora"]
+exclude = ["/src/cora/bench"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "live: real OpenRouter calls (needs OPENROUTER_API_KEY and --run-live)",
+    "pty: pseudo-terminal smoke tests (skipped where pty is unavailable)",
+    "install: offline wheel build / uv tool install checks (skipped without uv or cached packages)",
+    "slow: TUI/PTY, install, subprocess and timing tests; deselected unless --full or CORA_FULL_TESTS=1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["src/cora/bench/e2e_tasks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

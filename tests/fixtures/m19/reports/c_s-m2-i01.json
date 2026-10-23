@@ -1,0 +1,1634 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-20T13:06:50+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.42,
+    "max_task_cost_usd": 0.09,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_h01",
+      "e2e_h02"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": true,
+      "tripwire": true,
+      "max_retries": 3,
+      "feedback_chars": 2000,
+      "source": "auto",
+      "no_check_tasks": []
+    },
+    "models": [
+      {
+        "id": "qwen/qwen3-coder-30b-a3b-instruct",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.07,
+        "output_usd_per_mtok": 0.28,
+        "supports_tools": true
+      },
+      {
+        "id": "deepseek/deepseek-v3.2",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.28,
+        "output_usd_per_mtok": 0.42,
+        "supports_tools": true
+      }
+    ],
+    "ab": {
+      "arms": [
+        "auto-routed"
+      ],
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "strong_model": "deepseek/deepseek-v3.2",
+      "escalation_target": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "delegation_tool_groups": [
+        "core",
+        "delegate"
+      ],
+      "delegation": {
+        "explore_concurrency": 3,
+        "explore_max_calls": 6,
+        "max_steps": 6,
+        "max_tokens": 20000,
+        "summary_max_chars": 1200
+      },
+      "difficulty_thresholds_min": [
+        2.0,
+        10.0
+      ]
+    },
+    "repeats": 3,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_h01",
+          "wall_s": 2400.0,
+          "cost_usd": 0.09,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        },
+        {
+          "id": "e2e_h02",
+          "wall_s": 2400.0,
+          "cost_usd": 0.05,
+          "max_iterations": 25,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.23538502758,
+  "total_calls": 124,
+  "provider_cost_calls": 124,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    },
+    {
+      "model": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_h01",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 164165,
+      "output_tokens": 7318,
+      "cost_usd": 0.01791982,
+      "provider_cost_calls": 30,
+      "latency_s": 233.09747399995103,
+      "detail": "end_reason=max_iterations score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "stuck_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        35.12,
+        3.934,
+        16.214,
+        8.006,
+        10.651,
+        2.384,
+        3.14,
+        8.188,
+        3.151,
+        2.788,
+        2.632,
+        2.022,
+        2.182,
+        2.49,
+        3.071,
+        3.839,
+        9.559,
+        2.241,
+        3.253,
+        29.859,
+        7.239,
+        3.122,
+        3.734,
+        5.888,
+        3.437,
+        6.483,
+        3.862,
+        34.456,
+        3.689,
+        5.23
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h01|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_simple",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_quoted",
+            "passed": false,
+            "detail": "empty quoted field: expected [['']], got []"
+          },
+          {
+            "name": "parse_line_endings",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_unterminated",
+            "passed": false,
+            "detail": "message: expected 'unterminated quote at line 2', got 'unterminated quote at line 3'"
+          },
+          {
+            "name": "stats_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_blank_and_empty",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_errors",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_output_and_exit_codes",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"parse_simple\", \"passed\": true}, {\"detail\": \"empty quoted field: expected [['']], got []\", \"name\": \"parse_quoted\", \"passed\": false}, {\"detail\": \"\", \"name\": \"parse_line_endings\", \"passed\": true}, {\"detail\": \"message: expected 'unterminated quote at line 2', got 'unterminated quote at line 3'\", \"name\": \"parse_unterminated\", \"passed\": false}, {\"detail\": \"\", \"name\": \"stats_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_blank_and_empty\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_errors\", \"passed\": true}, {\"detail\": \"\", \"name\": \"cli_output_and_exit_codes\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 4,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 25,
+        "ask": 0,
+        "deny": 4,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T11:49:40.369246+00:00",
+            "tool": "run_shell",
+            "args": "echo \"\" | python -m csvreport /dev/stdin test",
+            "decision": "deny",
+            "rule": "floor:outside-workspace",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:49:45.033544+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport test.csv a",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:49:56.822461+00:00",
+            "tool": "run_shell",
+            "args": "python3 -c \"from csvreport.parser import parse_csv; print(repr(parse_csv(''))); print(repr(parse_csv('   '))); print(repr(parse_csv('\\n\\n'))); print(repr(parse_csv('a,b\\nc,d\\n'))); print(repr(parse_cs",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:51:02.072431+00:00",
+            "tool": "run_shell",
+            "args": "find . -name \"*.py\" -exec grep -l \"parse_csv\" {} \\;",
+            "decision": "deny",
+            "rule": "confine:find-exec",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h02",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 13,
+      "calls": 13,
+      "input_tokens": 120044,
+      "output_tokens": 18165,
+      "cost_usd": 0.026328439999999998,
+      "provider_cost_calls": 13,
+      "latency_s": 569.997707999777,
+      "detail": "end_reason=final_answer score=0.00",
+      "check_runs": 1,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "medium",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        50.148,
+        48.29,
+        74.921,
+        63.703,
+        13.092,
+        34.16,
+        32.773,
+        32.746,
+        17.09,
+        45.207,
+        3.006,
+        121.613,
+        31.363
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h02|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.0,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.0,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_amount",
+            "passed": false,
+            "detail": "-0.05: expected -5, got 5"
+          },
+          {
+            "name": "balance",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "balances",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "format_cents",
+            "passed": false,
+            "detail": "-1230: expected '-12.30', got '-$12.30'"
+          },
+          {
+            "name": "monthly_summary",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "load_lines",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "spec_unchanged",
+            "passed": false,
+            "detail": "tests/test_ledger.py sha256: expected '0636cf985bd9ebece79e15665f12e0ed7c37a9dce495ae628f710e0a710b6676', got '6b37192765aa49f68b3a179e66f87587e54bae1665b14eb323735edbefb54774'"
+          },
+          {
+            "name": "book_entries_kept",
+            "passed": false,
+            "detail": "AttributeError"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"-0.05: expected -5, got 5\", \"name\": \"parse_amount\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"balance\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"balances\", \"passed\": false}, {\"detail\": \"-1230: expected '-12.30', got '-$12.30'\", \"name\": \"format_cents\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"monthly_summary\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"load_lines\", \"passed\": false}, {\"detail\": \"tests/test_ledger.py sha256: expected '0636cf985bd9ebece79e15665f12e0ed7c37a9dce495ae628f710e0a710b6676', got '6b37192765aa49f68b3a179e66f87587e54bae1665b14eb323735edbefb54774'\", \"name\": \"spec_unchanged\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"book_entries_kept\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 3,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 61,
+        "ask": 0,
+        "deny": 3,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T11:57:50.313630+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.book import LedgerBook; b = LedgerBook(); print('Created successfully')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:57:50.316316+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.models import Entry; e = Entry('2023-01-01', 'Test', 100); print('Entry created successfully:', e)\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:57:50.316672+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.book import LedgerBook; b = LedgerBook(); print('Book created successfully')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h01",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 204922,
+      "output_tokens": 9664,
+      "cost_usd": 0.02996844,
+      "provider_cost_calls": 30,
+      "latency_s": 412.0531230000779,
+      "detail": "end_reason=final_answer score=0.88",
+      "check_runs": 1,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "stuck_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        2.733,
+        4.348,
+        22.115,
+        12.737,
+        10.437,
+        3.022,
+        3.612,
+        5.289,
+        4.831,
+        2.924,
+        8.165,
+        8.962,
+        33.228,
+        3.009,
+        7.697,
+        32.761,
+        1.997,
+        25.211,
+        2.311,
+        59.093,
+        2.222,
+        124.543,
+        1.946,
+        7.733,
+        1.768,
+        1.64,
+        4.094,
+        1.236,
+        1.727,
+        9.545
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h01|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.875,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.875,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_simple",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_quoted",
+            "passed": false,
+            "detail": "ValueError"
+          },
+          {
+            "name": "parse_line_endings",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_unterminated",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_blank_and_empty",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_errors",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_output_and_exit_codes",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"parse_simple\", \"passed\": true}, {\"detail\": \"ValueError\", \"name\": \"parse_quoted\", \"passed\": false}, {\"detail\": \"\", \"name\": \"parse_line_endings\", \"passed\": true}, {\"detail\": \"\", \"name\": \"parse_unterminated\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_blank_and_empty\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_errors\", \"passed\": true}, {\"detail\": \"\", \"name\": \"cli_output_and_exit_codes\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 2,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 27,
+        "ask": 0,
+        "deny": 2,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T12:02:59.082504+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import sys; sys.path.insert(0, '.'); from csvreport.parser import parse_csv; print('Test 1 - empty string:'); print(parse_csv(''))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:04:17.844406+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport test.csv col1",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h02",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "solved",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 18,
+      "calls": 18,
+      "input_tokens": 173233,
+      "output_tokens": 18713,
+      "cost_usd": 0.024890554999999998,
+      "provider_cost_calls": 18,
+      "latency_s": 557.9459339999594,
+      "detail": "end_reason=final_answer score=1.00",
+      "check_runs": 1,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "medium",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        99.958,
+        67.119,
+        31.176,
+        25.176,
+        16.396,
+        25.052,
+        50.279,
+        13.83,
+        19.47,
+        37.503,
+        18.491,
+        32.623,
+        12.747,
+        9.059,
+        19.772,
+        48.574,
+        21.306,
+        5.503
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h02|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 1.0,
+      "full_pass": true,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 1.0,
+        "full_pass": true,
+        "checks": [
+          {
+            "name": "parse_amount",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "balance",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "balances",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "format_cents",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "monthly_summary",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "load_lines",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "spec_unchanged",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "book_entries_kept",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"parse_amount\", \"passed\": true}, {\"detail\": \"\", \"name\": \"balance\", \"passed\": true}, {\"detail\": \"\", \"name\": \"balances\", \"passed\": true}, {\"detail\": \"\", \"name\": \"format_cents\", \"passed\": true}, {\"detail\": \"\", \"name\": \"monthly_summary\", \"passed\": true}, {\"detail\": \"\", \"name\": \"load_lines\", \"passed\": true}, {\"detail\": \"\", \"name\": \"spec_unchanged\", \"passed\": true}, {\"detail\": \"\", \"name\": \"book_entries_kept\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 8,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 56,
+        "ask": 0,
+        "deny": 8,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T12:13:38.664894+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.importer import load_lines; lines = ['2024-01-05;food;12.50;lunch']; book = load_lines(lines); print('Entries:', book.entries); print('Entry 0:', book.entries[0])\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:14:50.034606+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.importer import load_lines; try: load_lines(['', '# c', '2024-01-05;food;1.00']); print('No error'); except Exception as e: print('Error:', str(e))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:14:50.037640+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"lines = ['', '# c', '2024-01-05;food;1.00']; print('Lines:'); [print(f'{i+1}: {line}') for i, line in enumerate(lines)]; print('Expected: line 3, but got line 1')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:16:23.541202+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.importer import load_lines; from ledger.book import Book; print('Empty input:'); book = load_lines([]); print('Entries:', book.entries()); print('Balance of food:', book.balance",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:16:23.543104+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.importer import load_lines; from ledger.book import Book; print('Only comments and empty lines:'); book = load_lines(['# comment', '', '   ', '# another']); print('Entries:', bo",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:16:23.543625+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.report import format_cents; print('Format cents edge cases:'); print('Zero:', format_cents(0)); print('Negative:', format_cents(-123)); print('Small positive:', format_cents(50)",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:16:23.544422+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.importer import load_lines; from ledger.report import monthly_summary; from ledger.models import Entry; print('Testing monthly_summary with empty book:'); book = load_lines([]);",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:16:23.545395+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger.importer import load_lines; from ledger.book import Book; print('Single entry test:'); book = load_lines(['2024-01-01;food;10.00;test']); print('Entries:', book.entries()); prin",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h01",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "stopped_budget",
+      "budget_reason": "task",
+      "stop_reason": "cost_limit",
+      "iterations": 18,
+      "calls": 18,
+      "input_tokens": 174478,
+      "output_tokens": 46094,
+      "cost_usd": 0.08788702258,
+      "provider_cost_calls": 18,
+      "latency_s": 1470.6336779999547,
+      "detail": "end_reason=cost_limit score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        51.817,
+        98.089,
+        10.728,
+        42.102,
+        155.108,
+        60.741,
+        75.535,
+        125.104,
+        72.063,
+        23.999,
+        29.27,
+        98.878,
+        157.683,
+        21.032,
+        152.705,
+        139.269,
+        75.86,
+        76.464
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h01|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "cost_limit",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_simple",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_quoted",
+            "passed": false,
+            "detail": "empty quoted field: expected [['']], got []"
+          },
+          {
+            "name": "parse_line_endings",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "parse_unterminated",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_blank_and_empty",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "stats_errors",
+            "passed": false,
+            "detail": "non-numeric message: expected \"non-numeric value 'abc' in column 'v'\", got \"Cannot convert 'abc' to float\""
+          },
+          {
+            "name": "cli_output_and_exit_codes",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"parse_simple\", \"passed\": true}, {\"detail\": \"empty quoted field: expected [['']], got []\", \"name\": \"parse_quoted\", \"passed\": false}, {\"detail\": \"\", \"name\": \"parse_line_endings\", \"passed\": true}, {\"detail\": \"\", \"name\": \"parse_unterminated\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"stats_blank_and_empty\", \"passed\": true}, {\"detail\": \"non-numeric message: expected \\\"non-numeric value 'abc' in column 'v'\\\", got \\\"Cannot convert 'abc' to float\\\"\", \"name\": \"stats_errors\", \"passed\": false}, {\"detail\": \"\", \"name\": \"cli_output_and_exit_codes\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 10,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 103,
+        "ask": 0,
+        "deny": 10,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T12:21:02.623666+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport test.csv",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:21:02.624194+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport nonexistent.csv age",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:21:02.624609+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport test.csv nonexistent",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:21:02.625016+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport test3.csv age",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:21:02.625411+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport test4.csv age",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:21:02.626483+00:00",
+            "tool": "run_shell",
+            "args": "python -m csvreport empty.csv age",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:39:36.601590+00:00",
+            "tool": "run_shell",
+            "args": "find . -name \"__pycache__\" -type d",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:39:36.603010+00:00",
+            "tool": "run_shell",
+            "args": "find . -name \"__pycache__\" -type d -exec rm -rf {} +",
+            "decision": "deny",
+            "rule": "confine:find-exec",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:39:36.821413+00:00",
+            "tool": "run_shell",
+            "args": "find . -name \"*.pyc\" -type f",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:40:52.765034+00:00",
+            "tool": "run_shell",
+            "args": "rm -rf .pytest_cache",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h02",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "stopped_budget",
+      "budget_reason": "task",
+      "stop_reason": "cost_limit",
+      "iterations": 15,
+      "calls": 15,
+      "input_tokens": 145578,
+      "output_tokens": 36786,
+      "cost_usd": 0.04839075,
+      "provider_cost_calls": 15,
+      "latency_s": 1480.7695260001346,
+      "detail": "end_reason=cost_limit score=0.88",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "medium",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        3.156,
+        96.173,
+        71.241,
+        163.476,
+        163.189,
+        35.972,
+        184.14,
+        141.4,
+        95.005,
+        59.221,
+        70.549,
+        19.905,
+        151.765,
+        115.962,
+        104.596
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h02|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.875,
+      "full_pass": false,
+      "end_reason": "cost_limit",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.875,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_amount",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "balance",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "balances",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "format_cents",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "monthly_summary",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "load_lines",
+            "passed": false,
+            "detail": "entries: expected [Entry(date='2024-01-05', account='food', amount_cents=1250, memo='lunch'), Entry(date='2024-01-07', account='food', amount_cents=-300, memo=''), Entry(date='2024-02-01', account='rent', amount_cents=90000, memo='')], got [Entry(date='2024-01-05', account='food', amount_cents=1250,"
+          },
+          {
+            "name": "spec_unchanged",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "book_entries_kept",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"parse_amount\", \"passed\": true}, {\"detail\": \"\", \"name\": \"balance\", \"passed\": true}, {\"detail\": \"\", \"name\": \"balances\", \"passed\": true}, {\"detail\": \"\", \"name\": \"format_cents\", \"passed\": true}, {\"detail\": \"\", \"name\": \"monthly_summary\", \"passed\": true}, {\"detail\": \"entries: expected [Entry(date='2024-01-05', account='food', amount_cents=1250, memo='lunch'), Entry(date='2024-01-07', account='food', amount_cents=-300, memo=''), Entry(date='2024-02-01', account='rent', amount_cents=90000, memo='')], got [Entry(date='2024-01-05', account='food', amount_cents=1250,\", \"name\": \"load_lines\", \"passed\": false}, {\"detail\": \"\", \"name\": \"spec_unchanged\", \"passed\": true}, {\"detail\": \"\", \"name\": \"book_entries_kept\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 5,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 98,
+        "ask": 0,
+        "deny": 5,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T12:45:01.060320+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger import Book, Entry; book = Book(); book.add(Entry('2024-01-05', 'food', 1250, 'lunch')); book.add(Entry('2024-01-06', 'food', -300, 'dinner')); book.add(Entry('2024-01-07', 'tra",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:45:01.061722+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger import Book, Entry; book = Book(); print(dir(book))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:45:01.062158+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from ledger import Book, Entry; book = Book(); print(hasattr(book, 'balance')); print(hasattr(book, 'balances'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T12:47:44.819374+00:00",
+            "tool": "run_shell",
+            "args": "cd /private/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-e2e-8okkqd3j/ws && python -c 'from ledger.models import Entry; from ledger.book import Book; book = Book(); book.add(Entry(\"2024-01-05\"",
+            "decision": "deny",
+            "rule": "confine:cd",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T13:05:05.750914+00:00",
+            "tool": "run_shell",
+            "args": "find . -name \"*.pyc\" -o -name \"__pycache__\" | head -10",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 3,
+    "sensor_retries": 0,
+    "extra_calls": 0,
+    "extra_cost_usd": 0.0,
+    "escalations": 6
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "auto-routed",
+      "bin": "medium",
+      "tasks": 3,
+      "solved": 1,
+      "cost_usd": 0.099609745,
+      "wall_s": 2608.713167999871
+    },
+    {
+      "config": "auto-routed",
+      "bin": "hard",
+      "tasks": 3,
+      "solved": 0,
+      "cost_usd": 0.13577528258,
+      "wall_s": 2115.7842749999836
+    }
+  ],
+  "ab": {
+    "arms": [
+      "auto-routed"
+    ],
+    "rows": [
+      {
+        "arm": "auto-routed",
+        "alias": null,
+        "model": "auto",
+        "attempted": 6,
+        "solved": 1,
+        "skipped": 0,
+        "solve_rate": 0.16666666666666666,
+        "total_cost_usd": 0.23538502758,
+        "cost_per_solved_usd": 0.23538502758,
+        "resolved_per_dollar": 4.248358573529624,
+        "wall_s": 4724.497442999855,
+        "avg_latency_s": 787.4162404999757,
+        "deleg_invocations": 0,
+        "deleg_attempts": 0,
+        "deleg_attempts_unparsed": 0,
+        "deleg_explore": 0,
+        "deleg_general": 0,
+        "deleg_ok": 0,
+        "deleg_failed": 0,
+        "deleg_refused": 0,
+        "deleg_input_tokens": 0,
+        "deleg_output_tokens": 0,
+        "deleg_cost_usd": 0.0,
+        "deleg_wall_s": 0.0,
+        "deleg_max_fanout": 0,
+        "deleg_avoided_tokens_est": 0
+      }
+    ],
+    "per_task_tiers": [
+      {
+        "task": "e2e_h01",
+        "difficulty": "hard",
+        "cheap_only": null,
+        "strong_only": null,
+        "auto_routed": "stopped_budget",
+        "auto_tiers": [
+          "cheap",
+          "strong"
+        ],
+        "flags": []
+      },
+      {
+        "task": "e2e_h02",
+        "difficulty": "medium",
+        "cheap_only": null,
+        "strong_only": null,
+        "auto_routed": "stopped_budget",
+        "auto_tiers": [
+          "cheap",
+          "strong"
+        ],
+        "flags": []
+      }
+    ],
+    "note": "avoided_tokens_est is an estimate (sub-agent tool-result tokens minus the summary tokens returned to the main agent), not a counterfactual measurement. Each cell is one attempt: directional only."
+  },
+  "aborted": null,
+  "cells": {
+    "executed": 6,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 4724.514074999839,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 4724.497442999855,
+    "configs": [
+      {
+        "config": "auto-routed",
+        "calls": 124,
+        "p50_s": 18.9805,
+        "max_s": 184.14,
+        "stalled_calls": 29,
+        "stall": true
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_h01",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 3.7865,
+        "max_s": 35.12,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_h02",
+        "config": "auto-routed",
+        "calls": 13,
+        "p50_s": 34.16,
+        "max_s": 121.613,
+        "stalled_calls": 3,
+        "stall": true
+      },
+      {
+        "task": "e2e_h01",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 4.5895,
+        "max_s": 124.543,
+        "stalled_calls": 1,
+        "stall": true
+      },
+      {
+        "task": "e2e_h02",
+        "config": "auto-routed",
+        "calls": 18,
+        "p50_s": 23.179000000000002,
+        "max_s": 99.958,
+        "stalled_calls": 2,
+        "stall": true
+      },
+      {
+        "task": "e2e_h01",
+        "config": "auto-routed",
+        "calls": 18,
+        "p50_s": 75.69749999999999,
+        "max_s": 157.683,
+        "stalled_calls": 12,
+        "stall": true
+      },
+      {
+        "task": "e2e_h02",
+        "config": "auto-routed",
+        "calls": 15,
+        "p50_s": 96.173,
+        "max_s": 184.14,
+        "stalled_calls": 11,
+        "stall": true
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 6,
+  "runs_completed": 6,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h01",
+        "config": "auto-routed",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.045258427526666666,
+          "median": 0.02996844,
+          "stdev": 0.037405750201565356
+        },
+        "tokens": {
+          "mean": 202213.66666666666,
+          "median": 214586.0,
+          "stdev": 26781.307927980914
+        },
+        "wall_s": {
+          "mean": 705.2614249999946,
+          "median": 412.0531230000779,
+          "stdev": 668.8439992434263
+        },
+        "total_cost_usd": 0.13577528258,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.7916666666666666
+      },
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h02",
+        "config": "auto-routed",
+        "n": 3,
+        "solved": 1,
+        "solve_rate": 0.3333333333333333,
+        "wilson95": [
+          0.0614903152761605,
+          0.7923450448735121
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.03320324833333333,
+          "median": 0.026328439999999998,
+          "stdev": 0.013172396648847104
+        },
+        "tokens": {
+          "mean": 170839.66666666666,
+          "median": 182364.0,
+          "stdev": 28662.23972988387
+        },
+        "wall_s": {
+          "mean": 869.571055999957,
+          "median": 569.997707999777,
+          "stdev": 529.3477010548494
+        },
+        "total_cost_usd": 0.099609745,
+        "cost_per_solved_usd": 0.099609745,
+        "cost_per_solved_ci95": [
+          0.024890554999999998,
+          0.121672055
+        ],
+        "cost_per_solved_note": null,
+        "solved_per_dollar": 10.039178395647935,
+        "score_mean": 0.625
+      }
+    ],
+    "configs": [
+      {
+        "config": "auto-routed",
+        "n": 6,
+        "solved": 1,
+        "solve_rate": 0.16666666666666666,
+        "wilson95": [
+          0.03005258587173032,
+          0.563509436563646
+        ],
+        "low_n": false,
+        "total_cost_usd": 0.23538502758,
+        "cost_per_solved_usd": 0.23538502758,
+        "solved_per_dollar": 4.248358573529624,
+        "mean_cost_usd": 0.03923083793,
+        "score_mean": 0.7083333333333334
+      }
+    ],
+    "overall": {
+      "n": 6,
+      "solved": 1,
+      "total_cost_usd": 0.23538502758,
+      "solved_per_dollar": 4.248358573529624,
+      "score_mean": 0.7083333333333334
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 3,
+    "max_cost_usd": 0.42,
+    "runs": 6,
+    "total_max_usd": 0.42000000000000004,
+    "exceeds": false,
+    "suggested_repeats": 3,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h01",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.09,
+        "per_run_usd": 0.09,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.27
+      },
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h02",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 25,
+        "task_cap_usd": 0.05,
+        "per_run_usd": 0.05,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.15000000000000002
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 6,
+    "full_pass": 1,
+    "mean_score": 0.7083333333333334,
+    "human_interventions_total": 0,
+    "policy_deny_total": 32,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

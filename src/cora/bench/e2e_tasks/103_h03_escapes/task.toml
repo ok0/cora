@@ -1,0 +1,21 @@
+id = "e2e_h03"
+title = "Escaping helpers"
+difficulty = "hard"           # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["escapes/shell.py", "escapes/jsonstr.py", "escapes/winpath.py", "escapes/catalog.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.12
+max_iterations = 30
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

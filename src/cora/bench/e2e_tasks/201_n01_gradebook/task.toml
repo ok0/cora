@@ -1,0 +1,21 @@
+id = "e2e_n01"
+title = "Gradebook averages and report"
+difficulty = "medium"
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["gradebook/stats.py", "gradebook/cli.py", "tests/test_gradebook.py"]
+
+[limits]
+wall_s = 1800
+cost_usd = 0.05
+max_iterations = 25
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"
+
+[reference]
+dir = "reference"
+delete = []

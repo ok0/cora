@@ -1,0 +1,1220 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-21T11:53:49+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.42,
+    "max_task_cost_usd": 0.09,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_h06",
+      "e2e_hx1"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": false,
+      "tripwire": false,
+      "max_retries": 3,
+      "feedback_chars": 2000
+    },
+    "models": [
+      {
+        "id": "mistralai/mistral-small-3.2-24b-instruct",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.09375,
+        "output_usd_per_mtok": 0.25,
+        "supports_tools": true
+      }
+    ],
+    "repeats": 3,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_h06",
+          "wall_s": 2400.0,
+          "cost_usd": 0.09,
+          "max_iterations": 25,
+          "grader_timeout_s": 60.0
+        },
+        {
+          "id": "e2e_hx1",
+          "wall_s": 2400.0,
+          "cost_usd": 0.05,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.0346075325,
+  "total_calls": 103,
+  "provider_cost_calls": 103,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "attempted": 6,
+      "solved": 1,
+      "failed": 5,
+      "skipped": 0,
+      "solve_rate": 0.16666666666666666,
+      "total_cost_usd": 0.0346075325,
+      "cost_per_solved_usd": 0.0346075325,
+      "input_tokens": 413090,
+      "output_tokens": 16336,
+      "avg_calls": 17.166666666666668,
+      "avg_latency_s": 58.46014883338163
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_h06",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 25,
+      "calls": 25,
+      "input_tokens": 140366,
+      "output_tokens": 6198,
+      "cost_usd": 0.0119656125,
+      "provider_cost_calls": 25,
+      "latency_s": 114.50819500023499,
+      "detail": "end_reason=max_iterations score=0.25",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "medium",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        0.742,
+        1.642,
+        5.569,
+        2.892,
+        4.835,
+        3.874,
+        1.715,
+        6.293,
+        4.089,
+        14.326,
+        1.194,
+        2.189,
+        10.364,
+        1.125,
+        6.344,
+        0.855,
+        8.097,
+        1.096,
+        8.518,
+        1.06,
+        8.104,
+        1.495,
+        7.537,
+        1.634,
+        8.674
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_h06|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.25,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.25,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_hhmm",
+            "passed": false,
+            "detail": "IndentationError"
+          },
+          {
+            "name": "overlaps_half_open",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "invalid_interval",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "merge_touching_and_unsorted",
+            "passed": false,
+            "detail": "FrozenInstanceError"
+          },
+          {
+            "name": "book_conflicts",
+            "passed": false,
+            "detail": "IndentationError"
+          },
+          {
+            "name": "book_overnight",
+            "passed": false,
+            "detail": "IndentationError"
+          },
+          {
+            "name": "free_slots_basic",
+            "passed": false,
+            "detail": "IndentationError"
+          },
+          {
+            "name": "free_slots_edges",
+            "passed": false,
+            "detail": "IndentationError"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"IndentationError\", \"name\": \"parse_hhmm\", \"passed\": false}, {\"detail\": \"\", \"name\": \"overlaps_half_open\", \"passed\": true}, {\"detail\": \"\", \"name\": \"invalid_interval\", \"passed\": true}, {\"detail\": \"FrozenInstanceError\", \"name\": \"merge_touching_and_unsorted\", \"passed\": false}, {\"detail\": \"IndentationError\", \"name\": \"book_conflicts\", \"passed\": false}, {\"detail\": \"IndentationError\", \"name\": \"book_overnight\", \"passed\": false}, {\"detail\": \"IndentationError\", \"name\": \"free_slots_basic\", \"passed\": false}, {\"detail\": \"IndentationError\", \"name\": \"free_slots_edges\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 22,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T11:48:00.837807+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p booking",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx1",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 10,
+      "calls": 10,
+      "input_tokens": 26113,
+      "output_tokens": 1356,
+      "cost_usd": 0.002229675,
+      "provider_cost_calls": 10,
+      "latency_s": 31.260571000166237,
+      "detail": "end_reason=final_answer score=0.67",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.503,
+        1.959,
+        2.133,
+        4.901,
+        2.797,
+        2.176,
+        5.457,
+        4.475,
+        1.767,
+        3.894
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_hx1|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.6666666666666666,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.6666666666666666,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "answers_file_valid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q1_attempts",
+            "passed": false,
+            "detail": "q1: expected 5, got 4"
+          },
+          {
+            "name": "q2_env_var",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q3_status",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q4_function",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q5_delay",
+            "passed": false,
+            "detail": "q5: expected 3.0, got 2"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"answers_file_valid\", \"passed\": true}, {\"detail\": \"q1: expected 5, got 4\", \"name\": \"q1_attempts\", \"passed\": false}, {\"detail\": \"\", \"name\": \"q2_env_var\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q3_status\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q4_function\", \"passed\": true}, {\"detail\": \"q5: expected 3.0, got 2\", \"name\": \"q5_delay\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 9,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h06",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 11,
+      "calls": 11,
+      "input_tokens": 31217,
+      "output_tokens": 2205,
+      "cost_usd": 0.002782275,
+      "provider_cost_calls": 11,
+      "latency_s": 45.82662700023502,
+      "detail": "end_reason=final_answer score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "medium",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.232,
+        1.025,
+        5.405,
+        5.846,
+        4.383,
+        13.707,
+        3.722,
+        0.816,
+        3.642,
+        2.463,
+        3.101
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_h06|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_hhmm",
+            "passed": false,
+            "detail": "no exception from parse_hhmm"
+          },
+          {
+            "name": "overlaps_half_open",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "invalid_interval",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "merge_touching_and_unsorted",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "book_conflicts",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "book_overnight",
+            "passed": false,
+            "detail": "ValueError"
+          },
+          {
+            "name": "free_slots_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "free_slots_edges",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"no exception from parse_hhmm\", \"name\": \"parse_hhmm\", \"passed\": false}, {\"detail\": \"\", \"name\": \"overlaps_half_open\", \"passed\": true}, {\"detail\": \"\", \"name\": \"invalid_interval\", \"passed\": true}, {\"detail\": \"\", \"name\": \"merge_touching_and_unsorted\", \"passed\": true}, {\"detail\": \"\", \"name\": \"book_conflicts\", \"passed\": true}, {\"detail\": \"ValueError\", \"name\": \"book_overnight\", \"passed\": false}, {\"detail\": \"\", \"name\": \"free_slots_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"free_slots_edges\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 7,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T11:50:26.479988+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p booking",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx1",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "solved",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 20,
+      "calls": 20,
+      "input_tokens": 54961,
+      "output_tokens": 1381,
+      "cost_usd": 0.00549784375,
+      "provider_cost_calls": 20,
+      "latency_s": 44.59815899981186,
+      "detail": "end_reason=final_answer score=1.00",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.287,
+        2.019,
+        1.27,
+        2.783,
+        1.778,
+        2.356,
+        1.479,
+        2.087,
+        1.892,
+        4.965,
+        2.003,
+        1.471,
+        1.601,
+        1.923,
+        1.538,
+        3.303,
+        2.627,
+        2.113,
+        2.028,
+        3.601
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_hx1|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 1.0,
+      "full_pass": true,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 1.0,
+        "full_pass": true,
+        "checks": [
+          {
+            "name": "answers_file_valid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q1_attempts",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q2_env_var",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q3_status",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q4_function",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q5_delay",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"answers_file_valid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q1_attempts\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q2_env_var\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q3_status\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q4_function\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q5_delay\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 18,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h06",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 25,
+      "calls": 25,
+      "input_tokens": 122426,
+      "output_tokens": 3418,
+      "cost_usd": 0.00812447,
+      "provider_cost_calls": 25,
+      "latency_s": 78.29588799970224,
+      "detail": "end_reason=max_iterations score=0.38",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "medium",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        2.142,
+        1.182,
+        5.375,
+        4.289,
+        5.388,
+        13.551,
+        5.958,
+        1.78,
+        3.223,
+        1.586,
+        5.019,
+        1.88,
+        2.659,
+        1.194,
+        2.424,
+        1.337,
+        3.119,
+        1.338,
+        2.955,
+        1.294,
+        2.391,
+        1.196,
+        2.3,
+        1.147,
+        3.166
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_h06|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.375,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.375,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "parse_hhmm",
+            "passed": false,
+            "detail": "ValueError"
+          },
+          {
+            "name": "overlaps_half_open",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "invalid_interval",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "merge_touching_and_unsorted",
+            "passed": false,
+            "detail": "FrozenInstanceError"
+          },
+          {
+            "name": "book_conflicts",
+            "passed": false,
+            "detail": "FrozenInstanceError"
+          },
+          {
+            "name": "book_overnight",
+            "passed": false,
+            "detail": "FrozenInstanceError"
+          },
+          {
+            "name": "free_slots_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "free_slots_edges",
+            "passed": false,
+            "detail": "ValueError"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"ValueError\", \"name\": \"parse_hhmm\", \"passed\": false}, {\"detail\": \"\", \"name\": \"overlaps_half_open\", \"passed\": true}, {\"detail\": \"\", \"name\": \"invalid_interval\", \"passed\": true}, {\"detail\": \"FrozenInstanceError\", \"name\": \"merge_touching_and_unsorted\", \"passed\": false}, {\"detail\": \"FrozenInstanceError\", \"name\": \"book_conflicts\", \"passed\": false}, {\"detail\": \"FrozenInstanceError\", \"name\": \"book_overnight\", \"passed\": false}, {\"detail\": \"\", \"name\": \"free_slots_basic\", \"passed\": true}, {\"detail\": \"ValueError\", \"name\": \"free_slots_edges\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 22,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T11:51:57.975529+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p booking",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_hx1",
+      "kind": "e2e",
+      "model": "mistralai/mistral-small-3.2-24b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 12,
+      "calls": 12,
+      "input_tokens": 38007,
+      "output_tokens": 1778,
+      "cost_usd": 0.00400765625,
+      "provider_cost_calls": 12,
+      "latency_s": 36.271453000139445,
+      "detail": "end_reason=final_answer score=0.83",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "mistralai/mistral-small-3.2-24b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:mistralai/mistral-small-3.2-24b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.532,
+        2.593,
+        8.12,
+        1.69,
+        4.146,
+        3.655,
+        2.924,
+        1.83,
+        1.513,
+        1.412,
+        2.313,
+        4.354
+      ],
+      "run_id": "-|mistralai/mistral-small-3.2-24b-instruct|react|e2e_hx1|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.8333333333333334,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.8333333333333334,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "answers_file_valid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q1_attempts",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q2_env_var",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q3_status",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "q4_function",
+            "passed": false,
+            "detail": "q4: expected 'is_transient_failure', got 'should_retry'"
+          },
+          {
+            "name": "q5_delay",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"answers_file_valid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q1_attempts\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q2_env_var\", \"passed\": true}, {\"detail\": \"\", \"name\": \"q3_status\", \"passed\": true}, {\"detail\": \"q4: expected 'is_transient_failure', got 'should_retry'\", \"name\": \"q4_function\", \"passed\": false}, {\"detail\": \"\", \"name\": \"q5_delay\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 2,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 12,
+        "ask": 0,
+        "deny": 2,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T11:53:42.460535+00:00",
+            "tool": "run_shell",
+            "args": "jq empty ANSWERS.json",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T11:53:44.777240+00:00",
+            "tool": "run_shell",
+            "args": "python3 -c \"import json; f = open('ANSWERS.json'); data = json.load(f); f.close(); assert set(data.keys()) == {'q1', 'q2', 'q3', 'q4', 'q5'}; assert data['q1'] == 5; assert data['q2'] == 'RELAY_SPOOL_",
+            "decision": "deny",
+            "rule": "confine:brace",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 0,
+    "sensor_retries": 0,
+    "extra_calls": 0,
+    "extra_cost_usd": 0.0,
+    "escalations": 0
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "mistralai/mistral-small-3.2-24b-instruct react",
+      "bin": "medium",
+      "tasks": 3,
+      "solved": 0,
+      "cost_usd": 0.0228723575,
+      "wall_s": 238.63071000017226
+    },
+    {
+      "config": "mistralai/mistral-small-3.2-24b-instruct react",
+      "bin": "hard",
+      "tasks": 3,
+      "solved": 1,
+      "cost_usd": 0.011735175,
+      "wall_s": 112.13018300011754
+    }
+  ],
+  "ab": null,
+  "aborted": null,
+  "cells": {
+    "executed": 6,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 350.7668499997817,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 350.7608930002898,
+    "configs": [
+      {
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 103,
+        "p50_s": 2.356,
+        "max_s": 14.326,
+        "stalled_calls": 0,
+        "stall": false
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_h06",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 25,
+        "p50_s": 3.874,
+        "max_s": 14.326,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_hx1",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 10,
+        "p50_s": 2.4865000000000004,
+        "max_s": 5.457,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_h06",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 11,
+        "p50_s": 3.642,
+        "max_s": 13.707,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_hx1",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 20,
+        "p50_s": 2.011,
+        "max_s": 4.965,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_h06",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 25,
+        "p50_s": 2.391,
+        "max_s": 13.551,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_hx1",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "calls": 12,
+        "p50_s": 2.4530000000000003,
+        "max_s": 8.12,
+        "stalled_calls": 0,
+        "stall": false
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 6,
+  "runs_completed": 6,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": null,
+        "model": "mistralai/mistral-small-3.2-24b-instruct",
+        "protocol": "react",
+        "task": "e2e_h06",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.007624119166666666,
+          "median": 0.00812447,
+          "stdev": 0.004612069505876899
+        },
+        "tokens": {
+          "mean": 101943.33333333333,
+          "median": 125844.0,
+          "stdev": 60238.77025083873
+        },
+        "wall_s": {
+          "mean": 79.54357000005741,
+          "median": 78.29588799970224,
+          "stdev": 34.35777901022071
+        },
+        "total_cost_usd": 0.0228723575,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.4583333333333333
+      },
+      {
+        "arm": null,
+        "model": "mistralai/mistral-small-3.2-24b-instruct",
+        "protocol": "react",
+        "task": "e2e_hx1",
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "n": 3,
+        "solved": 1,
+        "solve_rate": 0.3333333333333333,
+        "wilson95": [
+          0.0614903152761605,
+          0.7923450448735121
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.0039117250000000004,
+          "median": 0.00400765625,
+          "stdev": 0.0016361949297574732
+        },
+        "tokens": {
+          "mean": 41198.666666666664,
+          "median": 39785.0,
+          "stdev": 14488.318478461651
+        },
+        "wall_s": {
+          "mean": 37.37672766670585,
+          "median": 36.271453000139445,
+          "stdev": 6.737138671460445
+        },
+        "total_cost_usd": 0.011735175,
+        "cost_per_solved_usd": 0.011735175,
+        "cost_per_solved_ci95": [
+          0.005497843749999999,
+          0.01351315625
+        ],
+        "cost_per_solved_note": null,
+        "solved_per_dollar": 85.2138975345489,
+        "score_mean": 0.8333333333333334
+      }
+    ],
+    "configs": [
+      {
+        "config": "mistralai/mistral-small-3.2-24b-instruct react",
+        "n": 6,
+        "solved": 1,
+        "solve_rate": 0.16666666666666666,
+        "wilson95": [
+          0.03005258587173032,
+          0.563509436563646
+        ],
+        "low_n": false,
+        "total_cost_usd": 0.0346075325,
+        "cost_per_solved_usd": 0.0346075325,
+        "solved_per_dollar": 28.895443499186193,
+        "mean_cost_usd": 0.005767922083333334,
+        "score_mean": 0.6458333333333334
+      }
+    ],
+    "overall": {
+      "n": 6,
+      "solved": 1,
+      "total_cost_usd": 0.0346075325,
+      "solved_per_dollar": 28.895443499186193,
+      "score_mean": 0.6458333333333334
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 3,
+    "max_cost_usd": 0.42,
+    "runs": 6,
+    "total_max_usd": 0.28170000000000006,
+    "exceeds": false,
+    "suggested_repeats": 3,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": null,
+        "model": "mistralai/mistral-small-3.2-24b-instruct",
+        "protocol": "react",
+        "task": "e2e_h06",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 25,
+        "task_cap_usd": 0.09,
+        "per_run_usd": 0.0439,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.1317
+      },
+      {
+        "arm": null,
+        "model": "mistralai/mistral-small-3.2-24b-instruct",
+        "protocol": "react",
+        "task": "e2e_hx1",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.05,
+        "per_run_usd": 0.05,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.15000000000000002
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 6,
+    "full_pass": 1,
+    "mean_score": 0.6458333333333334,
+    "human_interventions_total": 0,
+    "policy_deny_total": 5,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

@@ -1,0 +1,21 @@
+id = "e2e_todo_cli"
+title = "CLI todo app"
+difficulty = "easy"            # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["todo.py"]
+
+[limits]
+wall_s = 600
+cost_usd = 0.03
+max_iterations = 20
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

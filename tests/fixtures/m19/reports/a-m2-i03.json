@@ -1,0 +1,1485 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-19T14:12:29+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.45,
+    "max_task_cost_usd": 0.1,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_h04",
+      "e2e_h05"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": false,
+      "tripwire": false,
+      "max_retries": 3,
+      "feedback_chars": 2000
+    },
+    "models": [
+      {
+        "id": "qwen/qwen3-coder-30b-a3b-instruct",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.07,
+        "output_usd_per_mtok": 0.28,
+        "supports_tools": true
+      }
+    ],
+    "repeats": 3,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_h04",
+          "wall_s": 2400.0,
+          "cost_usd": 0.1,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        },
+        {
+          "id": "e2e_h05",
+          "wall_s": 2400.0,
+          "cost_usd": 0.05,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.08830941,
+  "total_calls": 127,
+  "provider_cost_calls": 127,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "attempted": 6,
+      "solved": 1,
+      "failed": 5,
+      "skipped": 0,
+      "solve_rate": 0.16666666666666666,
+      "total_cost_usd": 0.08830941,
+      "cost_per_solved_usd": 0.08830941,
+      "input_tokens": 910735,
+      "output_tokens": 87707,
+      "avg_calls": 21.166666666666668,
+      "avg_latency_s": 758.2706489999158
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "status": "error",
+      "budget_reason": null,
+      "stop_reason": null,
+      "iterations": 15,
+      "calls": 15,
+      "input_tokens": 139218,
+      "output_tokens": 22981,
+      "cost_usd": 0.01617994,
+      "provider_cost_calls": 15,
+      "latency_s": 1483.3039029999636,
+      "detail": "ProviderError: openrouter request failed: RequestDeadlineExceeded: no complete response within request_deadline_s=90s end_reason=error score=0.38",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:qwen/qwen3-coder-30b-a3b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        53.369,
+        168.598,
+        53.28,
+        138.856,
+        66.135,
+        43.279,
+        58.362,
+        199.555,
+        249.783,
+        7.137,
+        11.197,
+        12.436,
+        67.918,
+        67.515,
+        10.005,
+        273.019
+      ],
+      "run_id": "-|qwen/qwen3-coder-30b-a3b-instruct|react|e2e_h04|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.375,
+      "full_pass": false,
+      "end_reason": "error",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.375,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "precedence",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "power_and_unary",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "errors_lexer",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_parser",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "errors_runtime",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"tokenize_basic\", \"passed\": true}, {\"detail\": \"AttributeError\", \"name\": \"precedence\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"power_and_unary\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"variables_and_functions\", \"passed\": false}, {\"detail\": \"\", \"name\": \"errors_lexer\", \"passed\": true}, {\"detail\": \"AttributeError\", \"name\": \"errors_parser\", \"passed\": false}, {\"detail\": \"AttributeError\", \"name\": \"errors_runtime\", \"passed\": false}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 14,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 60,
+        "ask": 0,
+        "deny": 14,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-19T13:01:13.648209+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print(tokenize('2 + x1'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.727235+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('1 + 2 * 3'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.934900+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print(repr(tokenize('1 + 2'))); print('Testing tokenize function')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.935290+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print('Tokens for 1 + 2:'); result = tokenize('1 + 2'); print(result)\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.935537+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print('Testing empty string:'); print(repr(tokenize(''))); print('Testing whitespace only:'); print(repr(tokenize('   ')))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.935677+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print('Testing tokenize function'); print(tokenize('1 + 2'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.936455+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print('Testing tokenize:'); tokens = tokenize('1 + 2'); print('Tokens:', tokens); print('Token kinds:', [t.kind for t in tokens])\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:03:32.936596+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc.parser; print('Parser imported successfully')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:06:21.308045+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.evaluator import evaluate; from calc.parser import NumberNode; print('Import successful')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:09:41.128247+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print('Testing 1 + 2 * 3'); result = calc('1 + 2 * 3'); print('Result:', result); print('Expected: 7')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:13:58.497302+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print('Import successful'); print('1 + 2 * 3 =', calc('1 + 2 * 3'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:15:30.101758+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Import successful')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:16:37.947301+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print('Import successful')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:16:37.948510+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc.tokens; print('Tokens module imported successfully')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h05",
+      "kind": "e2e",
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "status": "solved",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 154360,
+      "output_tokens": 6874,
+      "cost_usd": 0.01272992,
+      "provider_cost_calls": 30,
+      "latency_s": 229.4364999998361,
+      "detail": "end_reason=max_iterations score=1.00",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:qwen/qwen3-coder-30b-a3b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        69.428,
+        2.715,
+        3.29,
+        2.629,
+        3.051,
+        1.89,
+        1.452,
+        6.088,
+        16.141,
+        17.044,
+        7.96,
+        15.308,
+        2.319,
+        2.134,
+        5.601,
+        4.229,
+        4.172,
+        2.443,
+        7.193,
+        2.63,
+        3.779,
+        8.96,
+        4.931,
+        2.329,
+        1.948,
+        8.795,
+        6.903,
+        3.869,
+        3.189,
+        5.695
+      ],
+      "run_id": "-|qwen/qwen3-coder-30b-a3b-instruct|react|e2e_h05|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 1.0,
+      "full_pass": true,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 1.0,
+        "full_pass": true,
+        "checks": [
+          {
+            "name": "existing_behaviour_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "model_default_and_validation",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_roundtrip",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_backward_compat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_sort_priority",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_add_invalid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "formatting_marker",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_add_and_list",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"existing_behaviour_kept\", \"passed\": true}, {\"detail\": \"\", \"name\": \"model_default_and_validation\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_roundtrip\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_backward_compat\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_sort_priority\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_add_invalid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"formatting_marker\", \"passed\": true}, {\"detail\": \"\", \"name\": \"cli_add_and_list\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 3,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 25,
+        "ask": 0,
+        "deny": 3,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-19T13:24:03.057323+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from tracker.models import Task; t = Task(1, 'a'); print('Priority:', t.priority)\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:24:23.571680+00:00",
+            "tool": "run_shell",
+            "args": "python -m tracker --db test.jsonl add \"test task\" --priority high",
+            "decision": "deny",
+            "rule": "confine:python-module",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:25:04.822045+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from tracker.models import Task; print('Default priority:', Task(1, 'test').priority); t = Task(1, 'test', priority='high'); print('High priority:', t.priority); print('Validation works:', ",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 213538,
+      "output_tokens": 17105,
+      "cost_usd": 0.01973706,
+      "provider_cost_calls": 30,
+      "latency_s": 628.5125469998457,
+      "detail": "end_reason=max_iterations score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:qwen/qwen3-coder-30b-a3b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.802,
+        3.998,
+        3.056,
+        2.493,
+        2.109,
+        1.78,
+        1.913,
+        10.321,
+        30.543,
+        69.169,
+        22.212,
+        4.495,
+        49.927,
+        2.442,
+        27.43,
+        2.682,
+        57.936,
+        13.058,
+        55.191,
+        3.695,
+        65.668,
+        4.622,
+        49.217,
+        4.244,
+        60.855,
+        5.012,
+        3.986,
+        56.618,
+        4.235,
+        5.649
+      ],
+      "run_id": "-|qwen/qwen3-coder-30b-a3b-instruct|react|e2e_h04|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "precedence",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "power_and_unary",
+            "passed": false,
+            "detail": "-2^2: expected -4, got 4.0"
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_lexer",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_parser",
+            "passed": false,
+            "detail": "unclosed paren at end: expected 'unexpected end of input', got '1'"
+          },
+          {
+            "name": "errors_runtime",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"tokenize_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"precedence\", \"passed\": true}, {\"detail\": \"-2^2: expected -4, got 4.0\", \"name\": \"power_and_unary\", \"passed\": false}, {\"detail\": \"\", \"name\": \"variables_and_functions\", \"passed\": true}, {\"detail\": \"\", \"name\": \"errors_lexer\", \"passed\": true}, {\"detail\": \"unclosed paren at end: expected 'unexpected end of input', got '1'\", \"name\": \"errors_parser\", \"passed\": false}, {\"detail\": \"\", \"name\": \"errors_runtime\", \"passed\": true}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 29,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-19T13:35:33.652770+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('-2^2'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h05",
+      "kind": "e2e",
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 20,
+      "calls": 20,
+      "input_tokens": 78883,
+      "output_tokens": 3639,
+      "cost_usd": 0.00654073,
+      "provider_cost_calls": 20,
+      "latency_s": 221.57491100020707,
+      "detail": "end_reason=final_answer score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:qwen/qwen3-coder-30b-a3b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        94.128,
+        6.806,
+        7.32,
+        12.88,
+        10.019,
+        7.391,
+        12.561,
+        3.221,
+        2.793,
+        8.794,
+        3.388,
+        3.486,
+        3.918,
+        2.864,
+        16.966,
+        3.009,
+        2.726,
+        3.581,
+        4.398,
+        10.55
+      ],
+      "run_id": "-|qwen/qwen3-coder-30b-a3b-instruct|react|e2e_h05|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "existing_behaviour_kept",
+            "passed": false,
+            "detail": "done unknown stderr: expected 'error: no task 9', got 'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/private/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-e2e-ho7rbok4/ws/tracker/__main__"
+          },
+          {
+            "name": "model_default_and_validation",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_roundtrip",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_backward_compat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_sort_priority",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_add_invalid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "formatting_marker",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_add_and_list",
+            "passed": false,
+            "detail": "add high exit: expected 0, got 1"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"done unknown stderr: expected 'error: no task 9', got 'Traceback (most recent call last):\\\\n  File \\\"<frozen runpy>\\\", line 203, in _run_module_as_main\\\\n  File \\\"<frozen runpy>\\\", line 88, in _run_code\\\\n  File \\\"/private/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-e2e-ho7rbok4/ws/tracker/__main__\", \"name\": \"existing_behaviour_kept\", \"passed\": false}, {\"detail\": \"\", \"name\": \"model_default_and_validation\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_roundtrip\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_backward_compat\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_sort_priority\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_add_invalid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"formatting_marker\", \"passed\": true}, {\"detail\": \"add high exit: expected 0, got 1\", \"name\": \"cli_add_and_list\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 4,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 13,
+        "ask": 0,
+        "deny": 4,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-19T13:38:32.505619+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p test_db && python -m tracker --db test_db/tasks.json add \"Test task\" --priority high",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:38:36.427396+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from tracker.models import Task; t = Task(1, 'test', False, 'high'); print('Task created successfully:', t)\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:39:05.860472+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import tracker.cli; print('CLI module loads correctly')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:39:10.263826+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import tracker; print('Tracker package imports correctly')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "final_answer",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 322717,
+      "output_tokens": 32392,
+      "cost_usd": 0.03165995,
+      "provider_cost_calls": 30,
+      "latency_s": 1469.7091329996474,
+      "detail": "end_reason=final_answer score=0.12",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:qwen/qwen3-coder-30b-a3b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        75.978,
+        264.192,
+        66.087,
+        20.002,
+        59.878,
+        26.082,
+        150.459,
+        28.668,
+        24.978,
+        46.858,
+        48.644,
+        19.972,
+        26.245,
+        11.165,
+        85.357,
+        19.249,
+        19.702,
+        25.109,
+        17.079,
+        171.675,
+        55.423,
+        55.606,
+        11.846,
+        39.971,
+        10.957,
+        13.897,
+        20.79,
+        14.339,
+        14.142,
+        21.093
+      ],
+      "run_id": "-|qwen/qwen3-coder-30b-a3b-instruct|react|e2e_h04|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.125,
+      "full_pass": false,
+      "end_reason": "final_answer",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.125,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "precedence",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "power_and_unary",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "errors_lexer",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "errors_parser",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "errors_runtime",
+            "passed": false,
+            "detail": "Exception"
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"Exception\", \"name\": \"tokenize_basic\", \"passed\": false}, {\"detail\": \"Exception\", \"name\": \"precedence\", \"passed\": false}, {\"detail\": \"Exception\", \"name\": \"power_and_unary\", \"passed\": false}, {\"detail\": \"Exception\", \"name\": \"variables_and_functions\", \"passed\": false}, {\"detail\": \"Exception\", \"name\": \"errors_lexer\", \"passed\": false}, {\"detail\": \"Exception\", \"name\": \"errors_parser\", \"passed\": false}, {\"detail\": \"Exception\", \"name\": \"errors_runtime\", \"passed\": false}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 10,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 91,
+        "ask": 0,
+        "deny": 10,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-19T13:40:36.971531+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p calc",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:46:29.713177+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print(tokenize('2 + x1'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:46:29.930225+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc.tokens; import calc.parser; import calc.evaluator; print('All modules imported successfully')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:46:29.930626+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import Token, tokenize; print('Tokenize test:'); print(tokenize('2 + x1'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:47:29.817503+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc.tokens import tokenize; print(tokenize('2 + x1'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:47:56.139306+00:00",
+            "tool": "run_shell",
+            "args": "find . -name '__init__.py' -type f",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:55:39.227262+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('1 + 2 * 3'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T13:55:39.227932+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('-2^2'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T14:02:42.162733+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print('1 + 2 * 3 =', calc('1 + 2 * 3')); print('2^3^2 =', calc('2^3^2')); print('-2^2 =', calc('-2^2')); print('max(1, 5) =', calc('max(1, 5)')); print('abs(-3) =', c",
+            "decision": "deny",
+            "rule": "confine:brace",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-19T14:03:02.957873+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print('Test results:'); print('1 + 2 * 3 =', calc('1 + 2 * 3')); print('2^3^2 =', calc('2^3^2')); print('-2^2 =', calc('-2^2')); print('max(1, 5) =', calc('max(1, 5)'",
+            "decision": "deny",
+            "rule": "confine:brace",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h05",
+      "kind": "e2e",
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "status": "error",
+      "budget_reason": null,
+      "stop_reason": null,
+      "iterations": 2,
+      "calls": 2,
+      "input_tokens": 2019,
+      "output_tokens": 4716,
+      "cost_usd": 0.00146181,
+      "provider_cost_calls": 2,
+      "latency_s": 517.0868999999948,
+      "detail": "ProviderError: openrouter request failed: RequestDeadlineExceeded: no complete response within request_deadline_s=90s end_reason=error score=0.62",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": false,
+      "arm": null,
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, pinned:qwen/qwen3-coder-30b-a3b-instruct"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        71.916,
+        171.819,
+        273.019
+      ],
+      "run_id": "-|qwen/qwen3-coder-30b-a3b-instruct|react|e2e_h05|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.625,
+      "full_pass": false,
+      "end_reason": "error",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.625,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "existing_behaviour_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "model_default_and_validation",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_roundtrip",
+            "passed": false,
+            "detail": "roundtrip: expected [Task(id=1, title='a', done=False, priority='normal'), Task(id=2, title='b', done=True, priority='high'), Task(id=3, title='c', done=False, priority='low')], got [Task(id=1, title='a', done=False, priority='normal'), Task(id=2, title='b', done=True, priority='normal'), Task(id=3,"
+          },
+          {
+            "name": "storage_backward_compat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_sort_priority",
+            "passed": false,
+            "detail": "sort priority: expected [3, 4, 2, 1], got [1, 2, 3, 4]"
+          },
+          {
+            "name": "service_add_invalid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "formatting_marker",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_add_and_list",
+            "passed": false,
+            "detail": "list sorted by priority: expected ['  1 [H] [ ] write docs', '  3 [N] [ ] plain', '  2 [L] [ ] fix bug'], got ['  1 [N] [ ] write docs', '  2 [N] [ ] fix bug', '  3 [N] [ ] plain']"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "sed\": true}, {\"detail\": \"\", \"name\": \"model_default_and_validation\", \"passed\": true}, {\"detail\": \"roundtrip: expected [Task(id=1, title='a', done=False, priority='normal'), Task(id=2, title='b', done=True, priority='high'), Task(id=3, title='c', done=False, priority='low')], got [Task(id=1, title='a', done=False, priority='normal'), Task(id=2, title='b', done=True, priority='normal'), Task(id=3,\", \"name\": \"storage_roundtrip\", \"passed\": false}, {\"detail\": \"\", \"name\": \"storage_backward_compat\", \"passed\": true}, {\"detail\": \"sort priority: expected [3, 4, 2, 1], got [1, 2, 3, 4]\", \"name\": \"service_sort_priority\", \"passed\": false}, {\"detail\": \"\", \"name\": \"service_add_invalid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"formatting_marker\", \"passed\": true}, {\"detail\": \"list sorted by priority: expected ['  1 [H] [ ] write docs', '  3 [N] [ ] plain', '  2 [L] [ ] fix bug'], got ['  1 [N] [ ] write docs', '  2 [N] [ ] fix bug', '  3 [N] [ ] plain']\", \"name\": \"cli_add_and_list\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 8,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 0,
+    "sensor_retries": 0,
+    "extra_calls": 0,
+    "extra_cost_usd": 0.0,
+    "escalations": 0
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+      "bin": "hard",
+      "tasks": 6,
+      "solved": 1,
+      "cost_usd": 0.08830941,
+      "wall_s": 4549.623893999495
+    }
+  ],
+  "ab": null,
+  "aborted": null,
+  "cells": {
+    "executed": 6,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 4549.632273999974,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 4549.623893999495,
+    "configs": [
+      {
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 129,
+        "p50_s": 11.197,
+        "max_s": 273.019,
+        "stalled_calls": 22,
+        "stall": true
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_h04",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 16,
+        "p50_s": 62.24850000000001,
+        "max_s": 273.019,
+        "stalled_calls": 8,
+        "stall": true
+      },
+      {
+        "task": "e2e_h05",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 30,
+        "p50_s": 4.0205,
+        "max_s": 69.428,
+        "stalled_calls": 1,
+        "stall": true
+      },
+      {
+        "task": "e2e_h04",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 30,
+        "p50_s": 4.817,
+        "max_s": 69.169,
+        "stalled_calls": 3,
+        "stall": true
+      },
+      {
+        "task": "e2e_h05",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 20,
+        "p50_s": 5.602,
+        "max_s": 94.128,
+        "stalled_calls": 1,
+        "stall": true
+      },
+      {
+        "task": "e2e_h04",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 30,
+        "p50_s": 25.5955,
+        "max_s": 264.192,
+        "stalled_calls": 6,
+        "stall": true
+      },
+      {
+        "task": "e2e_h05",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "calls": 3,
+        "p50_s": 171.819,
+        "max_s": 273.019,
+        "stalled_calls": 3,
+        "stall": true
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 6,
+  "runs_completed": 6,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": null,
+        "model": "qwen/qwen3-coder-30b-a3b-instruct",
+        "protocol": "react",
+        "task": "e2e_h04",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.022525649999999998,
+          "median": 0.01973706,
+          "stdev": 0.008108011657681555
+        },
+        "tokens": {
+          "mean": 249317.0,
+          "median": 230643.0,
+          "stdev": 97801.35853862154
+        },
+        "wall_s": {
+          "mean": 1193.841860999819,
+          "median": 1469.7091329996474,
+          "stdev": 489.63673207144154
+        },
+        "total_cost_usd": 0.06757695,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.4166666666666667
+      },
+      {
+        "arm": null,
+        "model": "qwen/qwen3-coder-30b-a3b-instruct",
+        "protocol": "react",
+        "task": "e2e_h05",
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "n": 3,
+        "solved": 1,
+        "solve_rate": 0.3333333333333333,
+        "wilson95": [
+          0.0614903152761605,
+          0.7923450448735121
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.006910820000000001,
+          "median": 0.00654073,
+          "stdev": 0.005643164068065008
+        },
+        "tokens": {
+          "mean": 83497.0,
+          "median": 82522.0,
+          "stdev": 77254.11457650654
+        },
+        "wall_s": {
+          "mean": 322.69943700001267,
+          "median": 229.4364999998361,
+          "stdev": 168.39036633393502
+        },
+        "total_cost_usd": 0.02073246,
+        "cost_per_solved_usd": 0.02073246,
+        "cost_per_solved_ci95": [
+          0.01272992,
+          0.025811380000000002
+        ],
+        "cost_per_solved_note": null,
+        "solved_per_dollar": 48.23354295631102,
+        "score_mean": 0.7916666666666666
+      }
+    ],
+    "configs": [
+      {
+        "config": "qwen/qwen3-coder-30b-a3b-instruct react",
+        "n": 6,
+        "solved": 1,
+        "solve_rate": 0.16666666666666666,
+        "wilson95": [
+          0.03005258587173032,
+          0.563509436563646
+        ],
+        "low_n": false,
+        "total_cost_usd": 0.08830941,
+        "cost_per_solved_usd": 0.08830941,
+        "solved_per_dollar": 11.32382154970801,
+        "mean_cost_usd": 0.014718235000000001,
+        "score_mean": 0.6041666666666666
+      }
+    ],
+    "overall": {
+      "n": 6,
+      "solved": 1,
+      "total_cost_usd": 0.08830941,
+      "solved_per_dollar": 11.32382154970801,
+      "score_mean": 0.6041666666666666
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 3,
+    "max_cost_usd": 0.45,
+    "runs": 6,
+    "total_max_usd": 0.2532096,
+    "exceeds": false,
+    "suggested_repeats": 3,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": null,
+        "model": "qwen/qwen3-coder-30b-a3b-instruct",
+        "protocol": "react",
+        "task": "e2e_h04",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.1,
+        "per_run_usd": 0.0422016,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.1266048
+      },
+      {
+        "arm": null,
+        "model": "qwen/qwen3-coder-30b-a3b-instruct",
+        "protocol": "react",
+        "task": "e2e_h05",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.05,
+        "per_run_usd": 0.0422016,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.1266048
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 6,
+    "full_pass": 1,
+    "mean_score": 0.6041666666666666,
+    "human_interventions_total": 0,
+    "policy_deny_total": 32,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

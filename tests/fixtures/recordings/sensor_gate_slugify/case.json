@@ -1,0 +1,8 @@
+{
+ "task": "Fix slugify in slug.py so that `python3 check.py` prints ok. Do not edit check.py.",
+ "check": "python3 check.py",
+ "files": {
+  "slug.py": "def slugify(text):\n    return text.lower().replace(' ', '_')\n",
+  "check.py": "from slug import slugify\n\ncases = {'Hello World': 'hello-world', '  Many   Spaces ': 'many-spaces', 'A-B c': 'a-b-c'}\nbad = [k for k in cases if slugify(k) != cases[k]]\nif bad:\n    print('FAIL', bad)\n    raise SystemExit(1)\nprint('ok')\n"
+ }
+}

@@ -1,0 +1,10 @@
+"""Shipping costs: weight in kilograms times the per-kilogram rate of the zone."""
+
+from shop.compat import round_money
+
+RATES = {"local": "1.20", "eu": "2.35", "world": "3.90"}
+
+
+def shipping_cost(weight_kg, zone: str) -> float:
+    """Return the shipping cost for a parcel of ``weight_kg`` sent to ``zone``."""
+    return round_money(float(weight_kg) * float(RATES[zone]))

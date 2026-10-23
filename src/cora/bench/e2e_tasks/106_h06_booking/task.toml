@@ -1,0 +1,21 @@
+id = "e2e_h06"
+title = "Room booking windows"
+difficulty = "medium"         # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["booking/timeparse.py", "booking/intervals.py", "booking/rooms.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.09
+max_iterations = 25
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

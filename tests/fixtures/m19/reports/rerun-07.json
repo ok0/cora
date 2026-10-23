@@ -1,0 +1,577 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-21T01:50:40+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.1,
+    "max_task_cost_usd": 0.1,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_h04"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": true,
+      "tripwire": true,
+      "max_retries": 3,
+      "feedback_chars": 2000,
+      "source": "auto",
+      "no_check_tasks": []
+    },
+    "models": [
+      {
+        "id": "qwen/qwen3-coder-30b-a3b-instruct",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.07,
+        "output_usd_per_mtok": 0.28,
+        "supports_tools": true
+      },
+      {
+        "id": "deepseek/deepseek-v3.2",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.28,
+        "output_usd_per_mtok": 0.42,
+        "supports_tools": true
+      }
+    ],
+    "ab": {
+      "arms": [
+        "auto-routed"
+      ],
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "strong_model": "deepseek/deepseek-v3.2",
+      "escalation_target": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "delegation_tool_groups": [
+        "core",
+        "delegate"
+      ],
+      "delegation": {
+        "explore_concurrency": 3,
+        "explore_max_calls": 6,
+        "max_steps": 6,
+        "max_tokens": 20000,
+        "summary_max_chars": 1200
+      },
+      "difficulty_thresholds_min": [
+        2.0,
+        10.0
+      ]
+    },
+    "repeats": 1,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_h04",
+          "wall_s": 2400.0,
+          "cost_usd": 0.1,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.0462253752,
+  "total_calls": 30,
+  "provider_cost_calls": 30,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    },
+    {
+      "model": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 350207,
+      "output_tokens": 26024,
+      "cost_usd": 0.0462253752,
+      "provider_cost_calls": 30,
+      "latency_s": 1149.6532580000348,
+      "detail": "end_reason=max_iterations score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "qwen/qwen3-coder-30b-a3b-instruct",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        12.544,
+        195.438,
+        52.122,
+        6.237,
+        18.576,
+        21.515,
+        212.444,
+        35.231,
+        85.348,
+        120.903,
+        113.564,
+        12.424,
+        136.039,
+        36.24,
+        2.821,
+        8.507,
+        2.799,
+        3.63,
+        2.998,
+        4.671,
+        4.129,
+        2.21,
+        2.568,
+        2.067,
+        1.69,
+        2.462,
+        1.957,
+        3.788,
+        16.388,
+        27.058
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h04|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "precedence",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "power_and_unary",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_lexer",
+            "passed": false,
+            "detail": "AttributeError"
+          },
+          {
+            "name": "errors_parser",
+            "passed": false,
+            "detail": "unclosed paren at end: expected 'unexpected end of input', got \"expected ')'\""
+          },
+          {
+            "name": "errors_runtime",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"tokenize_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"precedence\", \"passed\": true}, {\"detail\": \"\", \"name\": \"power_and_unary\", \"passed\": true}, {\"detail\": \"\", \"name\": \"variables_and_functions\", \"passed\": true}, {\"detail\": \"AttributeError\", \"name\": \"errors_lexer\", \"passed\": false}, {\"detail\": \"unclosed paren at end: expected 'unexpected end of input', got \\\"expected ')'\\\"\", \"name\": \"errors_parser\", \"passed\": false}, {\"detail\": \"\", \"name\": \"errors_runtime\", \"passed\": true}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 8,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 63,
+        "ask": 0,
+        "deny": 8,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-21T01:34:58.733319+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p calc",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:35:57.120528+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Import successful'); result = calc.calc('1 + 2 * 3'); print(f'1 + 2 * 3 = {result}')\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:42:10.467731+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Basic test: 1 + 2 * 3 =', calc.calc('1 + 2 * 3')); print('Function test: min(4, 2, 9) =', calc.calc('min(4, 2, 9'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:42:10.468788+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Testing error cases:'); print('Empty input:'); try: calc.calc(''); except Exception as e: print('  Got error:', str(e)[:50]); print('Division by zero:'); try: calc.calc(",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:44:11.383300+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('1 + 2 * 3 =', calc.calc('1 + 2 * 3')); print('2^3^2 =', calc.calc('2^3^2')); print('min(4, 2, 9) =', calc.calc('min(4, 2, 9'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:44:11.383718+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Testing edge cases:'); print('Unary minus:', calc.calc('-5')); print('Unary plus:', calc.calc('+5')); print('Complex unary:', calc.calc('-(-5)')); print('Parentheses:', ",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:44:11.438726+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Testing requirements examples:'); print('1 + 2 * 3 =', calc.calc('1 + 2 * 3')); print('10 - 4 - 3 =', calc.calc('10 - 4 - 3')); print('2^3^2 =', calc.calc('2^3^2')); pri",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-21T01:44:11.439692+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import calc; print('Testing error cases:'); try: calc.calc(''); print('Empty string: No error'); except Exception as e: print('Empty string error:', str(e)[:50]); try: calc.calc('1 +'); pri",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 0,
+    "sensor_retries": 0,
+    "extra_calls": 0,
+    "extra_cost_usd": 0.0,
+    "escalations": 1
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "auto-routed",
+      "bin": "hard",
+      "tasks": 1,
+      "solved": 0,
+      "cost_usd": 0.0462253752,
+      "wall_s": 1149.6532580000348
+    }
+  ],
+  "ab": {
+    "arms": [
+      "auto-routed"
+    ],
+    "rows": [
+      {
+        "arm": "auto-routed",
+        "alias": null,
+        "model": "auto",
+        "attempted": 1,
+        "solved": 0,
+        "skipped": 0,
+        "solve_rate": 0.0,
+        "total_cost_usd": 0.0462253752,
+        "cost_per_solved_usd": null,
+        "resolved_per_dollar": 0.0,
+        "wall_s": 1149.6532580000348,
+        "avg_latency_s": 1149.6532580000348,
+        "deleg_invocations": 0,
+        "deleg_attempts": 0,
+        "deleg_attempts_unparsed": 0,
+        "deleg_explore": 0,
+        "deleg_general": 0,
+        "deleg_ok": 0,
+        "deleg_failed": 0,
+        "deleg_refused": 0,
+        "deleg_input_tokens": 0,
+        "deleg_output_tokens": 0,
+        "deleg_cost_usd": 0.0,
+        "deleg_wall_s": 0.0,
+        "deleg_max_fanout": 0,
+        "deleg_avoided_tokens_est": 0
+      }
+    ],
+    "per_task_tiers": [
+      {
+        "task": "e2e_h04",
+        "difficulty": "hard",
+        "cheap_only": null,
+        "strong_only": null,
+        "auto_routed": "failed",
+        "auto_tiers": [
+          "cheap",
+          "strong"
+        ],
+        "flags": []
+      }
+    ],
+    "note": "avoided_tokens_est is an estimate (sub-agent tool-result tokens minus the summary tokens returned to the main agent), not a counterfactual measurement. Each cell is one attempt: directional only."
+  },
+  "aborted": null,
+  "cells": {
+    "executed": 1,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 1149.6594209996983,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 1149.6532580000348,
+    "configs": [
+      {
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 10.465499999999999,
+        "max_s": 212.444,
+        "stalled_calls": 6,
+        "stall": true
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_h04",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 10.465499999999999,
+        "max_s": 212.444,
+        "stalled_calls": 6,
+        "stall": true
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 1,
+  "runs_completed": 1,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h04",
+        "config": "auto-routed",
+        "n": 1,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.0462253752,
+          "median": 0.0462253752,
+          "stdev": null
+        },
+        "tokens": {
+          "mean": 376231.0,
+          "median": 376231.0,
+          "stdev": null
+        },
+        "wall_s": {
+          "mean": 1149.6532580000348,
+          "median": 1149.6532580000348,
+          "stdev": null
+        },
+        "total_cost_usd": 0.0462253752,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.75
+      }
+    ],
+    "configs": [
+      {
+        "config": "auto-routed",
+        "n": 1,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "low_n": true,
+        "total_cost_usd": 0.0462253752,
+        "cost_per_solved_usd": null,
+        "solved_per_dollar": 0.0,
+        "mean_cost_usd": 0.0462253752,
+        "score_mean": 0.75
+      }
+    ],
+    "overall": {
+      "n": 1,
+      "solved": 0,
+      "total_cost_usd": 0.0462253752,
+      "solved_per_dollar": 0.0,
+      "score_mean": 0.75
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 1,
+    "max_cost_usd": 0.1,
+    "runs": 1,
+    "total_max_usd": 0.1,
+    "exceeds": false,
+    "suggested_repeats": 1,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h04",
+        "repeats": 1,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.1,
+        "per_run_usd": 0.1,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.1
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 1,
+    "full_pass": 0,
+    "mean_score": 0.75,
+    "human_interventions_total": 0,
+    "policy_deny_total": 8,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

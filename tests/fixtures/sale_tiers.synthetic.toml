@@ -1,0 +1,16 @@
+# SYNTHETIC / PLACEHOLDER tier table - 실측 아님 (not measured).
+# Round illustrative numbers only; they are NOT benchmark results.
+# Replace cost and solve_rate with your own live bench results and pass the file
+# with `cora sale eval --tiers FILE` or [sale] tiers_file. Order: cheapest -> strongest.
+placeholder = true            # set to false only after every value is measured
+unit = "arbitrary cost units"
+
+[[tiers]]
+name = "cheap"
+cost = 1.0                    # PLACEHOLDER: cost of a size-1 plan, in `unit`
+solve_rate = 0.6              # PLACEHOLDER: chance to solve a typical task
+
+[[tiers]]
+name = "strong"
+cost = 10.0                   # PLACEHOLDER
+solve_rate = 0.9              # PLACEHOLDER

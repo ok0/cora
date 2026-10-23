@@ -1,0 +1,253 @@
+# Model catalog. Change models/tiers/prices here only. API keys come from env vars.
+# Prices are USD per 1M tokens (approximate; verify on openrouter.ai/models).
+
+[providers.openrouter]
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+timeout_s = 120
+request_deadline_s = 90        # total time per HTTP attempt incl. body (keep-alive bytes do not extend it); retried like a network error
+stream_stall_timeout_s = 30    # streaming: stop an attempt when no data chunk arrives for this long; same retries
+# provider_sort = "throughput" # optional OpenRouter provider routing: "throughput" | "latency" | "price" (unset = OpenRouter default)
+# require_parameters = true  # optional: route only to endpoints that support every request parameter (e.g. tools for native runs); unset = OpenRouter default
+
+[providers.gemini]
+type = "openai_compat"
+base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
+api_key_env = "GEMINI_API_KEY"   # free-tier key from the environment only; never put the key here
+rpm_limit = 5                    # conservative default (free tier); raise only with probe evidence of a higher sustained rate without 429
+# max_429_retries = 4            # 429 retries (Retry-After honored, else backoff 1,2,4,8 s)
+
+[[models]]   # default cheap model (first cheap entry; evidence in .docs/bench-results.md); price OpenRouter /api/v1/models 2026-10-18
+id = "google/gemini-2.5-flash-lite"
+provider = "openrouter"
+tier = "cheap"
+input_usd_per_mtok = 0.10
+output_usd_per_mtok = 0.40
+context_tokens = 1048576
+supports_tools = true
+
+[[models]]   # strong tier (ADR-21): DeepSeek V3.2. Price: .ensemble/research/strong-tier-model.md (options table $0.26/$0.38; C5 range $0.21-0.28 in / $0.31-0.42 out, cache read $0.02-0.14 -> 0.14 used, upper bound). Price OpenRouter /api/v1/models 2026-10-18 (in 0.28, out 0.42, cache read 0.028; was 0.26 / 0.38 / 0.14).
+id = "deepseek/deepseek-v3.2"
+provider = "openrouter"
+tier = "strong"
+input_usd_per_mtok = 0.28
+output_usd_per_mtok = 0.42
+cache_read_usd_per_mtok = 0.028
+context_tokens = 128000
+supports_tools = true
+
+[[models]]   # former strong tier (until M12); kept for pins and old records only, not a cheap-tier recommendation
+id = "moonshotai/kimi-k2-0905"
+provider = "openrouter"
+tier = "cheap"
+input_usd_per_mtok = 0.60
+output_usd_per_mtok = 2.50
+context_tokens = 128000
+supports_tools = true
+
+[[models]]
+id = "deepseek/deepseek-chat-v3.1"
+provider = "openrouter"
+tier = "cheap"
+input_usd_per_mtok = 0.20
+output_usd_per_mtok = 0.80
+context_tokens = 128000
+supports_tools = true
+
+[[models]]   # bench candidate (live price 2026-10-14; OpenRouter /api/v1/models 2026-10-18)
+id = "qwen/qwen3-coder-30b-a3b-instruct"
+provider = "openrouter"
+tier = "cheap"
+input_usd_per_mtok = 0.07
+output_usd_per_mtok = 0.28
+context_tokens = 262144
+supports_tools = true
+
+[[models]]   # OpenRouter /api/v1/models 2026-10-18 (was 0.094 in)
+id = "mistralai/mistral-small-3.2-24b-instruct"
+provider = "openrouter"
+tier = "cheap"
+input_usd_per_mtok = 0.09375
+output_usd_per_mtok = 0.25
+context_tokens = 128000
+supports_tools = true
+
+[[models]]   # Gemini free tier via the OpenAI-compatible endpoint: $0, cost_source = "free_tier"; never the default model
+id = "gemini-3.5-flash-lite"
+provider = "gemini"
+tier = "cheap"
+input_usd_per_mtok = 0.0
+output_usd_per_mtok = 0.0
+free_tier = true
+context_tokens = 1048576
+supports_tools = true
+
+[[models]]
+id = "gemini-3.1-flash-lite"
+provider = "gemini"
+tier = "cheap"
+input_usd_per_mtok = 0.0
+output_usd_per_mtok = 0.0
+free_tier = true
+context_tokens = 1048576
+supports_tools = true
+
+[[models]]
+id = "gemini-3.5-flash"
+provider = "gemini"
+tier = "cheap"
+input_usd_per_mtok = 0.0
+output_usd_per_mtok = 0.0
+free_tier = true
+context_tokens = 1048576
+supports_tools = true
+
+[router]
+threshold = 3            # heuristic score >= threshold -> complex
+medium_threshold = 1     # score >= medium_threshold -> medium, else simple
+escalate_on_retry = true
+mode = "heuristic"       # heuristic | cheap_first (start every run on cheap; strong only via [escalation])
+default = "cheap"        # fallback when classification fails (tier name or model id)
+
+[router.grades]          # grade -> tier name or a [[models]] id
+simple = "cheap"
+medium = "cheap"
+complex = "strong"
+
+[agent]
+max_iterations = 30
+max_cost_usd = 0.50
+max_attempts = 2
+approval = "ask"
+shell_timeout_s = 60
+max_parallel_tools = 4
+tool_protocol = "react"   # react | native | auto (per-model override: tool_protocol in [[models]])
+sensor_max_retries = 3     # /check, bench --sensor: re-checks after a failed check (max checks = 1 + this)
+sensor_feedback_chars = 2000  # tail of failed check output fed back to the model
+tripwire = false           # stop or escalate once when the same error repeats 3 times (always on with /check)
+max_wall_s = 0             # wall-clock cap per run in seconds (0 = unlimited); checked between calls
+max_tool_calls = 0         # tool calls per run incl. sub-agents (0 = unlimited)
+budget_warn_fraction = 0.8 # one budget_warning per cap when usage first reaches this fraction
+lenient_parse = true     # repair near-valid ReAct replies only when the strict parse fails (parse_repaired event); false = strict only
+react_max_tokens = 4096   # output-token cap per ReAct model call (256-32768); a cut reply gets a truncation observation
+auto_check = false         # no --check given: use the workspace's own test command (pytest/npm/cargo/go/make)
+tamper_guard = false       # with a check: fail the gate (tests_modified) when pre-existing test files are edited or deleted
+selftest = false           # Python workspace, no check: model writes tests under .cora/selftest/; run as soft feedback only
+ladder = false             # with a check: sensor retries, then one reflection + one more check, then ladder_exhausted
+call_timeout_s = 300       # max wait per model call in seconds (10-3600), incl. stalled streams; one retry, then stop provider_timeout
+verify_before_final = true  # refuse the first Final Answer once when no check/run command succeeded after the last edit
+compile_check = true      # report Python syntax errors (file:line) after edits; refuse a Final Answer once while they remain
+edge_case_prompt = true   # after edits, refuse the first Final Answer once and ask to test empty, punctuation-only and boundary inputs
+stub_check = true         # refuse a Final Answer once while stub bodies or definitions removed by edits remain (file:line)
+json_string_repair = true # lenient parse: escape raw control characters and invalid backslashes inside Action Input JSON strings (parse_repaired json_strings)
+overwrite_guard = true    # refuse once per run a write_file that would replace an unread pre-existing Python file with non-stub code (overwrite_refused)
+raw_file_body = false     # write_file/edit_file also accept verbatim raw blocks (<<<CONTENT/<<<OLD/<<<NEW, no JSON escaping); hint shown only when true
+repeat_breaker = false    # same reply or same failure twice in a row: one feedback note; 3rd+ in a row: next call only at temperature 0.7 (repeat_detected)
+located_errors = false    # Action Input JSON errors show decoder message, offset, excerpt; edit_file 'old' not found shows nearest line and column
+
+[escalation]             # failure-driven cheap->strong switch, at most once per run; OFF pending the M16 A/B
+enabled = false
+on_stuck_iterations = 4  # consecutive iterations with no workspace write and no first-time file read (0 = off)
+on_tripwire = true       # the same-error tripwire escalates instead of stopping
+on_budget_fraction = 0   # escalate when this fraction of the run's cost cap is spent with no passing check (0 = off)
+strong_model = ""        # empty = the router's strong tier; else a [[models]] id
+
+[headless]              # cora run / cora -p --headless (unattended); cost and iterations follow [agent]
+max_wall_s = 900
+max_tool_calls = 200
+
+[project]                # cora project: milestone gate (conditions) and planning (project plan / run --goal)
+gate_retries = 1         # extra fresh-session attempts of a milestone whose conditions fail (0 = no retry)
+max_milestones = 8       # upper bound on milestones the planner may produce
+condition_timeout_s = 60 # per command condition
+condition_output_chars = 2000  # tail of a failed condition's output kept as retry feedback
+
+[mcp]                  # cora mcp serve (MCP stdio server): per-call ceilings; a request can only lower them (0 or absent = ceiling)
+max_cost_usd = 0.50      # USD per run_task / resume_session call (cumulative on resume)
+max_iterations = 30
+max_wall_s = 600         # seconds per call; keep it below the MCP client's tool timeout
+max_tool_calls = 200
+max_depth = 1            # run_task/resume_session refused when CORA_MCP_DEPTH >= max_depth (recursion guard)
+max_output_chars = 20000 # max text of one tool result (1000..49999); longer answers are cut, full text stays in the session
+approval = "policy"      # policy | deny (ask and auto are rejected)
+
+[memory]
+context_budget_tokens = 12000
+keep_last_messages = 8
+max_observation_chars = 4000
+ledger = false           # pinned working-state ledger (edited files, checks, decisions); no model call
+ledger_max_chars = 1500  # ledger size bound (200..20000)
+summarize = "off"        # off | llm (cheap-model summary of evicted messages, appended to the ledger)
+
+[context]                # repository-scale context (all off by default)
+repo_map = false         # inject a compact workspace map into the system prompt
+repo_map_max_chars = 4000
+max_files = 500          # at most this many files are indexed for the map
+dedupe_reads = false     # replace older reads of a re-read file with a marker
+
+[cache]                  # prompt-cost switches (all off by default)
+prompt_cache = false     # mark the system prompt cacheable for [[models]] with cache = true
+tool_descriptions = "full"   # "full" | "terse" (built-in tool descriptions <= 60 chars)
+compress_observations = false  # head+tail-shorten observations older than [memory].keep_last_messages
+compress_chars = 800     # chars kept (head+tail) per compressed observation
+
+[record]                 # model response record/replay (off by default; env CORA_RECORD_MODE / CORA_RECORD_DIR override)
+mode = "off"             # "off" | "record" | "replay" (replay never calls the network)
+dir = ".cora/recordings" # relative paths resolve against the run's workspace
+
+[delegation]             # sub-agent delegation (off by default; enable here or with --delegate)
+enabled = false
+max_per_session = 2
+max_steps = 6
+max_tokens = 20000
+timeout_s = 60
+model = "cheap"
+parallel_explore = true    # with delegation on, several delegate(mode="explore") calls in one turn run concurrently
+explore_concurrency = 3    # explore sub-agents running at once (also bounded by [agent] max_parallel_tools)
+explore_max_calls = 6      # explore sub-agents per session
+max_total_tokens = 120000  # all sub-agents of a session (in+out); later delegate calls are refused
+max_total_cost_usd = 0.05  # all sub-agents of a session; later delegate calls are refused
+summary_max_chars = 1200   # cap on the summary a sub-agent returns
+nudge = true               # M19 re-test setting: true appends one sentence recommending delegate(mode="explore") to the main prompt when delegate is visible
+
+[tools]                  # caps for @file mentions, git_* and web_fetch tools
+mention_max_file_chars = 8000    # per @file attachment (chars)
+mention_max_total_chars = 20000  # all @mentions of one prompt (chars)
+mention_max_dir_entries = 100    # @directory listing entries
+git_max_output_chars = 3500      # git_status/git_diff/git_log result (chars)
+git_log_max_count = 50
+git_timeout_s = 15
+web_max_download_bytes = 200000  # web_fetch body read limit (bytes)
+web_max_output_chars = 3500      # web_fetch text returned to the model (chars)
+web_timeout_s = 15               # total, incl. DNS and redirects
+web_max_redirects = 5
+
+[tool_groups]            # prompt-cost control (core = list_files/read_file/search/edit_file/run_shell, always on)
+disabled = []            # any of "git", "web", "plan-todo", "delegate"; /tools <group> on|off per session
+auto_simple = true       # 'simple' requests load only core tools unless a signal (git words, URL, @file, /plan...) needs more
+
+[decider]                # judgment interface for routing / tool groups / sensor hints (all uses off by default)
+kind = "heuristic"       # heuristic (keyword rules, free) | llm (cheap model through the provider; costs money when a use is on)
+model = "cheap"          # llm only: tier name or a [[models]] id
+timeout_s = 5            # llm only: per decision; on timeout the heuristic answer is used
+max_cost_per_decision = 0.001  # llm only: USD; above this the heuristic answer is used
+min_confidence = 0.7     # answers below this confidence are ignored (heuristic answer used)
+tier_routing = false     # cheap/strong choice (pin, retry and tripwire escalation always win)
+toolgroup = false        # tool-group signals for the auto_simple rule
+sensor_hint = false      # "stuck?" / "complete?" hints: events only, never change check/tripwire outcomes
+
+[ui]                     # terminal UI only (pipes and cora -p stay plain text)
+theme = "default"        # default | dark | light | mono (/theme switches for one session)
+ascii = false            # true: ASCII glyphs (*, |_, [x]) instead of unicode
+color = "auto"           # auto (color on a terminal) | always | never; NO_COLOR always wins
+tui = true               # full-screen TUI on an interactive terminal (--tui/--no-tui, CORA_TUI override)
+mouse = true             # TUI mouse capture: wheel scrolls the transcript; false = plain terminal selection (F2, /mouse)
+exit_summary = true      # after leaving the TUI print a short session summary (id, turns, cost)
+scrollback_blocks = 5000 # TUI transcript blocks kept (oldest dropped first; >= 100)
+
+[bench]   # cora bench --live (real calls)
+models = ["google/gemini-2.5-flash-lite", "qwen/qwen3-coder-30b-a3b-instruct"]
+protocols = ["react", "native"]
+max_cost_usd = 0.30
+max_iterations = 12
+stall_threshold_s = 60   # report: LLM calls slower than this (seconds) are flagged as stalls

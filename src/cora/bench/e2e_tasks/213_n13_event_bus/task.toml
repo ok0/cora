@@ -1,0 +1,21 @@
+id = "e2e_n13"
+title = "In-process event bus"
+difficulty = "hard"
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["evbus/topics.py", "evbus/history.py", "evbus/bus.py"]
+
+[limits]
+wall_s = 2400
+cost_usd = 0.08
+max_iterations = 30
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"
+
+[reference]
+dir = "reference"
+delete = []

@@ -1,0 +1,21 @@
+id = "e2e_n12"
+title = ".env file parser"
+difficulty = "easy"           # easy | medium | hard
+requirements = "REQUIREMENTS.md"
+template = "template"
+required_files = ["dotenv_lite.py", "tests/test_dotenv.py"]
+
+[limits]
+wall_s = 900
+cost_usd = 0.07
+max_iterations = 20
+
+[grader]
+dir = "grader"
+entry = "grade.py"
+timeout_s = 60
+visibility = "hidden"          # hidden | visible
+
+[reference]
+dir = "reference"
+delete = []

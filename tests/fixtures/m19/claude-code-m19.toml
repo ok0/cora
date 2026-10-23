@@ -1,0 +1,62 @@
+[meta]
+tool = "claude-code"
+model = "claude-sonnet-5-5"
+date = "2026-10-18"
+source = ".docs/baseline-protocol.md \u00a715 (M19, isolated, n=3)"
+synthetic = false
+
+[tasks.e2e_h01]
+solved = 1.0
+cost_usd = 0.07953826666666668
+wall_s = 24.176666666666666
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.1064"
+
+[tasks.e2e_h02]
+solved = 1.0
+cost_usd = 0.06237446666666666
+wall_s = 19.453333333333333
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.0835"
+
+[tasks.e2e_h03]
+solved = 1.0
+cost_usd = 0.08716990000000001
+wall_s = 27.606666666666666
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.1149"
+
+[tasks.e2e_h04]
+solved = 0.0
+cost_usd = 0.10370633333333333
+wall_s = 37.26
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.1299"
+
+[tasks.e2e_h05]
+solved = 1.0
+cost_usd = 0.06911073333333333
+wall_s = 18.68
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.0922"
+
+[tasks.e2e_h06]
+solved = 1.0
+cost_usd = 0.0689011
+wall_s = 20.486666666666668
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.0904"
+
+[tasks.e2e_hx1]
+solved = 1.0
+cost_usd = 0.062486633333333326
+wall_s = 13.88
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.0871"
+
+[tasks.e2e_hx2]
+solved = 1.0
+cost_usd = 0.09780556666666666
+wall_s = 26.37
+n = 3
+note = "recomputed from modelUsage (m15-readiness (4), pricing doc S3, fetched 2026-10-15); reported mean $0.1291"

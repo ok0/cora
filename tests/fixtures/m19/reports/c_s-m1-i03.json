@@ -1,0 +1,1480 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-20T11:20:52+00:00",
+  "cora_version": "0.1.0",
+  "settings": {
+    "max_cost_usd": 0.45,
+    "max_task_cost_usd": 0.1,
+    "max_iterations": 30,
+    "stall_threshold_s": 60.0,
+    "protocols": [
+      "react"
+    ],
+    "tasks": [
+      "e2e_h04",
+      "e2e_h05"
+    ],
+    "tool_groups": [
+      "core"
+    ],
+    "tools": [
+      "list_files",
+      "read_file",
+      "search",
+      "edit_file",
+      "write_file",
+      "delete_file",
+      "run_shell"
+    ],
+    "sensor": {
+      "enabled": true,
+      "tripwire": true,
+      "max_retries": 3,
+      "feedback_chars": 2000,
+      "source": "auto",
+      "no_check_tasks": []
+    },
+    "models": [
+      {
+        "id": "google/gemini-2.5-flash-lite",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.1,
+        "output_usd_per_mtok": 0.4,
+        "supports_tools": true
+      },
+      {
+        "id": "deepseek/deepseek-v3.2",
+        "provider": "openrouter",
+        "input_usd_per_mtok": 0.28,
+        "output_usd_per_mtok": 0.42,
+        "supports_tools": true
+      }
+    ],
+    "ab": {
+      "arms": [
+        "auto-routed"
+      ],
+      "model": "google/gemini-2.5-flash-lite",
+      "strong_model": "deepseek/deepseek-v3.2",
+      "escalation_target": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "delegation_tool_groups": [
+        "core",
+        "delegate"
+      ],
+      "delegation": {
+        "explore_concurrency": 3,
+        "explore_max_calls": 6,
+        "max_steps": 6,
+        "max_tokens": 20000,
+        "summary_max_chars": 1200
+      },
+      "difficulty_thresholds_min": [
+        2.0,
+        10.0
+      ]
+    },
+    "repeats": 3,
+    "seed": 0,
+    "suite": "e2e",
+    "e2e": {
+      "tasks": [
+        {
+          "id": "e2e_h04",
+          "wall_s": 2400.0,
+          "cost_usd": 0.1,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        },
+        {
+          "id": "e2e_h05",
+          "wall_s": 2400.0,
+          "cost_usd": 0.05,
+          "max_iterations": 30,
+          "grader_timeout_s": 60.0
+        }
+      ],
+      "grader_timeout_cap_s": 120.0,
+      "grader_output_cap_bytes": 65536,
+      "policy_profile": "strict"
+    }
+  },
+  "total_cost_usd": 0.20934474121,
+  "total_calls": 121,
+  "provider_cost_calls": 121,
+  "budget_exhausted": false,
+  "rows": [
+    {
+      "model": "google/gemini-2.5-flash-lite",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    },
+    {
+      "model": "deepseek/deepseek-v3.2",
+      "protocol": "react",
+      "attempted": 0,
+      "solved": 0,
+      "failed": 0,
+      "skipped": 0,
+      "solve_rate": null,
+      "total_cost_usd": 0.0,
+      "cost_per_solved_usd": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "avg_calls": null,
+      "avg_latency_s": null
+    }
+  ],
+  "results": [
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "solved",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 237010,
+      "output_tokens": 17096,
+      "cost_usd": 0.04424174,
+      "provider_cost_calls": 30,
+      "latency_s": 535.7145610000007,
+      "detail": "end_reason=max_iterations score=1.00",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "google/gemini-2.5-flash-lite",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "stuck_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        0.874,
+        10.004,
+        2.632,
+        2.204,
+        3.822,
+        4.891,
+        6.823,
+        3.857,
+        19.039,
+        3.51,
+        9.428,
+        64.089,
+        20.321,
+        2.665,
+        28.598,
+        12.949,
+        28.493,
+        5.239,
+        123.965,
+        54.431,
+        4.815,
+        2.819,
+        59.231,
+        2.888,
+        3.895,
+        7.735,
+        26.696,
+        3.593,
+        7.515,
+        7.526
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h04|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 1.0,
+      "full_pass": true,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 1.0,
+        "full_pass": true,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "precedence",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "power_and_unary",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_lexer",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_parser",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_runtime",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"tokenize_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"precedence\", \"passed\": true}, {\"detail\": \"\", \"name\": \"power_and_unary\", \"passed\": true}, {\"detail\": \"\", \"name\": \"variables_and_functions\", \"passed\": true}, {\"detail\": \"\", \"name\": \"errors_lexer\", \"passed\": true}, {\"detail\": \"\", \"name\": \"errors_parser\", \"passed\": true}, {\"detail\": \"\", \"name\": \"errors_runtime\", \"passed\": true}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 2,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 24,
+        "ask": 0,
+        "deny": 2,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T10:59:20.904199+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import sys; sys.path.insert(0, '.'); from calc.tokens import tokenize; from calc.parser import parse; tokens = tokenize('-2^2'); print('tokens:', tokens); ast = parse(tokens); print('ast:',",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:00:42.680889+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"import sys; sys.path.insert(0, '.'); from calc import calc; print(calc('2^-1'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h05",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "tripwire",
+      "iterations": 5,
+      "calls": 5,
+      "input_tokens": 21882,
+      "output_tokens": 5830,
+      "cost_usd": 0.00696814121,
+      "provider_cost_calls": 5,
+      "latency_s": 96.75602000020444,
+      "detail": "end_reason=tripwire score=0.88",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "google/gemini-2.5-flash-lite",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        1.011,
+        11.022,
+        16.5,
+        62.225,
+        5.693
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h05|r0",
+      "repeat_index": 0,
+      "seed": 0,
+      "aborted_run": false,
+      "score": 0.875,
+      "full_pass": false,
+      "end_reason": "tripwire",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.875,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "existing_behaviour_kept",
+            "passed": false,
+            "detail": "done unknown stderr: expected 'error: no task 9', got \"error: 'no task 9'\""
+          },
+          {
+            "name": "model_default_and_validation",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_roundtrip",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_backward_compat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_sort_priority",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_add_invalid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "formatting_marker",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_add_and_list",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"done unknown stderr: expected 'error: no task 9', got \\\"error: 'no task 9'\\\"\", \"name\": \"existing_behaviour_kept\", \"passed\": false}, {\"detail\": \"\", \"name\": \"model_default_and_validation\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_roundtrip\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_backward_compat\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_sort_priority\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_add_invalid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"formatting_marker\", \"passed\": true}, {\"detail\": \"\", \"name\": \"cli_add_and_list\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 2,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 24,
+        "ask": 0,
+        "deny": 2,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T11:01:40.246435+00:00",
+            "tool": "run_shell",
+            "args": "mkdir tracker",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:01:40.248090+00:00",
+            "tool": "run_shell",
+            "args": "touch tracker/models.py tracker/storage.py tracker/service.py tracker/cli.py tracker/formatting.py",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "max_iterations",
+      "iterations": 30,
+      "calls": 30,
+      "input_tokens": 248120,
+      "output_tokens": 18330,
+      "cost_usd": 0.02083127,
+      "provider_cost_calls": 30,
+      "latency_s": 103.91775000002235,
+      "detail": "end_reason=max_iterations score=0.50",
+      "check_runs": 1,
+      "sensor_retries": 1,
+      "sensor_calls": 6,
+      "sensor_cost_usd": 0.009636200000000001,
+      "escalated": false,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "google/gemini-2.5-flash-lite",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        0.899,
+        1.295,
+        2.074,
+        2.121,
+        2.783,
+        2.671,
+        1.327,
+        5.173,
+        1.364,
+        4.434,
+        1.723,
+        4.089,
+        11.104,
+        1.559,
+        3.86,
+        4.052,
+        3.009,
+        1.567,
+        3.341,
+        1.553,
+        4.286,
+        9.895,
+        3.156,
+        3.398,
+        2.173,
+        4.832,
+        3.202,
+        3.548,
+        2.237,
+        6.155
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h04|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.5,
+      "full_pass": false,
+      "end_reason": "max_iterations",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.5,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "precedence",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "power_and_unary",
+            "passed": false,
+            "detail": "-2^2: expected -4, got 4.0"
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_lexer",
+            "passed": false,
+            "detail": "CalcError"
+          },
+          {
+            "name": "errors_parser",
+            "passed": false,
+            "detail": "CalcError"
+          },
+          {
+            "name": "errors_runtime",
+            "passed": false,
+            "detail": "CalcError"
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"tokenize_basic\", \"passed\": true}, {\"detail\": \"\", \"name\": \"precedence\", \"passed\": true}, {\"detail\": \"-2^2: expected -4, got 4.0\", \"name\": \"power_and_unary\", \"passed\": false}, {\"detail\": \"\", \"name\": \"variables_and_functions\", \"passed\": true}, {\"detail\": \"CalcError\", \"name\": \"errors_lexer\", \"passed\": false}, {\"detail\": \"CalcError\", \"name\": \"errors_parser\", \"passed\": false}, {\"detail\": \"CalcError\", \"name\": \"errors_runtime\", \"passed\": false}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 2,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 27,
+        "ask": 0,
+        "deny": 2,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T11:03:55.583306+00:00",
+            "tool": "run_shell",
+            "args": "python -c 'from calc import calc; print(calc(\"1 + 2 * 3\"))'",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:04:28.443541+00:00",
+            "tool": "run_shell",
+            "args": "mkdir tests && mv test_calc.py tests/",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h05",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "stopped_budget",
+      "budget_reason": "task",
+      "stop_reason": "cost_limit",
+      "iterations": 25,
+      "calls": 25,
+      "input_tokens": 297504,
+      "output_tokens": 19920,
+      "cost_usd": 0.04746982,
+      "provider_cost_calls": 25,
+      "latency_s": 198.349576999899,
+      "detail": "end_reason=cost_limit score=0.75",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "google/gemini-2.5-flash-lite",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "budget_fraction_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        8.714,
+        9.136,
+        3.916,
+        2.859,
+        4.161,
+        4.201,
+        4.378,
+        2.928,
+        4.487,
+        2.871,
+        4.582,
+        4.476,
+        3.105,
+        2.78,
+        4.437,
+        4.478,
+        2.913,
+        3.236,
+        5.796,
+        3.604,
+        14.144,
+        14.768,
+        25.759,
+        34.248,
+        21.979
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h05|r1",
+      "repeat_index": 1,
+      "seed": 1,
+      "aborted_run": false,
+      "score": 0.75,
+      "full_pass": false,
+      "end_reason": "cost_limit",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.75,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "existing_behaviour_kept",
+            "passed": false,
+            "detail": "done unknown stderr: expected 'error: no task 9', got 'Traceback (most recent call last):\\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\\n  File \"<frozen runpy>\", line 88, in _run_code\\n  File \"/private/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-e2e-bkqd44q0/ws/tracker/__main__"
+          },
+          {
+            "name": "model_default_and_validation",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_roundtrip",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_backward_compat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_sort_priority",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_add_invalid",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "formatting_marker",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_add_and_list",
+            "passed": false,
+            "detail": "add high exit: expected 0, got 1"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"done unknown stderr: expected 'error: no task 9', got 'Traceback (most recent call last):\\\\n  File \\\"<frozen runpy>\\\", line 203, in _run_module_as_main\\\\n  File \\\"<frozen runpy>\\\", line 88, in _run_code\\\\n  File \\\"/private/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-e2e-bkqd44q0/ws/tracker/__main__\", \"name\": \"existing_behaviour_kept\", \"passed\": false}, {\"detail\": \"\", \"name\": \"model_default_and_validation\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_roundtrip\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_backward_compat\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_sort_priority\", \"passed\": true}, {\"detail\": \"\", \"name\": \"service_add_invalid\", \"passed\": true}, {\"detail\": \"\", \"name\": \"formatting_marker\", \"passed\": true}, {\"detail\": \"add high exit: expected 0, got 1\", \"name\": \"cli_add_and_list\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 0,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 104,
+        "ask": 0,
+        "deny": 0,
+        "ask_resolved_deny": 0,
+        "decisions": [],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h04",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "failed",
+      "budget_reason": null,
+      "stop_reason": "tripwire",
+      "iterations": 18,
+      "calls": 18,
+      "input_tokens": 134465,
+      "output_tokens": 14515,
+      "cost_usd": 0.025757330000000002,
+      "provider_cost_calls": 18,
+      "latency_s": 296.67980200005695,
+      "detail": "end_reason=tripwire score=0.38",
+      "check_runs": 0,
+      "sensor_retries": 0,
+      "sensor_calls": 0,
+      "sensor_cost_usd": 0.0,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "google/gemini-2.5-flash-lite",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "tripwire_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        0.898,
+        1.58,
+        2.269,
+        3.662,
+        1.857,
+        6.06,
+        4.989,
+        1.519,
+        4.232,
+        6.923,
+        5.318,
+        20.262,
+        14.737,
+        36.655,
+        5.631,
+        4.873,
+        7.505,
+        167.03
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h04|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.375,
+      "full_pass": false,
+      "end_reason": "tripwire",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.375,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "tokenize_basic",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "precedence",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "power_and_unary",
+            "passed": false,
+            "detail": "-2^2: expected -4, got 4.0"
+          },
+          {
+            "name": "variables_and_functions",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "errors_lexer",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "errors_parser",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "errors_runtime",
+            "passed": false,
+            "detail": "NameError"
+          },
+          {
+            "name": "no_eval",
+            "passed": true,
+            "detail": ""
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"tokenize_basic\", \"passed\": true}, {\"detail\": \"NameError\", \"name\": \"precedence\", \"passed\": false}, {\"detail\": \"-2^2: expected -4, got 4.0\", \"name\": \"power_and_unary\", \"passed\": false}, {\"detail\": \"NameError\", \"name\": \"variables_and_functions\", \"passed\": false}, {\"detail\": \"\", \"name\": \"errors_lexer\", \"passed\": true}, {\"detail\": \"NameError\", \"name\": \"errors_parser\", \"passed\": false}, {\"detail\": \"NameError\", \"name\": \"errors_runtime\", \"passed\": false}, {\"detail\": \"\", \"name\": \"no_eval\", \"passed\": true}]}\n"
+      },
+      "policy_denies": 8,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 33,
+        "ask": 0,
+        "deny": 8,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T11:08:46.631847+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc(''))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.632500+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('   \\t\\n '))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.633206+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('() , +'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.633878+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('0'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.634347+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('1-1'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.634749+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('5'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.635124+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('x'))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          },
+          {
+            "ts": "2026-10-20T11:08:46.635906+00:00",
+            "tool": "run_shell",
+            "args": "python -c \"from calc import calc; print(calc('x', env={'y': 1}))\"",
+            "decision": "deny",
+            "rule": "confine:one-liner",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    },
+    {
+      "task": "e2e_h05",
+      "kind": "e2e",
+      "model": "auto",
+      "protocol": "react",
+      "status": "stopped_budget",
+      "budget_reason": "task",
+      "stop_reason": "cost_limit",
+      "iterations": 13,
+      "calls": 13,
+      "input_tokens": 191468,
+      "output_tokens": 45657,
+      "cost_usd": 0.06407644,
+      "provider_cost_calls": 13,
+      "latency_s": 468.268443999812,
+      "detail": "end_reason=cost_limit score=0.62",
+      "check_runs": 1,
+      "sensor_retries": 1,
+      "sensor_calls": 10,
+      "sensor_cost_usd": 0.05963363,
+      "escalated": true,
+      "arm": "auto-routed",
+      "difficulty": "hard",
+      "estimated_minutes": null,
+      "routes": [
+        {
+          "tier": "cheap",
+          "model": "google/gemini-2.5-flash-lite",
+          "grade": "medium",
+          "reason": "code_task_keywords, code_reference, cheap_first"
+        },
+        {
+          "tier": "strong",
+          "model": "deepseek/deepseek-v3.2",
+          "grade": "escalated",
+          "reason": "budget_fraction_escalation"
+        }
+      ],
+      "deleg_invocations": 0,
+      "deleg_attempts": 0,
+      "deleg_attempts_unparsed": 0,
+      "deleg_explore": 0,
+      "deleg_general": 0,
+      "deleg_ok": 0,
+      "deleg_failed": 0,
+      "deleg_refused": 0,
+      "deleg_input_tokens": 0,
+      "deleg_output_tokens": 0,
+      "deleg_cost_usd": 0,
+      "deleg_wall_s": 0.0,
+      "deleg_max_fanout": 0,
+      "deleg_avoided_tokens_est": 0,
+      "call_latencies_s": [
+        52.816,
+        9.474,
+        1.415,
+        8.141,
+        8.342,
+        12.322,
+        10.517,
+        10.53,
+        2.489,
+        11.969,
+        56.336,
+        156.424,
+        126.356
+      ],
+      "run_id": "auto-routed|auto|react|e2e_h05|r2",
+      "repeat_index": 2,
+      "seed": 2,
+      "aborted_run": false,
+      "score": 0.625,
+      "full_pass": false,
+      "end_reason": "cost_limit",
+      "human_interventions": 0,
+      "grader": {
+        "status": "ok",
+        "score": 0.625,
+        "full_pass": false,
+        "checks": [
+          {
+            "name": "existing_behaviour_kept",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "model_default_and_validation",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_roundtrip",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "storage_backward_compat",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "service_sort_priority",
+            "passed": false,
+            "detail": "TypeError"
+          },
+          {
+            "name": "service_add_invalid",
+            "passed": false,
+            "detail": "invalid add type: expected 'ValueError', got 'TypeError'"
+          },
+          {
+            "name": "formatting_marker",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "name": "cli_add_and_list",
+            "passed": false,
+            "detail": "add high exit: expected 0, got 2"
+          }
+        ],
+        "reason": null,
+        "exit_code": 0,
+        "timed_out": false,
+        "output_truncated": false,
+        "missing_files": [],
+        "output_tail": "{\"checks\": [{\"detail\": \"\", \"name\": \"existing_behaviour_kept\", \"passed\": true}, {\"detail\": \"\", \"name\": \"model_default_and_validation\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_roundtrip\", \"passed\": true}, {\"detail\": \"\", \"name\": \"storage_backward_compat\", \"passed\": true}, {\"detail\": \"TypeError\", \"name\": \"service_sort_priority\", \"passed\": false}, {\"detail\": \"invalid add type: expected 'ValueError', got 'TypeError'\", \"name\": \"service_add_invalid\", \"passed\": false}, {\"detail\": \"\", \"name\": \"formatting_marker\", \"passed\": true}, {\"detail\": \"add high exit: expected 0, got 2\", \"name\": \"cli_add_and_list\", \"passed\": false}]}\n"
+      },
+      "policy_denies": 1,
+      "policy_asks": 0,
+      "policy": {
+        "mode": "strict",
+        "source": "strict",
+        "allow": 10,
+        "ask": 0,
+        "deny": 1,
+        "ask_resolved_deny": 0,
+        "decisions": [
+          {
+            "ts": "2026-10-20T11:14:06.211660+00:00",
+            "tool": "run_shell",
+            "args": "mkdir -p tracker",
+            "decision": "deny",
+            "rule": "default",
+            "resolved": "deny"
+          }
+        ],
+        "decisions_dropped": 0
+      }
+    }
+  ],
+  "sensor_totals": {
+    "check_runs": 2,
+    "sensor_retries": 2,
+    "extra_calls": 16,
+    "extra_cost_usd": 0.06926983,
+    "escalations": 5
+  },
+  "baseline": null,
+  "baseline_note": "baseline not provided",
+  "difficulty_bins": [
+    {
+      "config": "auto-routed",
+      "bin": "hard",
+      "tasks": 6,
+      "solved": 1,
+      "cost_usd": 0.20934474121,
+      "wall_s": 1699.6861539999954
+    }
+  ],
+  "ab": {
+    "arms": [
+      "auto-routed"
+    ],
+    "rows": [
+      {
+        "arm": "auto-routed",
+        "alias": null,
+        "model": "auto",
+        "attempted": 6,
+        "solved": 1,
+        "skipped": 0,
+        "solve_rate": 0.16666666666666666,
+        "total_cost_usd": 0.20934474121,
+        "cost_per_solved_usd": 0.20934474121,
+        "resolved_per_dollar": 4.776809745590265,
+        "wall_s": 1699.6861539999954,
+        "avg_latency_s": 283.2810256666659,
+        "deleg_invocations": 0,
+        "deleg_attempts": 0,
+        "deleg_attempts_unparsed": 0,
+        "deleg_explore": 0,
+        "deleg_general": 0,
+        "deleg_ok": 0,
+        "deleg_failed": 0,
+        "deleg_refused": 0,
+        "deleg_input_tokens": 0,
+        "deleg_output_tokens": 0,
+        "deleg_cost_usd": 0.0,
+        "deleg_wall_s": 0.0,
+        "deleg_max_fanout": 0,
+        "deleg_avoided_tokens_est": 0
+      }
+    ],
+    "per_task_tiers": [
+      {
+        "task": "e2e_h04",
+        "difficulty": "hard",
+        "cheap_only": null,
+        "strong_only": null,
+        "auto_routed": "failed",
+        "auto_tiers": [
+          "cheap",
+          "strong"
+        ],
+        "flags": []
+      },
+      {
+        "task": "e2e_h05",
+        "difficulty": "hard",
+        "cheap_only": null,
+        "strong_only": null,
+        "auto_routed": "stopped_budget",
+        "auto_tiers": [
+          "cheap",
+          "strong"
+        ],
+        "flags": []
+      }
+    ],
+    "note": "avoided_tokens_est is an estimate (sub-agent tool-result tokens minus the summary tokens returned to the main agent), not a counterfactual measurement. Each cell is one attempt: directional only."
+  },
+  "aborted": null,
+  "cells": {
+    "executed": 6,
+    "not_run": 0,
+    "skipped_budget": 0
+  },
+  "wall_s": 1699.7027310002595,
+  "latency": {
+    "stall_threshold_s": 60.0,
+    "cell_wall_s_sum": 1699.6861539999954,
+    "configs": [
+      {
+        "config": "auto-routed",
+        "calls": 121,
+        "p50_s": 4.478,
+        "max_s": 167.03,
+        "stalled_calls": 6,
+        "stall": true
+      }
+    ],
+    "cells": [
+      {
+        "task": "e2e_h04",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 7.1690000000000005,
+        "max_s": 123.965,
+        "stalled_calls": 2,
+        "stall": true
+      },
+      {
+        "task": "e2e_h05",
+        "config": "auto-routed",
+        "calls": 5,
+        "p50_s": 11.022,
+        "max_s": 62.225,
+        "stalled_calls": 1,
+        "stall": true
+      },
+      {
+        "task": "e2e_h04",
+        "config": "auto-routed",
+        "calls": 30,
+        "p50_s": 3.0825,
+        "max_s": 11.104,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_h05",
+        "config": "auto-routed",
+        "calls": 25,
+        "p50_s": 4.437,
+        "max_s": 34.248,
+        "stalled_calls": 0,
+        "stall": false
+      },
+      {
+        "task": "e2e_h04",
+        "config": "auto-routed",
+        "calls": 18,
+        "p50_s": 5.153499999999999,
+        "max_s": 167.03,
+        "stalled_calls": 1,
+        "stall": true
+      },
+      {
+        "task": "e2e_h05",
+        "config": "auto-routed",
+        "calls": 13,
+        "p50_s": 10.53,
+        "max_s": 156.424,
+        "stalled_calls": 2,
+        "stall": true
+      }
+    ]
+  },
+  "partial": false,
+  "partial_reason": null,
+  "runs_planned": 6,
+  "runs_completed": 6,
+  "aggregation": {
+    "rules": {
+      "wilson_z": 1.96,
+      "bootstrap_iterations": 2000,
+      "bootstrap_seed": 0,
+      "bootstrap_method": "percentile",
+      "interval": 0.95,
+      "low_n_threshold": 5,
+      "solved": "status == solved (e2e: full_pass)",
+      "independence_note": "intervals assume independent runs; repeats of one task may not be independent"
+    },
+    "units": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h04",
+        "config": "auto-routed",
+        "n": 3,
+        "solved": 1,
+        "solve_rate": 0.3333333333333333,
+        "wilson95": [
+          0.0614903152761605,
+          0.7923450448735121
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.030276780000000003,
+          "median": 0.025757330000000002,
+          "stdev": 0.012342268739259409
+        },
+        "tokens": {
+          "mean": 223178.66666666666,
+          "median": 254106.0,
+          "stdev": 64553.66128526974
+        },
+        "wall_s": {
+          "mean": 312.10403766669333,
+          "median": 296.67980200005695,
+          "stdev": 216.31123822368247
+        },
+        "total_cost_usd": 0.09083034000000001,
+        "cost_per_solved_usd": 0.09083034000000001,
+        "cost_per_solved_ci95": [
+          0.04424174,
+          0.0957564
+        ],
+        "cost_per_solved_note": null,
+        "solved_per_dollar": 11.009537121626979,
+        "score_mean": 0.625
+      },
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h05",
+        "config": "auto-routed",
+        "n": 3,
+        "solved": 0,
+        "solve_rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.5615060804490177
+        ],
+        "low_n": true,
+        "cost_usd": {
+          "mean": 0.03950480040333333,
+          "median": 0.04746982,
+          "stdev": 0.02937551021775523
+        },
+        "tokens": {
+          "mean": 194087.0,
+          "median": 237125.0,
+          "stdev": 149574.2719153264
+        },
+        "wall_s": {
+          "mean": 254.4580136666385,
+          "median": 198.349576999899,
+          "stdev": 192.00647852456746
+        },
+        "total_cost_usd": 0.11851440121,
+        "cost_per_solved_usd": null,
+        "cost_per_solved_ci95": null,
+        "cost_per_solved_note": "unsolved",
+        "solved_per_dollar": 0.0,
+        "score_mean": 0.75
+      }
+    ],
+    "configs": [
+      {
+        "config": "auto-routed",
+        "n": 6,
+        "solved": 1,
+        "solve_rate": 0.16666666666666666,
+        "wilson95": [
+          0.03005258587173032,
+          0.563509436563646
+        ],
+        "low_n": false,
+        "total_cost_usd": 0.20934474121,
+        "cost_per_solved_usd": 0.20934474121,
+        "solved_per_dollar": 4.776809745590265,
+        "mean_cost_usd": 0.03489079020166667,
+        "score_mean": 0.6875
+      }
+    ],
+    "overall": {
+      "n": 6,
+      "solved": 1,
+      "total_cost_usd": 0.20934474121,
+      "solved_per_dollar": 4.776809745590265,
+      "score_mean": 0.6875
+    },
+    "verdicts": []
+  },
+  "budget_plan": {
+    "repeats": 3,
+    "max_cost_usd": 0.45,
+    "runs": 6,
+    "total_max_usd": 0.45000000000000007,
+    "exceeds": false,
+    "suggested_repeats": 3,
+    "unknown_models": [],
+    "assumptions": {
+      "input_tokens_per_call": 16000,
+      "output_tokens_per_call": 1024,
+      "note": "upper bounds are conservative estimates, not a guarantee: each iteration is assumed to use 16000 input and 1024 output tokens at the cora.toml price, capped by the per-task cost limit"
+    },
+    "cells": [
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h04",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.1,
+        "per_run_usd": 0.1,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.30000000000000004
+      },
+      {
+        "arm": "auto-routed",
+        "model": "auto",
+        "protocol": "react",
+        "task": "e2e_h05",
+        "repeats": 3,
+        "completed": 0,
+        "max_iterations": 30,
+        "task_cap_usd": 0.05,
+        "per_run_usd": 0.05,
+        "prior_mean_usd": null,
+        "unknown_models": [],
+        "subtotal_usd": 0.15000000000000002
+      }
+    ]
+  },
+  "trimmed": null,
+  "resumed": null,
+  "e2e": {
+    "runs": 6,
+    "full_pass": 1,
+    "mean_score": 0.6875,
+    "human_interventions_total": 0,
+    "policy_deny_total": 15,
+    "policy_ask_total": 0,
+    "grader_errors": 0
+  }
+}

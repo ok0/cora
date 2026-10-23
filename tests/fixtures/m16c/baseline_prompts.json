@@ -1,0 +1,88 @@
+{
+  "S1": [
+    [
+      {
+        "role": "system",
+        "content": "You are CORA, a cost-efficient coding and research agent working inside the directory: <ws>.\nSolve the task by interleaving short reasoning with tool use.\n\nAvailable tools:\n- list_files: List files recursively (relative paths). Args: {\"path\": str = \".\"}\n- read_file: Read a text file with line numbers. Args: {\"path\": str, \"start_line\": int = 1, \"end_line\": int | None}\n- search: Search file contents with a regex; returns path:line: text. Args: {\"pattern\": str (regex), \"path\": str = \".\", \"max_results\": int = 100}\n- edit_file: Replace one exact occurrence of 'old' with 'new' in a file. If old is empty and the file is missing or empty, creates the file with new. Args: {\"path\": str, \"old\": str, \"new\": str}\n- write_file: Create or overwrite a file with content; append=true adds content to the end. Creates parent directories. Write a large file in parts: the first part, then append the rest. Args: {\"path\": str, \"content\": str, \"append\": bool = false}\n- delete_file: Delete one regular file in the workspace (not a directory). Args: {\"path\": str}\n- run_shell: Run a shell command with the workspace root as working directory. Args: {\"command\": str}\n- todo_write: Replace the whole TODO list for this task. At most one item in_progress. Args: {\"todos\": [{\"content\": str, \"status\": \"pending\"|\"in_progress\"|\"completed\"}]}\n- git_status: Show git status: branch and changed files. Args: {}\n- git_diff: Show git diff of unstaged changes, or staged changes with staged=true. Args: {\"staged\": bool = false, \"path\": str | None}\n- git_log: Show recent commits, newest first. Args: {\"count\": int = 10, \"path\": str | None}\n- git_add: Stage files for commit (needs approval). Args: {\"paths\": [str]}\n- git_commit: Commit staged changes with a message (needs approval). Args: {\"message\": str}\n- git_branch: Switch to a local branch, or create it with create=true (needs approval). Args: {\"name\": str, \"create\": bool = false}\n- web_fetch: Fetch an http(s) URL as text (HTML is converted to text). Needs approval. Args: {\"url\": str}\n\nRespond in EXACTLY one of these two formats.\nTo use a tool:\nThought: <brief reasoning>\nAction: <tool name>\nAction Input: <one JSON object with the tool arguments>\n\nTo finish:\nThought: <brief reasoning>\nFinal Answer: <answer for the user>\n\nRules: one action per response, except that independent read-only actions (such as list_files, read_file, search) may be batched by repeating the Action/Action Input pair; they run in parallel and you get numbered Observations in the same order; never write \"Observation:\" yourself; paths are relative to the workspace; keep thoughts short."
+      },
+      {
+        "role": "user",
+        "content": "Task: make m.py"
+      }
+    ],
+    [
+      {
+        "role": "system",
+        "content": "You are CORA, a cost-efficient coding and research agent working inside the directory: <ws>.\nSolve the task by interleaving short reasoning with tool use.\n\nAvailable tools:\n- list_files: List files recursively (relative paths). Args: {\"path\": str = \".\"}\n- read_file: Read a text file with line numbers. Args: {\"path\": str, \"start_line\": int = 1, \"end_line\": int | None}\n- search: Search file contents with a regex; returns path:line: text. Args: {\"pattern\": str (regex), \"path\": str = \".\", \"max_results\": int = 100}\n- edit_file: Replace one exact occurrence of 'old' with 'new' in a file. If old is empty and the file is missing or empty, creates the file with new. Args: {\"path\": str, \"old\": str, \"new\": str}\n- write_file: Create or overwrite a file with content; append=true adds content to the end. Creates parent directories. Write a large file in parts: the first part, then append the rest. Args: {\"path\": str, \"content\": str, \"append\": bool = false}\n- delete_file: Delete one regular file in the workspace (not a directory). Args: {\"path\": str}\n- run_shell: Run a shell command with the workspace root as working directory. Args: {\"command\": str}\n- todo_write: Replace the whole TODO list for this task. At most one item in_progress. Args: {\"todos\": [{\"content\": str, \"status\": \"pending\"|\"in_progress\"|\"completed\"}]}\n- git_status: Show git status: branch and changed files. Args: {}\n- git_diff: Show git diff of unstaged changes, or staged changes with staged=true. Args: {\"staged\": bool = false, \"path\": str | None}\n- git_log: Show recent commits, newest first. Args: {\"count\": int = 10, \"path\": str | None}\n- git_add: Stage files for commit (needs approval). Args: {\"paths\": [str]}\n- git_commit: Commit staged changes with a message (needs approval). Args: {\"message\": str}\n- git_branch: Switch to a local branch, or create it with create=true (needs approval). Args: {\"name\": str, \"create\": bool = false}\n- web_fetch: Fetch an http(s) URL as text (HTML is converted to text). Needs approval. Args: {\"url\": str}\n\nRespond in EXACTLY one of these two formats.\nTo use a tool:\nThought: <brief reasoning>\nAction: <tool name>\nAction Input: <one JSON object with the tool arguments>\n\nTo finish:\nThought: <brief reasoning>\nFinal Answer: <answer for the user>\n\nRules: one action per response, except that independent read-only actions (such as list_files, read_file, search) may be batched by repeating the Action/Action Input pair; they run in parallel and you get numbered Observations in the same order; never write \"Observation:\" yourself; paths are relative to the workspace; keep thoughts short."
+      },
+      {
+        "role": "user",
+        "content": "Task: make m.py"
+      },
+      {
+        "role": "assistant",
+        "content": "Thought: step\nAction: write_file\nAction Input: {\"path\": \"m.py\", \"content\": \"def f():\\n    return 1\\n\"}"
+      },
+      {
+        "role": "user",
+        "content": "Observation: ok: created m.py (22 bytes, 2 lines)"
+      }
+    ],
+    [
+      {
+        "role": "system",
+        "content": "You are CORA, a cost-efficient coding and research agent working inside the directory: <ws>.\nSolve the task by interleaving short reasoning with tool use.\n\nAvailable tools:\n- list_files: List files recursively (relative paths). Args: {\"path\": str = \".\"}\n- read_file: Read a text file with line numbers. Args: {\"path\": str, \"start_line\": int = 1, \"end_line\": int | None}\n- search: Search file contents with a regex; returns path:line: text. Args: {\"pattern\": str (regex), \"path\": str = \".\", \"max_results\": int = 100}\n- edit_file: Replace one exact occurrence of 'old' with 'new' in a file. If old is empty and the file is missing or empty, creates the file with new. Args: {\"path\": str, \"old\": str, \"new\": str}\n- write_file: Create or overwrite a file with content; append=true adds content to the end. Creates parent directories. Write a large file in parts: the first part, then append the rest. Args: {\"path\": str, \"content\": str, \"append\": bool = false}\n- delete_file: Delete one regular file in the workspace (not a directory). Args: {\"path\": str}\n- run_shell: Run a shell command with the workspace root as working directory. Args: {\"command\": str}\n- todo_write: Replace the whole TODO list for this task. At most one item in_progress. Args: {\"todos\": [{\"content\": str, \"status\": \"pending\"|\"in_progress\"|\"completed\"}]}\n- git_status: Show git status: branch and changed files. Args: {}\n- git_diff: Show git diff of unstaged changes, or staged changes with staged=true. Args: {\"staged\": bool = false, \"path\": str | None}\n- git_log: Show recent commits, newest first. Args: {\"count\": int = 10, \"path\": str | None}\n- git_add: Stage files for commit (needs approval). Args: {\"paths\": [str]}\n- git_commit: Commit staged changes with a message (needs approval). Args: {\"message\": str}\n- git_branch: Switch to a local branch, or create it with create=true (needs approval). Args: {\"name\": str, \"create\": bool = false}\n- web_fetch: Fetch an http(s) URL as text (HTML is converted to text). Needs approval. Args: {\"url\": str}\n\nRespond in EXACTLY one of these two formats.\nTo use a tool:\nThought: <brief reasoning>\nAction: <tool name>\nAction Input: <one JSON object with the tool arguments>\n\nTo finish:\nThought: <brief reasoning>\nFinal Answer: <answer for the user>\n\nRules: one action per response, except that independent read-only actions (such as list_files, read_file, search) may be batched by repeating the Action/Action Input pair; they run in parallel and you get numbered Observations in the same order; never write \"Observation:\" yourself; paths are relative to the workspace; keep thoughts short."
+      },
+      {
+        "role": "user",
+        "content": "Task: make m.py"
+      },
+      {
+        "role": "assistant",
+        "content": "Thought: step\nAction: write_file\nAction Input: {\"path\": \"m.py\", \"content\": \"def f():\\n    return 1\\n\"}"
+      },
+      {
+        "role": "user",
+        "content": "Observation: ok: created m.py (22 bytes, 2 lines)"
+      },
+      {
+        "role": "assistant",
+        "content": "Thought: step\nAction: run_shell\nAction Input: {\"command\": \"<PY> -c \\\"import m; print(m.f())\\\"\"}"
+      },
+      {
+        "role": "user",
+        "content": "Observation: exit_code=0\n1\n"
+      }
+    ]
+  ],
+  "S2": [
+    [
+      {
+        "role": "system",
+        "content": "You are CORA, a cost-efficient coding and research agent working inside the directory: <ws>.\nSolve the task by interleaving short reasoning with tool use.\n\nAvailable tools:\n- list_files: List files recursively (relative paths). Args: {\"path\": str = \".\"}\n- read_file: Read a text file with line numbers. Args: {\"path\": str, \"start_line\": int = 1, \"end_line\": int | None}\n- search: Search file contents with a regex; returns path:line: text. Args: {\"pattern\": str (regex), \"path\": str = \".\", \"max_results\": int = 100}\n- edit_file: Replace one exact occurrence of 'old' with 'new' in a file. If old is empty and the file is missing or empty, creates the file with new. Args: {\"path\": str, \"old\": str, \"new\": str}\n- write_file: Create or overwrite a file with content; append=true adds content to the end. Creates parent directories. Write a large file in parts: the first part, then append the rest. Args: {\"path\": str, \"content\": str, \"append\": bool = false}\n- delete_file: Delete one regular file in the workspace (not a directory). Args: {\"path\": str}\n- run_shell: Run a shell command with the workspace root as working directory. Args: {\"command\": str}\n- todo_write: Replace the whole TODO list for this task. At most one item in_progress. Args: {\"todos\": [{\"content\": str, \"status\": \"pending\"|\"in_progress\"|\"completed\"}]}\n- git_status: Show git status: branch and changed files. Args: {}\n- git_diff: Show git diff of unstaged changes, or staged changes with staged=true. Args: {\"staged\": bool = false, \"path\": str | None}\n- git_log: Show recent commits, newest first. Args: {\"count\": int = 10, \"path\": str | None}\n- git_add: Stage files for commit (needs approval). Args: {\"paths\": [str]}\n- git_commit: Commit staged changes with a message (needs approval). Args: {\"message\": str}\n- git_branch: Switch to a local branch, or create it with create=true (needs approval). Args: {\"name\": str, \"create\": bool = false}\n- web_fetch: Fetch an http(s) URL as text (HTML is converted to text). Needs approval. Args: {\"url\": str}\n\nRespond in EXACTLY one of these two formats.\nTo use a tool:\nThought: <brief reasoning>\nAction: <tool name>\nAction Input: <one JSON object with the tool arguments>\n\nTo finish:\nThought: <brief reasoning>\nFinal Answer: <answer for the user>\n\nRules: one action per response, except that independent read-only actions (such as list_files, read_file, search) may be batched by repeating the Action/Action Input pair; they run in parallel and you get numbered Observations in the same order; never write \"Observation:\" yourself; paths are relative to the workspace; keep thoughts short."
+      },
+      {
+        "role": "user",
+        "content": "Task: make m.py"
+      }
+    ],
+    [
+      {
+        "role": "system",
+        "content": "You are CORA, a cost-efficient coding and research agent working inside the directory: <ws>.\nSolve the task by interleaving short reasoning with tool use.\n\nAvailable tools:\n- list_files: List files recursively (relative paths). Args: {\"path\": str = \".\"}\n- read_file: Read a text file with line numbers. Args: {\"path\": str, \"start_line\": int = 1, \"end_line\": int | None}\n- search: Search file contents with a regex; returns path:line: text. Args: {\"pattern\": str (regex), \"path\": str = \".\", \"max_results\": int = 100}\n- edit_file: Replace one exact occurrence of 'old' with 'new' in a file. If old is empty and the file is missing or empty, creates the file with new. Args: {\"path\": str, \"old\": str, \"new\": str}\n- write_file: Create or overwrite a file with content; append=true adds content to the end. Creates parent directories. Write a large file in parts: the first part, then append the rest. Args: {\"path\": str, \"content\": str, \"append\": bool = false}\n- delete_file: Delete one regular file in the workspace (not a directory). Args: {\"path\": str}\n- run_shell: Run a shell command with the workspace root as working directory. Args: {\"command\": str}\n- todo_write: Replace the whole TODO list for this task. At most one item in_progress. Args: {\"todos\": [{\"content\": str, \"status\": \"pending\"|\"in_progress\"|\"completed\"}]}\n- git_status: Show git status: branch and changed files. Args: {}\n- git_diff: Show git diff of unstaged changes, or staged changes with staged=true. Args: {\"staged\": bool = false, \"path\": str | None}\n- git_log: Show recent commits, newest first. Args: {\"count\": int = 10, \"path\": str | None}\n- git_add: Stage files for commit (needs approval). Args: {\"paths\": [str]}\n- git_commit: Commit staged changes with a message (needs approval). Args: {\"message\": str}\n- git_branch: Switch to a local branch, or create it with create=true (needs approval). Args: {\"name\": str, \"create\": bool = false}\n- web_fetch: Fetch an http(s) URL as text (HTML is converted to text). Needs approval. Args: {\"url\": str}\n\nRespond in EXACTLY one of these two formats.\nTo use a tool:\nThought: <brief reasoning>\nAction: <tool name>\nAction Input: <one JSON object with the tool arguments>\n\nTo finish:\nThought: <brief reasoning>\nFinal Answer: <answer for the user>\n\nRules: one action per response, except that independent read-only actions (such as list_files, read_file, search) may be batched by repeating the Action/Action Input pair; they run in parallel and you get numbered Observations in the same order; never write \"Observation:\" yourself; paths are relative to the workspace; keep thoughts short."
+      },
+      {
+        "role": "user",
+        "content": "Task: make m.py"
+      },
+      {
+        "role": "assistant",
+        "content": "Thought: step\nAction: write_file\nAction Input: {\"path\": \"m.py\", \"content\": \"def f():\\n    return 1\\n\"}"
+      },
+      {
+        "role": "user",
+        "content": "Observation: ok: created m.py (22 bytes, 2 lines)"
+      }
+    ]
+  ]
+}

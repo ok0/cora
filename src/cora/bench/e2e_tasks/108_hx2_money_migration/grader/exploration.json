@@ -1,0 +1,1 @@
+{"sources": ["shop/cart/totals.py", "shop/tax/vat.py", "shop/discounts/coupons.py", "shop/shipping/rates.py", "shop/invoices/render.py", "shop/loyalty/points.py"]}

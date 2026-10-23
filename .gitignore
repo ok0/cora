@@ -1,0 +1,24 @@
+# secrets
+.env
+.env.*
+*.key
+secrets/
+# runtime / build
+.cora/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+
+.claude
+.reference
+.request
+.ensemble
+.quartet
+.docs/*
+!.docs/bench-results.md
+.codex
+.DS_Store
