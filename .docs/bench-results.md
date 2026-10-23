@@ -2875,3 +2875,23 @@ cost: $0, OpenRouter 호출 0
 - (5) R14: `cost_usd = max(0.05, ceil_to_cent(3 × (in×0.10 + out×0.40) / 1e6))`. 표의 환산 비용은 `(in×0.10 + out×0.40) / 1e6`입니다.
 - (6) 지출: $0 (무료 Gemini, OpenRouter 호출 0)
 - (7) 동결: 7096ee1239a6ee92e8a5ec8726434079757addc8. 이 커밋 이후 `src/cora/bench/e2e_tasks/2*`와 `tests/fixtures/m19e2/`의 과제 파일은 M19e3 사전 등록 전까지 바꾸지 않습니다. 변경이 필요하면 과제명을 적은 날짜 있는 수정 기록이 있어야 합니다.
+
+## M20 사전 등록 (2026-10-23T11:40:43Z)
+이 절은 M20 live 세그먼트(P1 계획 품질, P2–P4 실행)가 시작되기 전에 커밋한다. 변경은 새 날짜의 수정 절로만 한다. 이 절 커밋 시점에는 OpenRouter 호출이 없다 (비용 $0). G2 결과는 report-only이며, 완료율에 대한 사전 설정 임계값은 없고 M20은 기본값을 바꾸지 않는다.
+
+1. **의존성.** M19e closed: M19e1 PASS, M19e2 PASS, M19e3 deferred by user 2026-10-23 (M19e3 보류 기록이 여기에 함께 남는다). 사전 라우터(pre-router)와 cascade는 M20에서 사용하지 않는다.
+2. **구성 (R1).** 모델은 `deepseek/deepseek-v3.2` 단일. 구성 파일은 `uv run python tests/m20_trial.py config deepseek/deepseek-v3.2 $TMPDIR/cora-m20/cora-m20-deepseek.toml`로 생성하며, 내용은 `cora.toml`에 `[router]` 바로 다음 줄로 `pin = "deepseek/deepseek-v3.2"` 한 줄을 넣은 것이다. `cora.toml`의 sha256 = `7704ace8db75918f63e2f4df8e6b7d009cabf3d73cc98e0165f6c677abcd883a` (`shasum -a 256 cora.toml`), `cmp cora.toml src/cora/data/cora.toml`은 동일하다. 저장소 안의 두 toml 사본은 바꾸지 않는다. 그 밖의 기본값은 M19/M19e에서 남긴 그대로다. 리허설 구성은 같은 방식으로 `gemini-3.5-flash-lite`를 고정한다.
+3. **플래그.** `--headless --approval policy --json --max-cost min(0.30, remaining)`, `--max-iterations`/`--max-wall-s`는 과제 `[limits]`에서 가져온다 (h01 30/2400, h03 30/2400, n08 25/1800). 계획 품질 호출은 `--max-cost 0.05`와 `CORA_RECORD_MODE=record`를 쓴다. 주의(caveat): planner 비용은 프로젝트 예산 안에 포함된다.
+4. **과제 (R6).** `e2e_h01`, `e2e_h03` (hard 세트; M19에서 Claude Code 3/3씩, deepseek arm e 2/3과 1/3, cheap 0), `e2e_n08` (M19e2; 무료 flash-lite 미해결). 과제 교체는 첫 유료 호출 전에만 허용되며, 이유를 적어 이 절을 수정해야 한다. 계획 품질 목표는 `e2e_h01, e2e_h02, e2e_h03, e2e_h05, e2e_h06`이며 목표 문장은 `tests/m20_trial.py goal <task>`가 출력하는 텍스트다 (h04 제외, A1과 같다).
+5. **팔 (arm).** 팔은 하나: deepseek 고정 상태의 CORA `project run --goal`, 과제당 n=3 (9 run). 계획 품질: 무료 Gemini `gemini-3.5-flash-lite` (non-G1, `cost_source = free_tier`, 503이면 `blocked`로 기록하고 1회 재시도) 다음 deepseek (비용 계산 포함).
+6. **정의.** Completed, intervention, leak, error run은 이 계획의 Fixed decisions 원문을 그대로 따른다.
+   - Completed = 과제의 숨은 grader `full_pass`가 최종 워크스페이스에서 True인 것. grader는 실행이 끝난 뒤에만 주입한다.
+   - Intervention = 사람의 프롬프트 응답, 수동 `project resume`/재시작, 채점 전 수동 워크스페이스 편집, 같은 셀 슬롯의 오케스트레이터 재실행. 헤드리스 정책 자동 거부는 `policy_deny`로 따로 기록하며 intervention이 아니다.
+   - Leak = (a) `leakcheck(pre_grade=True)` 결과가 비어 있지 않음, (b) `events.jsonl`의 어떤 줄이든 `HOME_PROTECTED` 절대 경로 또는 저장소 패키지 데이터 경로를 포함, (c) `keygrep`의 키 문자열 일치.
+   - Error run = `stop_reason == "error"` 또는 `exit_code == 1`. 단, 계획기 응답 무효(errors에 `"planner reply invalid"`)는 완료되지 않은 것으로 세며 `plan_quality = "failed"`로 기록한다.
+7. **보고 전용.** G2 결과는 report-only다. 완료율 임계값을 미리 정하지 않으며, M20은 기본값을 바꾸지 않는다.
+8. **지출과 상한 (R12).** 배정 ≤ $2.00. M20 이전 유료 누적은 최신 누적 장부 기록에서 가져오며 (≈ $6.42), M20 이후 유료 누적은 ≤ $8.42이고 $10 미만이어야 한다. 세그먼트별 예상 비용은 Fixed decisions의 공식과 값을 따른다 (P1 계획 품질 ≤ $0.05, P2 h01 $0.20, P3 h03 $0.30, P4 n08 $0.19). 세그먼트는 P1, P2, P3, P4 순서로 실행하며 각각 별도 승인을 받는다.
+9. **절단 규칙 (cut rule).** 셀은 남은 배정 ≥ 1.5 × 그 셀의 예상 비용일 때만 시작하며, 아니면 "not measured (budget)"로 적는다. 각 run의 `--max-cost` = min(0.30, remaining). n<3인 셀은 주장을 하지 않는다. error run이 하나라도 나오면 시리즈를 멈추고, 계속하기 전에 원인을 진단한다. 402를 받으면 멈춘다.
+10. **기준선 (R10).** Claude Code 기준선은 `.docs/baselines/claude-code-m19.toml`에서 가져온다: h01 solved 1.0, $0.0795/run; h03 solved 1.0, $0.0872/run (toml 추정 가격, caveat). n08은 기준선이 없으며 (no baseline (not measured)) 새 기준선 run을 만들지 않는다.
+11. **G1 두 줄 입력 (R2).** 가격: deepseek 입력 0.28 / 출력 0.42, m1 `google/gemini-2.5-flash-lite` 0.10 / 0.40, 모두 2026-10-18 OpenRouter `/api/v1/models` 기준이며 `cora.toml` 주석에 따른다. 가격 규칙 해석: 2.8× / 1.05× ≤ 3× → cheap. 헌장 개정 해석: mid/strong. 수치는 M19 arm e (19/24, $0.7454, solved-per-dollar 25.5)와 Claude Code (21/24, 11.1)에서 가져온다: 비율 0.905, spd 비율 2.30.
+12. **후속 (A6).** 같은 모델, 다른 하네스 대조군은 이 범위 밖이다. 하네스는 사용자가 아직 지정하지 않았다.
