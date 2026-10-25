@@ -232,6 +232,15 @@ def test_plan_messages_only_goal():
     assert "8" in msgs[0].content
 
 
+def test_planner_system_check_is_shell_command():
+    content = plan_messages("build X", 8)[0].content
+    assert (
+        '"check" is a single runnable shell command that exits 0 when the milestone is done; '
+        'omit it if no such command exists, and use "conditions" for deterministic checks.'
+    ) in content
+    assert content.count("{") == content.count("}")
+
+
 def test_plan_to_toml_roundtrip(tmp_path):
     plan = ProjectPlan(
         'q"uote\\ back\nline 한글 \x7f',

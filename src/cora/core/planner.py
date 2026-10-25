@@ -36,6 +36,8 @@ PLANNER_SYSTEM = (
     "- Every task is non-empty and self-contained, because each milestone runs in a fresh "
     "session.\n"
     "- Prefer conditions that are cheap, deterministic and side-effect free.\n"
+    '- "check" is a single runnable shell command that exits 0 when the milestone is done; '
+    'omit it if no such command exists, and use "conditions" for deterministic checks.\n'
     '- A "path" is relative to the workspace: no absolute paths and no "..".\n'
     "- Use no other keys."
 )
