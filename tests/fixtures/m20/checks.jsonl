@@ -1,0 +1,10 @@
+{"task": "e2e_h01", "label": "gemini-rehearsal", "checks_total": 3, "check_runnable": 3, "checks_blocked": 0, "checks_pass_ref": 3, "all_checks_runnable": true}
+{"task": "e2e_h01", "label": "deepseek", "checks_total": 7, "check_runnable": 0, "checks_blocked": 7, "checks_pass_ref": 0, "all_checks_runnable": false}
+{"task": "e2e_h02", "label": "gemini-rehearsal", "checks_total": 0, "check_runnable": 0, "checks_blocked": 0, "checks_pass_ref": 0, "all_checks_runnable": true}
+{"task": "e2e_h02", "label": "deepseek", "checks_total": 6, "check_runnable": 0, "checks_blocked": 6, "checks_pass_ref": 0, "all_checks_runnable": false}
+{"task": "e2e_h03", "label": "gemini-rehearsal", "checks_total": 6, "check_runnable": 1, "checks_blocked": 5, "checks_pass_ref": 0, "all_checks_runnable": false}
+{"task": "e2e_h03", "label": "deepseek", "checks_total": 6, "check_runnable": 0, "checks_blocked": 6, "checks_pass_ref": 0, "all_checks_runnable": false}
+{"task": "e2e_h05", "label": "gemini-rehearsal", "checks_total": 5, "check_runnable": 1, "checks_blocked": 4, "checks_pass_ref": 1, "all_checks_runnable": false}
+{"task": "e2e_h05", "label": "deepseek", "checks_total": 7, "check_runnable": 0, "checks_blocked": 7, "checks_pass_ref": 0, "all_checks_runnable": false}
+{"task": "e2e_h06", "label": "gemini-rehearsal", "checks_total": 4, "check_runnable": 2, "checks_blocked": 2, "checks_pass_ref": 2, "all_checks_runnable": false}
+{"task": "e2e_h06", "label": "deepseek", "checks_total": 7, "check_runnable": 0, "checks_blocked": 7, "checks_pass_ref": 0, "all_checks_runnable": false}
