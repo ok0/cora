@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -12,8 +13,11 @@ from cora.core.config import load_config
 from cora.core.milestones import Condition, Milestone, ProjectPlan, plan_to_toml
 from cora.core.router import HeuristicRouter
 from m20_trial import (
+    DEADLINE_LINES,
+    DEADLINE_TOML,
     ROOT,
     check_conditions,
+    checkq_row,
     event_hits,
     goal_text,
     keygrep,
@@ -130,6 +134,11 @@ def test_planner_calls_classification(tmp_path, monkeypatch):
             "all_executable": True,
             "all_pass_ref": True,
             "conditions_blocked": 0,
+            "checks_total": 0,
+            "check_runnable": 0,
+            "checks_blocked": 0,
+            "checks_pass_ref": 0,
+            "all_checks_runnable": True,
         },
     )
     plan_path = tmp_path / "plan.toml"
@@ -318,3 +327,173 @@ def test_summary_tables(tmp_path):
     assert any("no baseline (not measured)" in line for line in lines)
     total = 0.03 + 0.04 + 0.05 + 0.02 + 0.02
     assert any(f"{total / 3:.4f}" in line and "| 3 | 5 |" in line for line in lines)
+
+
+def test_make_config_deadline_variant(tmp_path):
+    out = tmp_path / "d.toml"
+    make_config(DEEPSEEK, out, variant="deadline")
+    cfg = load_config(out)
+    assert cfg.providers["openrouter"]["request_deadline_s"] == 300
+    assert cfg.providers["openrouter"]["timeout_s"] == 300
+    assert cfg.agent.call_timeout_s == 960
+    assert HeuristicRouter(cfg).model_for("cheap").id == DEEPSEEK
+    base = (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines()
+    gen = out.read_text(encoding="utf-8").splitlines()
+    added = set(gen) - set(base)
+    assert len(added) == 4
+    assert sum(1 for line in added if line.startswith(DEADLINE_LINES)) == 3
+    assert sum(1 for line in added if line.startswith(f'pin = "{DEEPSEEK}"')) == 1
+    removed = set(base) - set(gen)
+    assert len(removed) == 3
+    assert all(
+        any(line.startswith(p) for line in removed)
+        for p in ("timeout_s = 120", "request_deadline_s = 90", "call_timeout_s = 300")
+    )
+
+
+def test_make_config_deadline_matches_m19(tmp_path):
+    out = tmp_path / "d.toml"
+    make_config(DEEPSEEK, out, variant="deadline")
+    gen = [
+        line
+        for line in out.read_text(encoding="utf-8").splitlines()
+        if not line.startswith("pin = ")
+    ]
+    assert gen == DEADLINE_TOML.read_text(encoding="utf-8").splitlines()
+
+
+def test_make_config_unknown_variant(tmp_path):
+    with pytest.raises(SystemExit) as exc:
+        make_config(DEEPSEEK, tmp_path / "x.toml", variant="x")
+    assert exc.value.code == 2
+
+
+def test_config_cli_variant(tmp_path, capsys):
+    out = tmp_path / "d.toml"
+    assert m20_trial.main(["config", DEEPSEEK, str(out), "--variant", "deadline"]) == 0
+    printed = capsys.readouterr().out.strip()
+    assert printed == hashlib.sha256(out.read_bytes()).hexdigest()
+
+
+def test_check_runnable_on_reference(tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    plan = ProjectPlan(
+        goal="g",
+        milestones=(
+            Milestone(
+                id="m1",
+                title="t",
+                task="do it",
+                check="python -m py_compile csvreport/parser.py",
+            ),
+            Milestone(
+                id="m2",
+                title="t",
+                task="do it",
+                check="All required files exist with correct module layout",
+            ),
+            Milestone(id="m3", title="t", task="do it"),
+        ),
+    )
+    plan_path = tmp_path / "plan.toml"
+    plan_path.write_text(plan_to_toml(plan), encoding="utf-8")
+    cfg_path = tmp_path / "cfg.toml"
+    make_config(DEEPSEEK, cfg_path)
+    result = check_conditions("e2e_h01", plan_path, cfg_path)
+    assert result["checks_total"] == 2
+    assert result["check_runnable"] == 1
+    assert result["checks_blocked"] == 1
+    assert result["checks_pass_ref"] == 1
+    assert result["all_checks_runnable"] is False
+    assert result["check_details"][1]["blocked"] is True
+    assert result["conditions_total"] == 0
+    row = checkq_row("e2e_h01", plan_path, cfg_path, "deepseek-fix1")
+    assert row["label"] == "deepseek-fix1"
+    assert row["checks_total"] == 2
+    assert row["check_runnable"] == 1
+    assert row["checks_blocked"] == 1
+    assert row["checks_pass_ref"] == 1
+
+
+def test_run_row_rerun(tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.setattr(m20_trial, "OUT_ROOT", tmp_path / "out")
+    work = tmp_path / "w"
+    work.mkdir()
+    ws = m20_trial.prepare("e2e_h01", work)
+    row = run_row("e2e_h01", ws, _outcome(), "deepseek", 2, 1, rerun_of="e2e_h01-r2")
+    assert row["rerun_of"] == "e2e_h01-r2"
+    assert row["interventions"] == 1
+    assert (tmp_path / "out" / "deepseek" / "e2e_h01-r2-rerun" / "outcome.json").exists()
+    assert not (tmp_path / "out" / "deepseek" / "e2e_h01-r2").exists()
+
+
+def _rr(
+    task: str,
+    run: int,
+    completed: bool,
+    cost: float,
+    label: str,
+    stop: str,
+    **extra,
+) -> dict:
+    row = _run_row(task, run, completed, cost, label=label)
+    row["stop_reason"] = stop
+    row.update(extra)
+    return row
+
+
+def test_summary_superseded_and_labels():
+    runs = [
+        _rr("e2e_h01", 0, False, 0.01, "deepseek", "policy_blocked"),
+        _rr("e2e_h01", 1, False, 0.02, "deepseek", "budget_exceeded"),
+        _rr("e2e_h01", 2, False, 0.0, "deepseek", "error"),
+        _rr("e2e_h01", 2, True, 0.05, "deepseek", "final_answer", rerun_of="e2e_h01-r2"),
+        _rr("e2e_h01", 0, True, 0.03, "deepseek-v2", "final_answer"),
+        _rr("e2e_h01", 1, False, 0.04, "deepseek-v2", "budget_exceeded"),
+        _rr("e2e_h01", 2, True, 0.05, "deepseek-v2", "final_answer"),
+    ]
+    planq = [
+        {
+            "task": "e2e_h01",
+            "label": "deepseek",
+            "plan_quality": "first_try",
+            "first_reply_strict": True,
+            "milestones": 1,
+            "conditions_total": 0,
+            "conditions_executable": 0,
+            "conditions_pass_ref": 0,
+            "cost_usd": 0.01,
+        },
+        {
+            "task": "e2e_h01",
+            "label": "deepseek-fix1",
+            "plan_quality": "first_try",
+            "first_reply_strict": True,
+            "milestones": 1,
+            "conditions_total": 0,
+            "conditions_executable": 0,
+            "conditions_pass_ref": 0,
+            "cost_usd": 0.01,
+            "checks_total": 3,
+            "check_runnable": 3,
+        },
+    ]
+    checks = [{"task": "e2e_h01", "label": "deepseek", "checks_total": 8, "check_runnable": 0}]
+    text = summary(planq, runs, None, checks_rows=checks)
+    lines = text.splitlines()
+    assert any("error (superseded)" in line for line in lines)
+    assert any("(rerun e2e_h01-r2)" in line for line in lines)
+    assert "### (2) Per-run (deepseek)" in text
+    assert "### (2) Per-run (deepseek-v2)" in text
+    assert "(pre-fix planner prompt)" in text
+    assert "(post-fix planner prompt, R11 round 1)" in text
+    assert any("| 0/8 |" in line for line in lines)
+    assert any("| 3/3 |" in line for line in lines)
+    ds_block = text.split("### (2) Per-run (deepseek-v2)")[0]
+    assert any(line.startswith("| e2e_h01 | 1/3 |") for line in ds_block.splitlines())
+    assert "| e2e_h03 |" not in ds_block
+    v2_block = text.split("### (2) Per-run (deepseek-v2)")[1]
+    assert any(line.startswith("| e2e_h01 | 2/3 |") for line in v2_block.splitlines())
+    assert any(line.startswith("| e2e_h03 | 0/0 |") for line in v2_block.splitlines())
+    assert any(line.startswith("| e2e_n08 | 0/0 |") for line in v2_block.splitlines())

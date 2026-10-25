@@ -17,7 +17,7 @@ from cora.bench import e2e
 from cora.bench.stats import wilson_interval
 from cora.core.agent import Agent
 from cora.core.config import find_model, load_config
-from cora.core.milestones import load_plan, run_condition
+from cora.core.milestones import Condition, load_plan, run_condition
 from cora.core.planner import plan_from_text
 from cora.core.policy import approval_mode_of
 from cora.core.router import HeuristicRouter
@@ -32,6 +32,19 @@ PLAN_ERROR_RE = re.compile(r"503|UNAVAILABLE|overloaded", re.IGNORECASE)
 TIMEOUT_MARKER = "timeout after"
 SKIP_DIRS = frozenset({".git", ".venv", "__pycache__", "node_modules"})
 PRE_REGISTERED_TASKS = ("e2e_h01", "e2e_h03", "e2e_n08")
+DEADLINE_TOML = ROOT / "tests/fixtures/m19/arms/deadline.toml"
+VARIANTS = ("base", "deadline")
+DEADLINE_LINES = ("timeout_s = 300", "request_deadline_s = 300", "call_timeout_s = 960")
+PRE_FIX_LABELS = ("gemini-rehearsal", "deepseek")
+FIX_SUFFIX = "-fix1"
+MAIN_RUN_LABEL = "deepseek-v2"
+RUN_LABEL_NOTES = {
+    "deepseek": (
+        "30/2400 attempt, pre-fix planner prompt, base config "
+        "(r2 rerun under deadline config)"
+    ),
+    "deepseek-v2": "main series: deadline config, project caps, post-fix planner prompt",
+}
 
 
 def _task(task_id: str) -> e2e.E2ETask:
@@ -46,10 +59,28 @@ def _under_root(p: Path) -> bool:
     return True
 
 
-def make_config(model: str, out: Path) -> str:
+def _variant_lines(variant: str) -> list[str]:
+    base = (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines(keepends=True)
+    if variant == "base":
+        return base
+    dl = DEADLINE_TOML.read_text(encoding="utf-8").splitlines(keepends=True)
+    if len(dl) != len(base):
+        raise SystemExit(2)
+    diff = [i for i, (a, b) in enumerate(zip(base, dl, strict=True)) if a != b]
+    if len(diff) != len(DEADLINE_LINES):
+        raise SystemExit(2)
+    for i, prefix in zip(diff, DEADLINE_LINES, strict=True):
+        if not dl[i].strip().startswith(prefix):
+            raise SystemExit(2)
+    return dl
+
+
+def make_config(model: str, out: Path, variant: str = "base") -> str:
+    if variant not in VARIANTS:
+        raise SystemExit(2)
     if _under_root(out):
         raise SystemExit(2)
-    lines = (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines(keepends=True)
+    lines = _variant_lines(variant)
     idx = [i for i, line in enumerate(lines) if line.rstrip("\r\n") == "[router]"]
     if len(idx) != 1:
         raise SystemExit(2)
@@ -62,6 +93,15 @@ def make_config(model: str, out: Path) -> str:
     ):
         out.unlink(missing_ok=True)
         raise SystemExit(2)
+    if variant == "deadline":
+        prov = cfg.providers["openrouter"]
+        if (
+            prov.get("timeout_s") != 300
+            or prov.get("request_deadline_s") != 300
+            or cfg.agent.call_timeout_s != 960
+        ):
+            out.unlink(missing_ok=True)
+            raise SystemExit(2)
     return hashlib.sha256(out.read_bytes()).hexdigest()
 
 
@@ -93,6 +133,25 @@ def planner_calls(records: Path) -> list[dict]:
     return entries
 
 
+def _command_verdict(c: Condition, agent: Agent) -> tuple[bool, bool, bool]:
+    gate = agent.ctx.gate
+    verdict = (
+        gate.check("run_shell", {"command": c.cmd}, approval_mode_of(agent.ctx.approval))
+        if gate is not None
+        else None
+    )
+    blocked = verdict is not None and verdict.blocked
+    if blocked:
+        return True, False, False
+    ok, out = asyncio.run(run_condition(c, agent.ctx, timeout_s=60, max_chars=2000))
+    executable = (
+        not out.startswith(("denied:", "invalid command:", "error:"))
+        and "command not found" not in out
+        and TIMEOUT_MARKER not in out
+    )
+    return blocked, ok, executable
+
+
 def check_conditions(task_id: str, plan_path: Path, config_path: Path) -> dict:
     tmp = Path(tempfile.mkdtemp())
     try:
@@ -102,30 +161,11 @@ def check_conditions(task_id: str, plan_path: Path, config_path: Path) -> dict:
         cfg = load_config(config_path)
         agent = Agent(cfg, ws, ApprovalPolicy("policy"))
         details: list[dict] = []
+        check_details: list[dict] = []
         for m in load_plan(plan_path).milestones:
             for c in m.conditions:
                 if c.kind == "command":
-                    gate = agent.ctx.gate
-                    verdict = (
-                        gate.check(
-                            "run_shell", {"command": c.cmd}, approval_mode_of(agent.ctx.approval)
-                        )
-                        if gate is not None
-                        else None
-                    )
-                    blocked = verdict is not None and verdict.blocked
-                    if blocked:
-                        ok, out = False, ""
-                        executable = False
-                    else:
-                        ok, out = asyncio.run(
-                            run_condition(c, agent.ctx, timeout_s=60, max_chars=2000)
-                        )
-                        executable = (
-                            not out.startswith(("denied:", "invalid command:", "error:"))
-                            and "command not found" not in out
-                            and TIMEOUT_MARKER not in out
-                        )
+                    blocked, ok, executable = _command_verdict(c, agent)
                 else:
                     blocked = False
                     executable = True
@@ -139,9 +179,24 @@ def check_conditions(task_id: str, plan_path: Path, config_path: Path) -> dict:
                         "pass_ref": ok,
                     }
                 )
+            if m.check is not None:
+                blocked, ok, executable = _command_verdict(
+                    Condition(kind="command", cmd=m.check), agent
+                )
+                check_details.append(
+                    {
+                        "milestone": m.id,
+                        "check": m.check,
+                        "blocked": blocked,
+                        "runnable": executable,
+                        "pass_ref": ok,
+                    }
+                )
         total = len(details)
         n_exec = sum(d["executable"] for d in details)
         n_pass = sum(d["pass_ref"] for d in details)
+        checks_total = len(check_details)
+        check_runnable = sum(d["runnable"] for d in check_details)
         return {
             "conditions_total": total,
             "conditions_executable": n_exec,
@@ -150,9 +205,28 @@ def check_conditions(task_id: str, plan_path: Path, config_path: Path) -> dict:
             "all_pass_ref": n_pass == total,
             "conditions_blocked": sum(d["blocked"] for d in details),
             "details": details,
+            "checks_total": checks_total,
+            "check_runnable": check_runnable,
+            "checks_blocked": sum(d["blocked"] for d in check_details),
+            "checks_pass_ref": sum(d["pass_ref"] for d in check_details),
+            "all_checks_runnable": check_runnable == checks_total,
+            "check_details": check_details,
         }
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def checkq_row(task_id: str, plan_path: Path, config_path: Path, label: str) -> dict:
+    checked = check_conditions(task_id, plan_path, config_path)
+    return {
+        "task": task_id,
+        "label": label,
+        "checks_total": checked["checks_total"],
+        "check_runnable": checked["check_runnable"],
+        "checks_blocked": checked["checks_blocked"],
+        "checks_pass_ref": checked["checks_pass_ref"],
+        "all_checks_runnable": checked["all_checks_runnable"],
+    }
 
 
 def _error_text(outcome: dict) -> str:
@@ -200,6 +274,11 @@ def planq_row(
         "all_executable": None,
         "all_pass_ref": None,
         "conditions_blocked": None,
+        "checks_total": None,
+        "check_runnable": None,
+        "checks_blocked": None,
+        "checks_pass_ref": None,
+        "all_checks_runnable": None,
     }
     if ok:
         checked = check_conditions(task_id, plan_path, config_path)
@@ -240,6 +319,7 @@ def run_row(
     label: str,
     run: int,
     interventions: int,
+    rerun_of: str | None = None,
 ) -> dict:
     leaks = leakcheck(task_id, ws, pre_grade=True)
     hits = event_hits(ws)
@@ -251,7 +331,7 @@ def run_row(
         if cp.exists():
             data = json.loads(cp.read_text(encoding="utf-8"))
             planning = data.get("planning") or {}
-    dest = OUT_ROOT / label / f"{task_id}-r{run}"
+    dest = OUT_ROOT / label / (f"{task_id}-r{run}" + ("-rerun" if rerun_of else ""))
     dest.mkdir(parents=True, exist_ok=True)
     src = ws / ".cora" / "projects"
     if src.exists():
@@ -301,6 +381,7 @@ def run_row(
         "protected_hits": hits,
         "error": "; ".join(errors) or None,
         "error_run": error_run,
+        "rerun_of": rerun_of,
     }
 
 
@@ -344,23 +425,56 @@ def _load_baseline(path: Path | None) -> dict:
         return tomllib.load(f).get("tasks", {})
 
 
-def summary(planq_rows: list[dict], run_rows: list[dict], baseline: Path | None) -> str:
+def _label_heading(label: str) -> str:
+    heading = f"#### label: {label}"
+    if label.startswith("gemini"):
+        heading += " (free-tier, non-G1)"
+    if label in PRE_FIX_LABELS:
+        heading += " (pre-fix planner prompt)"
+    if label.endswith(FIX_SUFFIX):
+        heading += " (post-fix planner prompt, R11 round 1)"
+    return heading
+
+
+def _superseded_flags(run_rows: list[dict]) -> list[bool]:
+    flags: list[bool] = []
+    for i, s in enumerate(run_rows):
+        key = f"{s['task']}-r{s['run']}"
+        flags.append(
+            any(
+                j != i
+                and o["label"] == s["label"]
+                and o["task"] == s["task"]
+                and o["run"] == s["run"]
+                and o.get("rerun_of") == key
+                for j, o in enumerate(run_rows)
+            )
+        )
+    return flags
+
+
+def summary(
+    planq_rows: list[dict],
+    run_rows: list[dict],
+    baseline: Path | None,
+    checks_rows: list[dict] | None = None,
+) -> str:
     out: list[str] = []
     out.append("### (1) Plan quality, per label")
     labels: list[str] = []
     for r in planq_rows:
         if r["label"] not in labels:
             labels.append(r["label"])
+    checks_by_key: dict[tuple[str, str], dict] = {}
+    for c in checks_rows or []:
+        checks_by_key[(c["task"], c["label"])] = c
     for label in labels:
-        heading = f"#### label: {label}"
-        if label.startswith("gemini"):
-            heading += " (free-tier, non-G1)"
-        out.append(heading)
+        out.append(_label_heading(label))
         out.append(
             "| task | quality | first reply strict | milestones | conditions executable "
-            "| pass on reference | planner $ |"
+            "| pass on reference | check runnable | planner $ |"
         )
-        out.append("|---|---|---|---|---|---|---|")
+        out.append("|---|---|---|---|---|---|---|---|")
         for r in planq_rows:
             if r["label"] != label:
                 continue
@@ -380,73 +494,106 @@ def summary(planq_rows: list[dict], run_rows: list[dict], baseline: Path | None)
                 if r["conditions_total"] is None
                 else f"{r['conditions_pass_ref']}/{r['conditions_total']}"
             )
+            if r.get("checks_total") is not None:
+                chk = f"{r['check_runnable']}/{r['checks_total']}"
+            elif (r["task"], r["label"]) in checks_by_key:
+                c = checks_by_key[(r["task"], r["label"])]
+                chk = f"{c['check_runnable']}/{c['checks_total']}"
+            else:
+                chk = "-"
             cost = "-" if r["cost_usd"] is None else f"{r['cost_usd']:.4f}"
             out.append(
                 f"| {r['task']} | {r['plan_quality'] or '-'} | {strict} | {ms} | {ex} | {ps} "
-                f"| {cost} |"
+                f"| {chk} | {cost} |"
             )
     out.append("")
-    out.append("### (2) Per-run (deepseek)")
-    out.append(
-        "| task | run | completed | stop_reason | interventions | iterations | $ | wall_s "
-        "| plan | gate_failed | leaks |"
-    )
-    out.append("|---|---|---|---|---|---|---|---|---|---|---|")
-    ds = [r for r in run_rows if r["label"] == "deepseek"]
-    for r in ds:
-        leaks = f"{len(r['leaks'])}+{len(r['protected_hits'])}"
-        out.append(
-            f"| {r['task']} | {r['run']} | {'yes' if r['completed'] else 'no'} "
-            f"| {r['stop_reason']} | "
-            f"{r['interventions']} | {r['iterations']} | {r['cost_usd']:.4f} | {r['wall_s']} | "
-            f"{r['plan_quality'] or '-'} | {'yes' if r['gate_failed'] else 'no'} | {leaks} |"
-        )
-    out.append("")
-    out.append("### (3) Per task (deepseek)")
-    out.append("| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |")
-    out.append("|---|---|---|---|---|---|---|")
     base = _load_baseline(baseline)
-    tasks: list[str] = list(PRE_REGISTERED_TASKS)
-    for r in ds:
-        if r["task"] not in tasks:
-            tasks.append(r["task"])
-    for t in tasks:
-        rows = [r for r in ds if r["task"] == t]
-        n = len(rows)
-        if n == 0:
-            out.append(f"| {t} | 0/0 | not measured (budget) | - | - | - | - |")
-            continue
-        k = sum(1 for r in rows if r["completed"])
-        total = sum(r["cost_usd"] for r in rows)
-        wil = "no claim (n<3)" if n < 3 else _fmt_wilson(k, n)
-        if t in base:
-            cc_n = round(float(base[t]["solved"]) * int(base[t]["n"]))
-            cc_kn = f"{cc_n}/{int(base[t]['n'])}"
-            cc_cost = f"{float(base[t]['cost_usd']):.4f}"
-        else:
-            cc_kn = "no baseline (not measured)"
-            cc_cost = "-"
+    flags = _superseded_flags(run_rows)
+    run_labels = [
+        lbl for lbl in dict.fromkeys(r["label"] for r in run_rows) if lbl.startswith("deepseek")
+    ]
+    for label in run_labels:
+        label_rows = [
+            (r, sup) for r, sup in zip(run_rows, flags, strict=True) if r["label"] == label
+        ]
+        counted = [r for r, sup in label_rows if not sup]
+        note = RUN_LABEL_NOTES.get(label)
+
+        out.append(f"### (2) Per-run ({label})")
+        if note is not None:
+            out.append(note)
         out.append(
-            f"| {t} | {k}/{n} | {wil} | {total:.4f} | {total / n:.4f} | {cc_kn} | {cc_cost} |"
+            "| task | run | completed | stop_reason | interventions | iterations | $ | wall_s "
+            "| plan | gate_failed | leaks |"
         )
-    out.append("")
-    out.append("### (4) Overall (deepseek)")
-    out.append(
-        "| completed | n | rate | wilson | $ total | solved per $ | $ per completed "
-        "| interventions |"
-    )
-    out.append("|---|---|---|---|---|---|---|---|")
-    n_all = len(ds)
-    k_all = sum(1 for r in ds if r["completed"])
-    total_all = sum(r["cost_usd"] for r in ds)
-    interventions = sum(r["interventions"] for r in ds)
-    rate = f"{k_all / n_all:.3f}" if n_all else "-"
-    spd = f"{k_all / total_all:.3f}" if total_all > 0 else "n/a"
-    per_completed = f"{total_all / k_all:.4f}" if k_all else "n/a"
-    out.append(
-        f"| {k_all} | {n_all} | {rate} | {_fmt_wilson(k_all, n_all)} | {total_all:.4f} | "
-        f"{spd} | {per_completed} | {interventions} |"
-    )
+        out.append("|---|---|---|---|---|---|---|---|---|---|---|")
+        for r, sup in label_rows:
+            leaks = f"{len(r['leaks'])}+{len(r['protected_hits'])}"
+            stop = r["stop_reason"]
+            if sup:
+                stop = f"{stop} (superseded)"
+            elif r.get("rerun_of"):
+                stop = f"{stop} (rerun {r['rerun_of']})"
+            out.append(
+                f"| {r['task']} | {r['run']} | {'yes' if r['completed'] else 'no'} "
+                f"| {stop} | "
+                f"{r['interventions']} | {r['iterations']} | {r['cost_usd']:.4f} | {r['wall_s']} | "
+                f"{r['plan_quality'] or '-'} | {'yes' if r['gate_failed'] else 'no'} | {leaks} |"
+            )
+        out.append("")
+
+        out.append(f"### (3) Per task ({label})")
+        if note is not None:
+            out.append(note)
+        out.append("| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |")
+        out.append("|---|---|---|---|---|---|---|")
+        tasks: list[str] = list(PRE_REGISTERED_TASKS) if label == MAIN_RUN_LABEL else []
+        for r in counted:
+            if r["task"] not in tasks:
+                tasks.append(r["task"])
+        for t in tasks:
+            rows = [r for r in counted if r["task"] == t]
+            n = len(rows)
+            if n == 0:
+                out.append(f"| {t} | 0/0 | not measured (budget) | - | - | - | - |")
+                continue
+            k = sum(1 for r in rows if r["completed"])
+            total = sum(r["cost_usd"] for r in rows)
+            wil = "no claim (n<3)" if n < 3 else _fmt_wilson(k, n)
+            if t in base:
+                cc_n = round(float(base[t]["solved"]) * int(base[t]["n"]))
+                cc_kn = f"{cc_n}/{int(base[t]['n'])}"
+                cc_cost = f"{float(base[t]['cost_usd']):.4f}"
+            else:
+                cc_kn = "no baseline (not measured)"
+                cc_cost = "-"
+            out.append(
+                f"| {t} | {k}/{n} | {wil} | {total:.4f} | {total / n:.4f} | {cc_kn} | {cc_cost} |"
+            )
+        out.append("")
+
+        out.append(f"### (4) Overall ({label})")
+        if note is not None:
+            out.append(note)
+        out.append(
+            "| completed | n | rate | wilson | $ total | solved per $ | $ per completed "
+            "| interventions |"
+        )
+        out.append("|---|---|---|---|---|---|---|---|")
+        n_all = len(counted)
+        k_all = sum(1 for r in counted if r["completed"])
+        total_all = sum(r["cost_usd"] for r in counted)
+        interventions = sum(r["interventions"] for r in counted)
+        rate = f"{k_all / n_all:.3f}" if n_all else "-"
+        spd = f"{k_all / total_all:.3f}" if total_all > 0 else "n/a"
+        per_completed = f"{total_all / k_all:.4f}" if k_all else "n/a"
+        out.append(
+            f"| {k_all} | {n_all} | {rate} | {_fmt_wilson(k_all, n_all)} | {total_all:.4f} | "
+            f"{spd} | {per_completed} | {interventions} |"
+        )
+        out.append("")
+    if out and out[-1] == "":
+        out.pop()
     return "\n".join(out) + "\n"
 
 
@@ -464,6 +611,7 @@ def _build_parser() -> argparse.ArgumentParser:
     c = sub.add_parser("config")
     c.add_argument("model")
     c.add_argument("out", type=Path)
+    c.add_argument("--variant", choices=VARIANTS, default="base")
     g = sub.add_parser("goal")
     g.add_argument("task")
     pr = sub.add_parser("prepare")
@@ -476,6 +624,11 @@ def _build_parser() -> argparse.ArgumentParser:
     q.add_argument("--records", type=Path, required=True)
     q.add_argument("--label", required=True)
     q.add_argument("--config", type=Path, required=True)
+    cq = sub.add_parser("checkq")
+    cq.add_argument("task")
+    cq.add_argument("--plan", type=Path, required=True)
+    cq.add_argument("--config", type=Path, required=True)
+    cq.add_argument("--label", required=True)
     r = sub.add_parser("runrow")
     r.add_argument("task")
     r.add_argument("--ws", type=Path, required=True)
@@ -483,19 +636,21 @@ def _build_parser() -> argparse.ArgumentParser:
     r.add_argument("--label", required=True)
     r.add_argument("--run", type=int, required=True)
     r.add_argument("--interventions", type=int, required=True)
+    r.add_argument("--rerun-of", default=None)
     k = sub.add_parser("keygrep")
     k.add_argument("paths", nargs="+", type=Path)
     s = sub.add_parser("summary")
     s.add_argument("--planq", type=Path, required=True)
     s.add_argument("--runs", type=Path, required=True)
     s.add_argument("--baseline", type=Path, default=None)
+    s.add_argument("--checks", type=Path, default=None)
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.cmd == "config":
-        print(make_config(args.model, args.out))
+        print(make_config(args.model, args.out, args.variant))
         return 0
     if args.cmd == "goal":
         sys.stdout.write(goal_text(args.task))
@@ -508,9 +663,21 @@ def main(argv: list[str] | None = None) -> int:
         row = planq_row(args.task, outcome, args.plan, args.records, args.label, args.config)
         print(json.dumps(row))
         return 0
+    if args.cmd == "checkq":
+        row = checkq_row(args.task, args.plan, args.config, args.label)
+        print(json.dumps(row))
+        return 0
     if args.cmd == "runrow":
         outcome = json.loads(args.outcome.read_text(encoding="utf-8"))
-        row = run_row(args.task, args.ws, outcome, args.label, args.run, args.interventions)
+        row = run_row(
+            args.task,
+            args.ws,
+            outcome,
+            args.label,
+            args.run,
+            args.interventions,
+            rerun_of=args.rerun_of,
+        )
         print(json.dumps(row))
         if row["error_run"]:
             return 3
@@ -524,7 +691,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "summary":
         planq_rows = _read_jsonl(args.planq)
         run_rows = _read_jsonl(args.runs)
-        sys.stdout.write(summary(planq_rows, run_rows, args.baseline))
+        checks_rows = _read_jsonl(args.checks) if args.checks is not None else None
+        sys.stdout.write(summary(planq_rows, run_rows, args.baseline, checks_rows))
         return 0
     return 2
 
