@@ -478,6 +478,19 @@ def test_summary_superseded_and_labels():
             "checks_total": 3,
             "check_runnable": 3,
         },
+        {
+            "task": "e2e_h01",
+            "label": "deepseek-fix2",
+            "plan_quality": "first_try",
+            "first_reply_strict": True,
+            "milestones": 1,
+            "conditions_total": 0,
+            "conditions_executable": 0,
+            "conditions_pass_ref": 0,
+            "cost_usd": 0.01,
+            "checks_total": 4,
+            "check_runnable": 4,
+        },
     ]
     checks = [{"task": "e2e_h01", "label": "deepseek", "checks_total": 8, "check_runnable": 0}]
     text = summary(planq, runs, None, checks_rows=checks)
@@ -488,6 +501,8 @@ def test_summary_superseded_and_labels():
     assert "### (2) Per-run (deepseek-v2)" in text
     assert "(pre-fix planner prompt)" in text
     assert "(post-fix planner prompt, R11 round 1)" in text
+    assert "(post-fix planner prompt, R11 round 2)" in text
+    assert any("| 4/4 |" in line for line in text.splitlines())
     assert any("| 0/8 |" in line for line in lines)
     assert any("| 3/3 |" in line for line in lines)
     ds_block = text.split("### (2) Per-run (deepseek-v2)")[0]

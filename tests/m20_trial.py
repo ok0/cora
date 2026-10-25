@@ -36,14 +36,17 @@ DEADLINE_TOML = ROOT / "tests/fixtures/m19/arms/deadline.toml"
 VARIANTS = ("base", "deadline")
 DEADLINE_LINES = ("timeout_s = 300", "request_deadline_s = 300", "call_timeout_s = 960")
 PRE_FIX_LABELS = ("gemini-rehearsal", "deepseek")
-FIX_SUFFIX = "-fix1"
+FIX_ROUNDS = {"-fix1": "R11 round 1", "-fix2": "R11 round 2"}
 MAIN_RUN_LABEL = "deepseek-v2"
 RUN_LABEL_NOTES = {
     "deepseek": (
         "30/2400 attempt, pre-fix planner prompt, base config "
         "(r2 rerun under deadline config)"
     ),
-    "deepseek-v2": "main series: deadline config, project caps, post-fix planner prompt",
+    "deepseek-v2": (
+        "main series: deadline config, project caps, post-fix planner prompt "
+        "(R11 rounds 1-2)"
+    ),
 }
 
 
@@ -431,8 +434,9 @@ def _label_heading(label: str) -> str:
         heading += " (free-tier, non-G1)"
     if label in PRE_FIX_LABELS:
         heading += " (pre-fix planner prompt)"
-    if label.endswith(FIX_SUFFIX):
-        heading += " (post-fix planner prompt, R11 round 1)"
+    for sfx, rnd in FIX_ROUNDS.items():
+        if label.endswith(sfx):
+            heading += f" (post-fix planner prompt, {rnd})"
     return heading
 
 
