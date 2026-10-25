@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 
 import pytest
 
@@ -17,6 +18,7 @@ from cora.core.milestones import (
 )
 from cora.core.planner import (
     PLAN_DOC_KEYS,
+    PLANNER_SYSTEM,
     PlanBudgetExceeded,
     generate_plan,
     plan_error_outcome,
@@ -26,6 +28,14 @@ from cora.core.planner import (
     plan_project,
 )
 from cora.core.types import CompletionResponse
+
+ROUND2 = (
+    '- "check" runs under the same restricted shell policy as agent commands. Inline code passed '
+    "to an interpreter by a flag (such as -c or -e) is denied, and so are command substitution, "
+    'variable expansion, brace expansion (a comma or ".." inside curly braces), subshells, '
+    "heredocs, newlines and background jobs. Put the assertions in a test or script file inside "
+    'the repository and make "check" one command that runs that file.'
+)
 
 VALID = {
     "goal": "g",
@@ -239,6 +249,29 @@ def test_planner_system_check_is_shell_command():
         'omit it if no such command exists, and use "conditions" for deterministic checks.'
     ) in content
     assert content.count("{") == content.count("}")
+
+
+def test_planner_system_check_policy_sentence():
+    content = plan_messages("build X", 8)[0].content
+    assert ROUND2 in content
+    assert (
+        '"check" is a single runnable shell command that exits 0 when the milestone is done; '
+        'omit it if no such command exists, and use "conditions" for deterministic checks.'
+    ) in content
+    assert content.count("{") == content.count("}")
+    assert content.index(ROUND2) > content.index('"check" is a single runnable shell command')
+
+
+def test_planner_system_language_neutral():
+    assert (
+        re.search(
+            r"\b(python\d*|pypy|pytest|node(js)?|npm|deno|bun|ruby|perl|php|lua|rscript|"
+            r"javascript|typescript|java|rust|cargo|bash|zsh|pwsh|powershell)\b",
+            PLANNER_SYSTEM,
+            re.I,
+        )
+        is None
+    )
 
 
 def test_plan_to_toml_roundtrip(tmp_path):

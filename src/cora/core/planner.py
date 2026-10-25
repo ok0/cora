@@ -38,6 +38,11 @@ PLANNER_SYSTEM = (
     "- Prefer conditions that are cheap, deterministic and side-effect free.\n"
     '- "check" is a single runnable shell command that exits 0 when the milestone is done; '
     'omit it if no such command exists, and use "conditions" for deterministic checks.\n'
+    '- "check" runs under the same restricted shell policy as agent commands. Inline code '
+    'passed to an interpreter by a flag (such as -c or -e) is denied, and so are command '
+    'substitution, variable expansion, brace expansion (a comma or ".." inside curly braces), '
+    'subshells, heredocs, newlines and background jobs. Put the assertions in a test or script '
+    'file inside the repository and make "check" one command that runs that file.\n'
     '- A "path" is relative to the workspace: no absolute paths and no "..".\n'
     "- Use no other keys."
 )
