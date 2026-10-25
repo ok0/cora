@@ -2922,3 +2922,204 @@ cost: $0, OpenRouter 호출 0
 - **E2 계획 품질 재측정.** 무료 리허설 `gemini-rehearsal-fix2`, 유료 `deepseek-fix2` (deadline 구성, ≤ $0.05, 예상 ≈ $0.003). 본 시리즈가 쓰는 planner가 최신이므로 세는 계획 품질 표는 `deepseek-fix2`다. `deepseek-fix1`과 pre-fix 행은 이력으로 남기고 세지 않는다.
 - **E3 중단 규칙.** P1c의 5개 계획 전체에서 `checks_blocked` 합 > `checks_total` 합의 절반이면 본 시리즈(`deepseek-v2`)를 시작하지 않고 사용자에게 보고한다. 그 다음 선택지(프롬프트에 정책 동적 주입, 계획 검증 + 수리 루프)는 승인 없이 하지 않는다. 비교 기준: pre-fix 0/33, fix1 5/28.
 - **E4.** `deepseek-v2`는 R11 1·2회차 planner로 돈다. 배정 $2.00, 절단 규칙, 정의는 바뀌지 않는다.
+
+## M20 결과 (2026-10-25T14:29:55Z)
+
+요약 (먼저 읽을 것): G2 완료율은 낮다. `deepseek-v2` 9회 중 hidden grader 기준 완료는 2/9 (h01 2/3, h03 0/3, n08 0/3)이다. 런너가 기록한 `milestones_done`은 9회 모두 0이다 (두 값은 따로 보고한다). 6회는 `policy_blocked`(정책 차단)으로 끝났고, 2회는 `budget_exceeded`(실행당 비용 상한 $0.30)로 끝났지만 grader는 두 회 모두 통과시켰다. 1회(n08 r2)는 `planner reply invalid`로 끝났다. 계획 단계의 `check` 실행 가능성은 R11 두 차례 수정 뒤에도 28개 중 14개만 실행 가능했다. 이 결과는 report-only이며 M20은 어떤 기본값도 바꾸지 않았다. 아래 표는 `tests/m20_trial.py summary` 출력을 그대로 옮긴 것이다.
+
+### (a) 지출 표
+
+판정 기준은 `/credits` 차이다. `/auth/key`의 key usage는 M20 시작 전 0.004, 현재 0.742이고 남은 한도는 3.258이다. 따라서 M20 지출은 0.742 - 0.004 = 0.738이며 배정 $2.00 안에 있다. 유료 누계는 이전 6.42 + 0.738 = 7.16이고 $8.42 이하, $10 미만이다.
+
+세그먼트별 `/credits` before/after 값과 승인 시각은 저장소에 기록되지 않았다. 여기서 재구성하지 않는다. 아래 표의 outcome-sum은 fixture 값의 합이며 권위 있는 수치가 아니다 (합 0.7203 대비 `/credits` 0.738, 차이 0.0177은 세그먼트별로 배분할 수 없다). 리허설 디렉터리는 `$TMPDIR/cora-m20`의 타임스탬프로 대응시켰다 (`rehearse`=P2, `rehearse2`=RR, `rehearse3`=P2v2, `rehearse4`=P3, `rehearse5`=P4).
+
+| segment | approval time | rehearsal | estimate (pre-registered) | `/credits` before/after | delta | outcome-sum | running M20 (outcome-sum) | running paid total |
+|---|---|---|---|---|---|---|---|---|
+| L0 gemini plan quality (free) | not recorded | n/a (free) | $0 | n/a | 0 | 0.0000 | 0.0000 | 6.42 (pre-M20) |
+| P1 deepseek plan quality (pre-fix) | not recorded | L0 | ≤ 0.05 | not recorded per segment | - | 0.0040 | 0.0040 | - |
+| P2 first attempt, h01 r0-r2 (30/2400) | not recorded | `rehearse` | 0.20 | not recorded per segment | - | 0.0366 | 0.0406 | - |
+| RR-M20-01 h01 r2 rerun | not recorded | `rehearse2` | 0.0655 | not recorded per segment | - | 0.0034 | 0.0440 | - |
+| P1b deepseek-fix1 plan quality | not recorded | L0b | ≤ 0.05 (≈ 0.005) | not recorded per segment | - | 0.0032 | 0.0472 | - |
+| P1c deepseek-fix2 plan quality | not recorded | L0c | ≤ 0.05 (≈ 0.003) | not recorded per segment | - | 0.0034 | 0.0506 | - |
+| P2v2 h01 n=3 (`deepseek-v2`) | not recorded | `rehearse3` | 0.45 cell | not recorded per segment | - | 0.6162 | 0.6668 | - |
+| P3 h03 n=3 (`deepseek-v2`) | not recorded | `rehearse4` | 0.45 cell | not recorded per segment | - | 0.0468 | 0.7136 | - |
+| P4 n08 n=3 (`deepseek-v2`) | not recorded | `rehearse5` | 0.45 cell | not recorded per segment | - | 0.0067 | 0.7203 | - |
+| **M20 total** | - | - | $2.00 ceiling | key usage 0.004 → 0.742 | **0.738** | 0.7203 | 0.738 (`/credits`) | 6.42 + 0.738 = **7.16** |
+
+### (b) 계획 품질 (세는 라벨: `deepseek-fix2`, R11 2차 수정)
+
+세는 표는 `deepseek-fix2`다 (R11 round 2, `deepseek-v2`가 쓰는 planner). `deepseek-fix1`과 pre-fix(`deepseek`, `gemini-rehearsal`)는 이력으로만 보인다. `gemini-*` 블록은 무료 티어이며 non-G1이고 M20 구성에 대한 근거가 아니다. 'pass on reference'는 최종 reference 상태에서 모든 milestone의 조건을 돌린 것이므로 중간에만 성립하는 조건은 실패로 나온다. `check runnable`은 정책 게이트가 실행을 허용한 `check` 수 / `check` 수다. pre-fix 합계 0/33, fix1 5/28, fix2 14/28이다. fix2에서 차단된 `check`는 14개로 전체의 정확히 절반이므로 E3 중단 규칙(> 절반)에 걸리지 않았고 본 시리즈가 진행됐다.
+
+### (1) Plan quality, per label
+#### label: gemini-rehearsal (free-tier, non-G1) (pre-fix planner prompt)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ |
+|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 3 | 4/4 | 4/4 | 3/3 | 0.0000 |
+| e2e_h02 | first_try | yes | 4 | 4/4 | 4/4 | 0/0 | 0.0000 |
+| e2e_h03 | first_try | yes | 6 | 6/6 | 6/6 | 1/6 | 0.0000 |
+| e2e_h05 | first_try | yes | 5 | 6/6 | 6/6 | 1/5 | 0.0000 |
+| e2e_h06 | first_try | yes | 4 | 4/4 | 4/4 | 2/4 | 0.0000 |
+#### label: deepseek (pre-fix planner prompt)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ |
+|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 7 | 7/11 | 7/11 | 0/7 | 0.0006 |
+| e2e_h02 | first_try | yes | 6 | 9/9 | 9/9 | 0/6 | 0.0006 |
+| e2e_h03 | first_try | yes | 6 | 5/6 | 5/6 | 0/6 | 0.0006 |
+| e2e_h05 | first_try | yes | 7 | 6/7 | 6/7 | 0/7 | 0.0006 |
+| e2e_h06 | first_try | yes | 7 | 5/7 | 5/7 | 0/7 | 0.0016 |
+#### label: gemini-rehearsal-fix1 (free-tier, non-G1) (post-fix planner prompt, R11 round 1)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ |
+|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 3 | 4/4 | 4/4 | 3/3 | 0.0000 |
+| e2e_h02 | first_try | yes | 4 | 4/4 | 4/4 | 1/4 | 0.0000 |
+| e2e_h03 | first_try | yes | 5 | 5/5 | 5/5 | 1/5 | 0.0000 |
+| e2e_h05 | first_try | yes | 6 | 5/5 | 5/5 | 1/1 | 0.0000 |
+| e2e_h06 | first_try | yes | 4 | 4/4 | 4/4 | 1/1 | 0.0000 |
+#### label: deepseek-fix1 (post-fix planner prompt, R11 round 1)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ |
+|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 6 | 3/3 | 3/3 | 1/6 | 0.0006 |
+| e2e_h02 | first_try | yes | 4 | 4/4 | 4/4 | 1/4 | 0.0006 |
+| e2e_h03 | first_try | yes | 7 | 9/11 | 9/11 | 1/6 | 0.0009 |
+| e2e_h05 | first_try | yes | 7 | 5/5 | 5/5 | 1/7 | 0.0006 |
+| e2e_h06 | first_try | yes | 5 | 4/4 | 4/4 | 1/5 | 0.0005 |
+#### label: gemini-rehearsal-fix2 (free-tier, non-G1) (post-fix planner prompt, R11 round 2)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ |
+|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 4 | 3/3 | 3/3 | 1/1 | 0.0000 |
+| e2e_h02 | first_try | yes | 5 | 5/5 | 5/5 | 1/1 | 0.0000 |
+| e2e_h03 | first_try | yes | 6 | 6/6 | 6/6 | 0/0 | 0.0000 |
+| e2e_h05 | after_repair | no | 6 | 6/6 | 6/6 | 1/6 | 0.0000 |
+| e2e_h06 | first_try | yes | 4 | 3/3 | 3/3 | 1/4 | 0.0000 |
+#### label: deepseek-fix2 (post-fix planner prompt, R11 round 2)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ |
+|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 5 | 4/4 | 4/4 | 3/3 | 0.0005 |
+| e2e_h02 | first_try | yes | 6 | 5/5 | 5/5 | 2/6 | 0.0008 |
+| e2e_h03 | first_try | yes | 7 | 4/11 | 4/11 | 7/7 | 0.0007 |
+| e2e_h05 | first_try | yes | 7 | 6/6 | 6/6 | 1/7 | 0.0008 |
+| e2e_h06 | first_try | yes | 5 | 4/4 | 4/4 | 1/5 | 0.0006 |
+
+### (c) 실행별 · 과제별 · 전체 (라벨별)
+
+`deepseek` 블록은 30/2400 시도 (superseded r2와 RR-M20-01 포함)이다. `deepseek-v2`가 메인 시리즈다. superseded 행은 (2)에만 보이고 (3)(4)에서 빠진다. 이 표들은 `summary` 출력을 그대로 옮겼다.
+
+### (2) Per-run (deepseek)
+30/2400 attempt, pre-fix planner prompt, base config (r2 rerun under deadline config)
+| task | run | completed | stop_reason | interventions | iterations | $ | wall_s | plan | gate_failed | leaks |
+|---|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | 0 | no | policy_blocked | 0 | 6 | 0.0026 | 109.578 | first_try | yes | 0+0 |
+| e2e_h01 | 1 | no | budget_exceeded | 0 | 30 | 0.0340 | 777.334 | first_try | yes | 0+0 |
+| e2e_h01 | 2 | no | error (superseded) | 0 | 0 | 0.0000 | 754.467 | first_try | yes | 0+0 |
+| e2e_h01 | 2 | no | policy_blocked (rerun e2e_h01-r2) | 1 | 8 | 0.0034 | 45.346 | first_try | yes | 0+0 |
+
+### (3) Per task (deepseek)
+30/2400 attempt, pre-fix planner prompt, base config (r2 rerun under deadline config)
+| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |
+|---|---|---|---|---|---|---|
+| e2e_h01 | 0/3 | [0.000, 0.562] | 0.0400 | 0.0133 | 3/3 | 0.0795 |
+
+### (4) Overall (deepseek)
+30/2400 attempt, pre-fix planner prompt, base config (r2 rerun under deadline config)
+| completed | n | rate | wilson | $ total | solved per $ | $ per completed | interventions |
+|---|---|---|---|---|---|---|---|
+| 0 | 3 | 0.000 | [0.000, 0.562] | 0.0400 | 0.000 | n/a | 1 |
+
+### (2) Per-run (deepseek-v2)
+main series: deadline config, project caps, post-fix planner prompt (R11 rounds 1-2)
+| task | run | completed | stop_reason | interventions | iterations | $ | wall_s | plan | gate_failed | leaks |
+|---|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | 0 | yes | budget_exceeded | 0 | 189 | 0.2976 | 974.076 | first_try | yes | 0+0 |
+| e2e_h01 | 1 | no | policy_blocked | 0 | 39 | 0.0690 | 256.31 | first_try | yes | 0+0 |
+| e2e_h01 | 2 | yes | budget_exceeded | 0 | 206 | 0.2496 | 935.754 | first_try | yes | 0+0 |
+| e2e_h03 | 0 | no | policy_blocked | 0 | 24 | 0.0246 | 216.339 | first_try | no | 0+0 |
+| e2e_h03 | 1 | no | policy_blocked | 0 | 21 | 0.0143 | 202.946 | first_try | yes | 0+0 |
+| e2e_h03 | 2 | no | policy_blocked | 0 | 17 | 0.0079 | 137.59 | first_try | yes | 0+0 |
+| e2e_n08 | 0 | no | policy_blocked | 0 | 5 | 0.0024 | 37.308 | first_try | yes | 0+0 |
+| e2e_n08 | 1 | no | policy_blocked | 0 | 7 | 0.0043 | 79.285 | first_try | yes | 0+0 |
+| e2e_n08 | 2 | no | error | 0 | 0 | 0.0000 | 61.073 | failed | no | 0+0 |
+
+### (3) Per task (deepseek-v2)
+main series: deadline config, project caps, post-fix planner prompt (R11 rounds 1-2)
+| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |
+|---|---|---|---|---|---|---|
+| e2e_h01 | 2/3 | [0.208, 0.939] | 0.6162 | 0.2054 | 3/3 | 0.0795 |
+| e2e_h03 | 0/3 | [0.000, 0.562] | 0.0468 | 0.0156 | 3/3 | 0.0872 |
+| e2e_n08 | 0/3 | [0.000, 0.562] | 0.0067 | 0.0022 | no baseline (not measured) | - |
+
+### (4) Overall (deepseek-v2)
+main series: deadline config, project caps, post-fix planner prompt (R11 rounds 1-2)
+| completed | n | rate | wilson | $ total | solved per $ | $ per completed | interventions |
+|---|---|---|---|---|---|---|---|
+| 2 | 9 | 0.222 | [0.063, 0.547] | 0.6697 | 2.986 | 0.3348 | 0 |
+
+### (d) 누출 검사
+
+- 실행별 `leaks`와 `protected_hits`: 13개 행 모두 `[]` / 0+0. 누출 0.
+- `keygrep` (저장소 전체와 `$TMPDIR/cora-m20`, 키는 환경변수 인라인으로만 전달): `files_scanned` 7262, `matches` `[]`, exit 0.
+
+### (e) 결함
+
+| id | evidence | fix or limit | round | test |
+|---|---|---|---|---|
+| D1 | P2 r0 `policy_blocked`; 계획의 `check`가 산문이라 정책에 막힘 (F1, `diagnosis.md`) | fix: `PLANNER_SYSTEM`에 문장 1개 | R11 round 1 | `test_planner_system_check_is_shell_command` |
+| D2 | P1b 5/28 실행 가능, 23 차단 (`confine:one-liner` 18, `confine:brace` 4, `confine:python-module` 1) | fix: 언어 중립 정책 문장 | R11 round 2 | `test_planner_system_check_policy_sentence`, `test_planner_system_language_neutral` |
+| D3 | P1c 후에도 `check` 14/28 차단 | limit: 수정 안 함. 에스컬레이션은 승인 없이 하지 않음 (E3) | - | 없음 (계획 행은 `planq`/`checks.jsonl`) |
+| D4 | P2 h01 r1 `budget_exceeded` at 30 iterations; `project run` 상한은 프로젝트 누적 (F2) | fix: 플래그만 바꿈 (project 크기 상한, 설정 기본값 불변) | Revision 2 | 없음 (플래그/설정, 근거 `diagnosis.md`) |
+| D5 | P2 r2 `RequestDeadlineExceeded` (`request_deadline_s=90`) (F3) | fix: deadline 변형 구성 (`timeout_s`/`request_deadline_s` 300, `call_timeout_s` 960) | Revision 2 | `test_make_config_deadline_variant`, `test_make_config_deadline_matches_m19` |
+| D6 | P2 r2 outcome `cost_usd` 0.0, 약 $0.011 청구됨 | limit: 지출은 `/credits`로 잰다 | - | 없음 (`test_spend_within_allocation`은 outcome-sum 상한만 본다) |
+| D7 | h01 r2 error (D5와 같은 실행) | RR-M20-01 재실행, 원래 행은 superseded, interventions = 1 | Revision 2 | `test_run_row_rerun`, `test_summary_superseded_and_labels` |
+| D8 | `deepseek-v2` n08 r2 `planner reply invalid` (JSON 아님, 수리 후에도 실패) | open limit: M20에서 진단하지 않음. 미완료로 계산 | - | 없음 |
+| D9 | 6/9 `policy_blocked`; agent 명령이 `confine:cd`, one-liner, `default:delete`에 막힘; shellguard 인터프리터별 하드코딩 | open limit: 후속 제안 (h) | - | 없음 |
+| D10 | 런너 `milestones_done` 9회 모두 0, grader 통과 2회 포함 (h01 2/3) | open defect candidate: 진단 안 함 (state.md 항목 f) | - | 없음 |
+| D11 | `deepseek-v2` h01 r0, r2가 $0.30 상한에서 `budget_exceeded`, grader는 통과 | limit: 상한이 완료를 막았다. 상한 변경은 시험하지 않음 | - | 없음 |
+
+AC7 확인: `error_run true`인 행은 D5/D7의 P2 r2 하나뿐이며 `diagnosis.md`를 참조한다.
+
+### Limits (G1/G2 요약에 적용)
+
+1. 과제는 전부 Python이다 (e2e 248개 `.py` 파일, `python -m pytest` 명령). 결과는 작은 Python 프로젝트에 대한 근거일 뿐이다.
+2. planner R11 문장은 현재 shell 정책 규칙을 복사한 것이라 규칙이 바뀌면 어긋난다 (drift 위험). POSIX shell을 가정한다.
+3. shellguard에는 인터프리터별 규칙이 하드코딩되어 있다.
+4. `deepseek-v2` 9회 중 6회는 `policy_blocked`, 1회는 `planner reply invalid`, 2회는 `budget_exceeded`(비용 상한)로 끝났다. 2회는 grader가 통과시켰다. 보고는 "grader completed 2/9"와 "runner milestones_done 0/9"를 따로 한다.
+5. 메인 시리즈는 상한, 구성(deadline), planner 프롬프트(R11 1·2회차)를 동시에 바꿨다. 따라서 한 변경에 결과 차이를 귀속할 수 없다. 과제당 n=3이며, h01과 h03은 설계 중에 이미 보였던 과제다.
+6. outcome `cost_usd`는 P2 r2에서 0.0으로 기록됐지만 약 $0.011이 청구됐다 (계정 측정 한계). 지출은 `/credits` 차이로 잰다.
+7. n08에는 Claude Code 기준선이 없다. h01/h03의 Claude Code 기준선 비용은 toml 추정값이다.
+8. P2 첫 시도는 설정 오류였다 (30/2400 상한과 deadline 90 s). 이 시도는 label `deepseek`으로 따로 보고한다.
+9. 후속 제안은 (h)와 `.ensemble/state.md`의 "MUST DO AFTER M20" 항목이다.
+
+### (f) G1 두 줄 (두 해석을 나란히, 주 라벨 없음)
+
+입력은 M19 arm e (19/24, $0.7454, solved-per-dollar 25.5)와 Claude Code (21/24, 11.1)다. 이는 사전 등록의 G1 입력이며 M20 결과가 아니다. ratio = 19/24 ÷ 21/24 = 0.905 (기준 ≥ 0.70 충족). spd ratio = 25.5 / 11.1 = 2.30 (기준 ≥ 2.0x 충족). 가격은 deepseek in 0.28 / out 0.42, m1 `google/gemini-2.5-flash-lite` in 0.10 / out 0.40 (OpenRouter `/api/v1/models` 2026-10-18). 가격 규칙으로는 2.8× / 1.05× ≤ 3×이므로 cheap이다.
+
+| reading | line | ratio vs CC (≥ 0.70) | spd ratio vs CC (≥ 2.0x) | status |
+|---|---|---|---|---|
+| 가격 규칙 (deepseek = cheap) | `G1 met (outcome)` | 0.905 | 2.30 | met |
+| 가격 규칙 (deepseek = cheap) | `met with cheap-tier models only` | 0.905 | 2.30 | met (cheap tier만) |
+| charter 개정 해석 (deepseek = mid/strong) | `G1 met (outcome)` | 0.905 | 2.30 | met |
+| charter 개정 해석 (deepseek = mid/strong) | `met with cheap-tier models only` | 0.905 | 2.30 | not claimed (deepseek은 cheap이 아니다) |
+
+미충족(unmet)이나 판정 불가(indeterminate)인 줄은 없다. 위 수치는 M19 입력에서 나온 것이므로 M20 G2 결과가 G1을 바꾸지 않는다.
+
+### (g) G2 요약 (`deepseek-v2`만, n=3 per task)
+
+- 완료율 (grader `full_pass`): 2/9 = 0.222, Wilson [0.063, 0.547].
+- 과제별: h01 2/3 [0.208, 0.939]; h03 0/3 [0.000, 0.562]; n08 0/3 [0.000, 0.562]. 구간이 넓다.
+- Claude Code 대비 (h01, h03만; n08은 기준선 없음): Claude Code 3/3 + 3/3 = 6/6, CORA 2/6.
+- `milestones_done` (런너 기록): 9회 모두 0/9. grader 통과 2회도 0이다. 별도 보고한다.
+- interventions: 0/9. 정책 자동 거부는 `policy_deny`로 따로 집계했다 (합 36회; 그중 headless ask 해결 거부 15회). 개입이 아니다.
+- 비용 (outcome-sum, 9회 합): $0.6697. 과제별 $/run: h01 0.2054, h03 0.0156, n08 0.0022. Claude Code $/run: h01 0.0795, h03 0.0872 (toml 추정).
+- $ per completed project: 전체 0.3348 (2회 완료); h01만 0.3081 (Claude Code h01 0.0795, 약 3.9배). 두 값 모두 outcome-sum 기준이다.
+- solved per $: 2.986. Claude Code의 11.1은 M19 24개 과제 기준이라 과제 집합이 달라 직접 비교할 수 없다.
+
+완료율이 낮은 이유: (1) 6/9가 `policy_blocked`로 끝났다. 실행당 `policy_deny`는 0-12회였다 (`confine:cd`, one-liner, `default:delete` 거부가 h03 실행에서 관찰됐다). planner R11 수정은 계획의 `check`만 다룬다. agent의 셸 명령은 프롬프트로 다루지 않는다. (2) 2/9는 실행당 비용 상한 $0.30에서 `budget_exceeded`로 멈췄다 (h01 r0 $0.2976, r2 $0.2496). grader는 두 회 모두 통과시켰지만 상한을 더 올린 구성은 시험하지 않았다. (3) 1/9(n08 r2)는 계획 응답이 JSON이 아니어서 수리 한 번 뒤에도 실패했다. (4) 런너 milestone 집계는 9회 모두 0이었다. 이 원인은 M20에서 진단하지 않았다. 요약하면 이 구성은 이 상한과 정책 아래에서 대부분의 과제를 끝내지 못했다. n=3에서 말할 수 있는 것은 "이 9회 중 2회 완료"뿐이다.
+
+### (h) 후속 제안 (제안이며 승인되지 않음)
+
+- A6 같은 모델, 다른 하네스 대조 실험: 범위 밖. 하네스 이름은 사용자가 정해야 한다.
+- 정책 인지 계획/실행: 프롬프트에 정책 규칙 동적 주입, 또는 계획 검증 + 수리 루프. 새 승인 필요 (E3).
+- shellguard의 인터프리터별 하드코딩 규칙 (언어 특정).
+- 비 Python 과제 집합.
+- 비용 집계 결함: outcome `cost_usd` 0.0 vs 청구 (P2 r2).
+- 런너 milestone 집계 결함: grader 통과인데 0 done (h01 2/3).
+- 위 항목은 `.ensemble/state.md`의 "MUST DO AFTER M20"에 있으며, 개선 논의는 M20 종료 시 사용자와 한다. 로드맵 제안은 사용자가 동의하면 architect REVISION으로 넣는다.

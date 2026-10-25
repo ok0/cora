@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -174,3 +175,64 @@ def test_amendment2_items() -> None:
         ROUND2,
     ):
         assert token in amend, token
+
+
+def _results() -> str:
+    text = BENCH.read_text(encoding="utf-8")
+    m = RESULT_RE.search(text)
+    assert m is not None
+    rest = text[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return text[m.start(): m.end() + (nxt.start() if nxt else len(rest))]
+
+
+def _fixture(name: str) -> list[dict]:
+    path = ROOT / "tests/fixtures/m20" / name
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in lines if line.strip()]
+
+
+def test_results_match_fixtures() -> None:
+    import m20_trial
+
+    baseline = ROOT / ".docs/baselines/claude-code-m19.toml"
+    checks = ROOT / "tests/fixtures/m20/checks.jsonl"
+    out = m20_trial.summary(
+        _fixture("planq.jsonl"),
+        _fixture("runs.jsonl"),
+        baseline if baseline.exists() else None,
+        checks_rows=_fixture("checks.jsonl") if checks.exists() else None,
+    )
+    section = _results()
+    table_lines = [line for line in out.splitlines() if line.startswith(("|", "### ", "#### "))]
+    assert table_lines
+    for line in table_lines:
+        assert line in section, line
+
+
+def test_results_lines() -> None:
+    section = _results()
+    assert section.count("G1 met (outcome)") >= 2
+    assert section.count("met with cheap-tier models only") >= 2
+    for token in (
+        "0.28",
+        "0.42",
+        "no baseline (not measured)",
+        "keygrep",
+        "RR-M20-01",
+        "superseded",
+        "30/2400",
+        "deepseek-v2",
+        "pre-fix",
+    ):
+        assert token in section, token
+
+
+def test_spend_within_allocation() -> None:
+    rows = _fixture("planq.jsonl") + _fixture("runs.jsonl")
+    total = sum(
+        float(r.get("cost_usd") or 0.0)
+        for r in rows
+        if str(r.get("label", "")).startswith("deepseek")
+    )
+    assert total <= 2.00
