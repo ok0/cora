@@ -2913,3 +2913,12 @@ cost: $0, OpenRouter 호출 0
 6. **D6 시리즈 구분.** 본 G2 시리즈는 label `deepseek-v2` (D1 + D3 + D5, h01/h03/n08 각 n=3, 새 셀 슬롯)이다. P2 첫 시도(label `deepseek`, 30/2400: r0, r1, superseded r2, RR-M20-01)는 "30/2400 attempt"로 따로 보고하며 본 시리즈와 합치지 않는다. 세 변경이 함께 들어가므로 두 시리즈의 차이를 한 원인에 돌리지 않는다.
 
 7. **D7 예상 비용과 절단 규칙.** RR-M20-01 예상 $0.0655; `deepseek-v2` run당 예상 $0.15 (P2 r1 $0.00113/iteration × 약 130 iteration, 올림), 셀 $0.45, 셀 시작 조건 남은 배정 ≥ $0.675. 배정 $2.00, 정의(completed, intervention, leak, error run), error run 즉시 중단, 402 중단, n<3 무주장 규칙은 바뀌지 않는다. 누적 지출은 `/credits` 차이로 잰다 (P2 r2 outcome은 $0.0으로 과소 보고).
+
+## M20 사전 등록 수정 2 (2026-10-25T12:35:20Z)
+
+이 절은 P1b(`deepseek-fix1`) 결과(check 5/28 실행 가능, 23개가 정책에 막힘; 대부분 `confine:one-liner`, 일부 `confine:brace`)를 본 뒤 만든 편차다. 사용자가 2026-10-25에 승인했다. 앞선 두 절과 기존 행은 바꾸지 않는다. 이 절은 P1c 전에 커밋한다.
+
+- **E1 R11 수정 2회차.** `PLANNER_SYSTEM`에 언어 중립 문장 하나를 더한다 (언어/인터프리터 이름 없음): `"check" runs under the same restricted shell policy as agent commands. Inline code passed to an interpreter by a flag (such as -c or -e) is denied, and so are command substitution, variable expansion, brace expansion (a comma or ".." inside curly braces), subshells, heredocs, newlines and background jobs. Put the assertions in a test or script file inside the repository and make "check" one command that runs that file.` 회귀 테스트 `tests/test_planner.py::test_planner_system_check_policy_sentence`, `test_planner_system_language_neutral`. src 변경은 여전히 `src/cora/core/planner.py`뿐이다.
+- **E2 계획 품질 재측정.** 무료 리허설 `gemini-rehearsal-fix2`, 유료 `deepseek-fix2` (deadline 구성, ≤ $0.05, 예상 ≈ $0.003). 본 시리즈가 쓰는 planner가 최신이므로 세는 계획 품질 표는 `deepseek-fix2`다. `deepseek-fix1`과 pre-fix 행은 이력으로 남기고 세지 않는다.
+- **E3 중단 규칙.** P1c의 5개 계획 전체에서 `checks_blocked` 합 > `checks_total` 합의 절반이면 본 시리즈(`deepseek-v2`)를 시작하지 않고 사용자에게 보고한다. 그 다음 선택지(프롬프트에 정책 동적 주입, 계획 검증 + 수리 루프)는 승인 없이 하지 않는다. 비교 기준: pre-fix 0/33, fix1 5/28.
+- **E4.** `deepseek-v2`는 R11 1·2회차 planner로 돈다. 배정 $2.00, 절단 규칙, 정의는 바뀌지 않는다.

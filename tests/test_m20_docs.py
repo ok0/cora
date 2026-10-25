@@ -9,7 +9,16 @@ BENCH = ROOT / ".docs/bench-results.md"
 HEADING_RE = re.compile(r"^## M20 사전 등록 \(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$", re.M)
 RESULT_RE = re.compile(r"^## M20 결과 \(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$", re.M)
 AMEND_RE = re.compile(r"^## M20 사전 등록 수정 \(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$", re.M)
+AMEND2_RE = re.compile(r"^## M20 사전 등록 수정 2 \(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$", re.M)
 PREREG_SHA = "a6202e01622662bbe9682cc9245812d4b4c119470308307d1b1187eac1d76710"
+AMEND_SHA = "bc449bd011916cf03d680539cef9bfaa9b3c91c37ed9a78df4bda973db7068ed"
+ROUND2 = (
+    '"check" runs under the same restricted shell policy as agent commands. Inline code '
+    'passed to an interpreter by a flag (such as -c or -e) is denied, and so are command '
+    'substitution, variable expansion, brace expansion (a comma or ".." inside curly braces), '
+    'subshells, heredocs, newlines and background jobs. Put the assertions in a test or script '
+    'file inside the repository and make "check" one command that runs that file.'
+)
 
 
 def _prereg() -> str:
@@ -24,6 +33,15 @@ def _prereg() -> str:
 def _amend() -> str:
     text = BENCH.read_text(encoding="utf-8")
     m = AMEND_RE.search(text)
+    assert m is not None
+    rest = text[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return text[m.start(): m.end() + (nxt.start() if nxt else len(rest))]
+
+
+def _amend2() -> str:
+    text = BENCH.read_text(encoding="utf-8")
+    m = AMEND2_RE.search(text)
     assert m is not None
     rest = text[m.end():]
     nxt = re.search(r"^## ", rest, re.M)
@@ -120,3 +138,39 @@ def test_amendment_items() -> None:
     deadline = ROOT / "tests/fixtures/m19/arms/deadline.toml"
     digest = hashlib.sha256(deadline.read_bytes()).hexdigest()
     assert digest in amend
+
+
+def test_amendment_unchanged() -> None:
+    assert hashlib.sha256(_amend().rstrip().encode("utf-8")).hexdigest() == AMEND_SHA
+
+
+def test_amendment2_once_and_ordered() -> None:
+    text = BENCH.read_text(encoding="utf-8")
+    matches = list(AMEND2_RE.finditer(text))
+    assert len(matches) == 1
+    a = AMEND_RE.search(text)
+    assert a is not None
+    assert matches[0].start() > a.start()
+    r = RESULT_RE.search(text)
+    if r is not None:
+        assert matches[0].start() < r.start()
+
+
+def test_amendment2_items() -> None:
+    amend = _amend2()
+    for token in (
+        "2026-10-25",
+        "5/28",
+        "0/33",
+        "confine:one-liner",
+        "deepseek-fix2",
+        "gemini-rehearsal-fix2",
+        "deepseek-fix1",
+        "test_planner_system_check_policy_sentence",
+        "test_planner_system_language_neutral",
+        "checks_blocked",
+        "deepseek-v2",
+        "$2.00",
+        ROUND2,
+    ):
+        assert token in amend, token
