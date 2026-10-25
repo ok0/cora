@@ -2895,3 +2895,21 @@ cost: $0, OpenRouter 호출 0
 10. **기준선 (R10).** Claude Code 기준선은 `.docs/baselines/claude-code-m19.toml`에서 가져온다: h01 solved 1.0, $0.0795/run; h03 solved 1.0, $0.0872/run (toml 추정 가격, caveat). n08은 기준선이 없으며 (no baseline (not measured)) 새 기준선 run을 만들지 않는다.
 11. **G1 두 줄 입력 (R2).** 가격: deepseek 입력 0.28 / 출력 0.42, m1 `google/gemini-2.5-flash-lite` 0.10 / 0.40, 모두 2026-10-18 OpenRouter `/api/v1/models` 기준이며 `cora.toml` 주석에 따른다. 가격 규칙 해석: 2.8× / 1.05× ≤ 3× → cheap. 헌장 개정 해석: mid/strong. 수치는 M19 arm e (19/24, $0.7454, solved-per-dollar 25.5)와 Claude Code (21/24, 11.1)에서 가져온다: 비율 0.905, spd 비율 2.30.
 12. **후속 (A6).** 같은 모델, 다른 하네스 대조군은 이 범위 밖이다. 하네스는 사용자가 아직 지정하지 않았다.
+
+## M20 사전 등록 수정 (2026-10-25T11:38:12Z)
+
+이 절은 P2 첫 시도(`e2e_h01` r0 `policy_blocked`, r1 `budget_exceeded`, r2 `error` RequestDeadlineExceeded)의 결과를 본 뒤에 만든 편차(deviation)다. 원인 진단은 `.ensemble/milestones/M20/diagnosis.md` (F1-F3)이며, 사용자가 2026-10-25에 승인했다. 원래 사전 등록 절은 바꾸지 않으며, P1과 P2 첫 시도 행은 삭제하거나 덮어쓰지 않는다. 이 절은 다음 유료 호출(RR-M20-01) 전에 커밋한다.
+
+1. **D1 마감 시간 구성 (F3).** 남은 모든 호출은 `uv run python tests/m20_trial.py config <model> <out> --variant deadline`로 만든 구성을 쓴다. 내용은 M19 수정 6-7의 `tests/fixtures/m19/arms/deadline.toml` (sha256 `f32ed786367b204057f8001d3d36a0a5a7f962f28aa3ba9ea822d83a8c4d17c4`; `timeout_s = 300`, `request_deadline_s = 300`, `call_timeout_s = 960`, 규칙 call_timeout_s ≥ 3×D+3)에 같은 `pin` 한 줄을 넣은 것이다. `cora.toml`과 `src/cora/data/cora.toml`은 바뀌지 않으며 `cmp`는 동일하다. 근거: P2 r2의 `request_deadline_s=90` 오류는 M19에서 deepseek를 검열한 것과 같은 종류다.
+
+2. **D2 재실행 RR-M20-01.** `e2e_h01-r2`를 정확히 한 번 재실행한다. 명령은 P2와 같고 (30/2400, 재실행 시점의 src는 사전 등록 커밋과 동일 = pre-fix planner) 구성만 D1이다. 원래 r2 행은 남기고 superseded로 표시하며 대체(replace)하지 않는다. 같은 셀 슬롯의 재실행이므로 정의대로 interventions = 1로 기록한다. 다시 오류가 나면 멈추고 더 재실행하지 않는다.
+
+3. **D3 R11 수정 1회차 (F1).** `src/cora/core/planner.py`의 `PLANNER_SYSTEM`에 한 문장을 추가한다: `"check" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use "conditions" for deterministic checks.` 회귀 테스트는 `tests/test_planner.py::test_planner_system_check_is_shell_command`. M20에서 유일한 src 변경이며 설정 기본값은 바꾸지 않는다 (spec R11 수정 라운드, 사용자 승인 2026-10-25).
+
+4. **D4 계획 품질 재측정.** 수정 후 계획 품질을 다시 잰다: 무료 리허설 `gemini-rehearsal-fix1`, 유료 `deepseek-fix1` (≤ $0.05, 예상 ≈ $0.005). M20에서 세는 계획 품질 표는 `deepseek-fix1`이다. 수정 전 행(`gemini-rehearsal`, `deepseek`)은 pre-fix로 남긴다. 새 차원 `check_runnable` (milestone `check`가 gate에 막히지 않고 실행 가능한 수 / check 수)을 추가하며, pre-fix 계획의 값은 저장된 계획에서 오프라인(`checkq`, $0)으로 `tests/fixtures/m20/checks.jsonl`에 기록한다.
+
+5. **D5 프로젝트 크기 상한 (F2, option b).** `project run`의 상한은 프로젝트 전체 누적이므로 본 시리즈는 `--max-iterations` = 8 (`[project] max_milestones`) × 과제 `max_iterations` (h01 240, h03 240, n08 200), `--max-wall-s` = 반복 상한 × 40 s (P2 r1 실측 25.9 s/iteration의 1.5배; h01 9600, h03 9600, n08 8000, 모두 8 × 과제 `wall_s` 이하)를 쓴다. `--max-cost` = min(0.30, remaining)은 그대로다.
+
+6. **D6 시리즈 구분.** 본 G2 시리즈는 label `deepseek-v2` (D1 + D3 + D5, h01/h03/n08 각 n=3, 새 셀 슬롯)이다. P2 첫 시도(label `deepseek`, 30/2400: r0, r1, superseded r2, RR-M20-01)는 "30/2400 attempt"로 따로 보고하며 본 시리즈와 합치지 않는다. 세 변경이 함께 들어가므로 두 시리즈의 차이를 한 원인에 돌리지 않는다.
+
+7. **D7 예상 비용과 절단 규칙.** RR-M20-01 예상 $0.0655; `deepseek-v2` run당 예상 $0.15 (P2 r1 $0.00113/iteration × 약 130 iteration, 올림), 셀 $0.45, 셀 시작 조건 남은 배정 ≥ $0.675. 배정 $2.00, 정의(completed, intervention, leak, error run), error run 즉시 중단, 402 중단, n<3 무주장 규칙은 바뀌지 않는다. 누적 지출은 `/credits` 차이로 잰다 (P2 r2 outcome은 $0.0으로 과소 보고).
