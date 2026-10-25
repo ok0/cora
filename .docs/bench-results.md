@@ -2929,22 +2929,24 @@ cost: $0, OpenRouter 호출 0
 
 ### (a) 지출 표
 
-판정 기준은 `/credits` 차이다. `/auth/key`의 key usage는 M20 시작 전 0.004, 현재 0.742이고 남은 한도는 3.258이다. 따라서 M20 지출은 0.742 - 0.004 = 0.738이며 배정 $2.00 안에 있다. 유료 누계는 이전 6.42 + 0.738 = 7.16이고 $8.42 이하, $10 미만이다.
+판정 기준은 `/credits` 차이다. `/auth/key`의 key usage는 M20 시작 전(2026-10-23, P1 전) 0.000, 현재 0.742195이고 남은 한도는 3.258이다. 따라서 M20 지출은 0.742195 - 0.000 = 0.742195이며 배정 $2.00 안에 있다. 유료 누계는 이전 6.42 + 0.742 = 7.16 (7.162)이고 $8.42 이하, $10 미만이다.
 
-세그먼트별 `/credits` before/after 값과 승인 시각은 저장소에 기록되지 않았다. 여기서 재구성하지 않는다. 아래 표의 outcome-sum은 fixture 값의 합이며 권위 있는 수치가 아니다 (합 0.7203 대비 `/credits` 0.738, 차이 0.0177은 세그먼트별로 배분할 수 없다). 리허설 디렉터리는 `$TMPDIR/cora-m20`의 타임스탬프로 대응시켰다 (`rehearse`=P2, `rehearse2`=RR, `rehearse3`=P2v2, `rehearse4`=P3, `rehearse5`=P4).
+세그먼트별 `/credits` before/after 값과 승인 시각은 오케스트레이터 기록으로 표에 채웠다. 판독이 없는 칸은 not recorded다: L0 (무료, 판독 없음), RR-M20-01 after, P1b before, P1c before, P2 첫 시도 승인 분 (21:2x, 정확한 분 미기록). 아래 표의 outcome-sum은 fixture 값의 합이며 권위 있는 수치가 아니다 (합 0.7203 대비 `/credits` 0.742195, 차이 0.0219는 세그먼트별로 배분할 수 없다). 리허설 디렉터리는 `$TMPDIR/cora-m20`의 타임스탬프로 대응시켰다 (`rehearse`=P2, `rehearse2`=RR, `rehearse3`=P2v2, `rehearse4`=P3, `rehearse5`=P4).
 
 | segment | approval time | rehearsal | estimate (pre-registered) | `/credits` before/after | delta | outcome-sum | running M20 (outcome-sum) | running paid total |
 |---|---|---|---|---|---|---|---|---|
-| L0 gemini plan quality (free) | not recorded | n/a (free) | $0 | n/a | 0 | 0.0000 | 0.0000 | 6.42 (pre-M20) |
-| P1 deepseek plan quality (pre-fix) | not recorded | L0 | ≤ 0.05 | not recorded per segment | - | 0.0040 | 0.0040 | - |
-| P2 first attempt, h01 r0-r2 (30/2400) | not recorded | `rehearse` | 0.20 | not recorded per segment | - | 0.0366 | 0.0406 | - |
-| RR-M20-01 h01 r2 rerun | not recorded | `rehearse2` | 0.0655 | not recorded per segment | - | 0.0034 | 0.0440 | - |
-| P1b deepseek-fix1 plan quality | not recorded | L0b | ≤ 0.05 (≈ 0.005) | not recorded per segment | - | 0.0032 | 0.0472 | - |
-| P1c deepseek-fix2 plan quality | not recorded | L0c | ≤ 0.05 (≈ 0.003) | not recorded per segment | - | 0.0034 | 0.0506 | - |
-| P2v2 h01 n=3 (`deepseek-v2`) | not recorded | `rehearse3` | 0.45 cell | not recorded per segment | - | 0.6162 | 0.6668 | - |
-| P3 h03 n=3 (`deepseek-v2`) | not recorded | `rehearse4` | 0.45 cell | not recorded per segment | - | 0.0468 | 0.7136 | - |
-| P4 n08 n=3 (`deepseek-v2`) | not recorded | `rehearse5` | 0.45 cell | not recorded per segment | - | 0.0067 | 0.7203 | - |
-| **M20 total** | - | - | $2.00 ceiling | key usage 0.004 → 0.742 | **0.738** | 0.7203 | 0.738 (`/credits`) | 6.42 + 0.738 = **7.16** |
+| L0 gemini plan quality (free) | not recorded | n/a (free) | $0 | not recorded | 0 | 0.0000 | 0.0000 | 6.42 (pre-M20) |
+| P1 deepseek plan quality (pre-fix) | 2026-10-23 ~20:54 | L0 | ≤ 0.05 | 0.000 → 0.001766 | - | 0.0040 | 0.0040 | - |
+| P2 first attempt, h01 r0-r2 (30/2400) | 2026-10-23 21:2x (exact minute not recorded) | `rehearse` | 0.20 | 0.003968 → 0.062504 | - | 0.0366 | 0.0406 | - |
+| RR-M20-01 h01 r2 rerun | 2026-10-25 20:43 | `rehearse2` | 0.0655 | 0.062504 → not recorded | - | 0.0034 | 0.0440 | - |
+| P1b deepseek-fix1 plan quality | 2026-10-25 ~20:58 | L0b | ≤ 0.05 (≈ 0.005) | not recorded → 0.067946 | - | 0.0032 | 0.0472 | - |
+| P1c deepseek-fix2 plan quality | 2026-10-25 21:42 | L0c | ≤ 0.05 (≈ 0.003) | not recorded → 0.071137 | - | 0.0034 | 0.0506 | - |
+| P2v2 h01 n=3 (`deepseek-v2`) | 2026-10-25 21:52 | `rehearse3` | 0.45 cell | 0.071137 → 0.670594 | - | 0.6162 | 0.6668 | - |
+| P3 h03 n=3 (`deepseek-v2`) | 2026-10-25 22:43 | `rehearse4` | 0.45 cell | 0.670594 → 0.733061 | - | 0.0468 | 0.7136 | - |
+| P4 n08 n=3 (`deepseek-v2`) | 2026-10-25 22:57 | `rehearse5` | 0.45 cell | 0.733061 → 0.742195 | - | 0.0067 | 0.7203 | - |
+| **M20 total** | - | - | $2.00 ceiling | 0.000 → 0.742195 | **0.742** | 0.7203 | 0.742 (`/credits`) | 6.42 + 0.742 = **7.16** |
+
+> 출처: 승인 시각과 `/credits` 열은 오케스트레이터가 보유한 기록이다 (OpenRouter `/auth/key` `usage` 판독, 날짜 표기가 없으면 2026-10-25 KST, 승인은 .ensemble/log.md와 대화 기록). 판독이 없는 칸은 not recorded다. P2 첫 시도 after 0.062504는 RR 직전 판독이며 P2 r2 숨은 청구 약 0.011을 포함한다. RR 종료 판독은 없고 RR+P1b 합산 증가는 0.005442 (0.062504 → 0.067946)다. 총계는 시작 판독 0.000 (M20 전 지출 없음, limit_remaining 4.000)에서 0.742195까지의 증가이며 장부 0.742다. 앞선 0.738 값은 M20 전 0.004를 잘못 뺀 것이라 정정했다. P1 후 판독 0.001766과 P2 전 판독 0.003968 사이의 0.002202 차이는 P1 청구의 지연 반영으로 보인다 (billing lag, 미검증; P2 r2 숨은 청구와 같은 유형).
 
 ### (b) 계획 품질 (세는 라벨: `deepseek-fix2`, R11 2차 수정)
 
