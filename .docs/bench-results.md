@@ -3148,3 +3148,49 @@ AC7 확인: `error_run true`인 행은 D5/D7의 P2 r2 하나뿐이며 `diagnosis
 
 - `command` 조건이 거부된 실행: 0회.
 
+### (c) plan quality fix3
+
+라벨 `gemini-rehearsal-fix3`, 무료 티어 (non-G1), 과제당 1회 (n=1). L1에서 `cora project plan --approval policy`로 계획을 만들고 `tests/m20_trial.py planq --label gemini-rehearsal-fix3`로 `tests/fixtures/m20a/planq.jsonl`에 5행을 기록했다. 503으로 `blocked`된 항목은 없었다. 이후 L2에서 `deepseek-fix3` 5행이 같은 파일에 추가됐다 (표와 판독은 (d)).
+
+표는 `uv run python tests/m20_trial.py summary --planq tests/fixtures/m20a/planq.jsonl --runs <빈 파일>` 출력이다 (run 행이 없어 (2)–(4) 블록은 나오지 않는다). 같은 출력에 `deepseek-fix3` 블록도 나오며 그 블록은 (d)에 옮겼다.
+
+#### label: gemini-rehearsal-fix3 (free-tier, non-G1)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ | policy issues/repaired/dropped | ungated milestones |
+|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 3 | 4/4 | 4/4 | 3/3 | 0.0000 | 0/0/0 | none |
+| e2e_h02 | first_try | yes | 4 | 4/4 | 4/4 | 4/4 | 0.0000 | 0/0/0 | none |
+| e2e_h03 | first_try | yes | 4 | 4/4 | 4/4 | 4/4 | 0.0000 | 0/0/0 | none |
+| e2e_h05 | first_try | yes | 5 | 5/5 | 5/5 | 5/5 | 0.0000 | 0/0/0 | none |
+| e2e_h06 | first_try | yes | 3 | 3/3 | 3/3 | 3/3 | 0.0000 | 0/0/0 | none |
+
+- 요약: 5개 과제 모두 `first_try`이고 `policy_first_try`는 5/5 true다. policy 복구(repair) 호출은 0회, after-repair는 0/5다. `policy_issues` 합계 0, `policy_dropped` 합계 0, ungated 마일스톤 없음.
+- retained checks runnable: 19/19 (`checks_total` 합계 19).
+- 비교 주의: 이 gemini 블록의 check 수는 19개라 fix2의 28개와 분모가 달라 like-for-like가 아니다. like-for-like 비교는 `deepseek-fix3` (check 28개, 같은 5개 과제)로 (d)에서 한다. 또한 n=1/과제, 무료 티어 Gemini이며 non-G1이라 M20 구성의 근거가 아니다.
+- `policy_repairs`는 코드 기본값 1로 실행했다 (`ProjectSettings.policy_repairs = 1`, `src/cora/core/config.py`). `cora.toml`과 `src/cora/data/cora.toml`에는 이 키를 쓰지 않았으며, 두 파일은 사전 등록 sha256을 유지한다.
+
+### (d) 유료 deepseek-fix3
+
+- 실행: `deepseek-fix3` (L2, 유료, 사용자 승인, cap $0.05). planner `deepseek-v3.2` (`cora-m20-deepseek-deadline.toml`), `cora project plan --approval policy`, 과제 5개 (h01, h02, h03, h05, h06), 과제당 1회 (n=1). 5행을 `tests/fixtures/m20a/planq.jsonl`에 추가했다. 표는 `summary` 출력을 그대로 옮긴 것이다.
+
+#### label: deepseek-fix3
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ | policy issues/repaired/dropped | ungated milestones |
+|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 7 | 8/8 | 5/8 | 6/6 | 0.0012 | 1/1/0 | none |
+| e2e_h02 | first_try | yes | 5 | 5/5 | 5/5 | 5/5 | 0.0005 | 0/0/0 | none |
+| e2e_h03 | first_try | yes | 7 | 10/10 | 10/10 | 7/7 | 0.0007 | 0/0/0 | none |
+| e2e_h05 | first_try | yes | 8 | 13/13 | 6/13 | 6/6 | 0.0012 | 2/2/0 | none |
+| e2e_h06 | first_try | yes | 5 | 4/4 | 4/4 | 4/4 | 0.0005 | 0/0/0 | none |
+
+- 요약: 5개 과제 모두 quality는 first_try이고 first reply strict는 yes다. 다만 `policy_first_try`는 h01과 h05에서 false이고 (정책 검증에 첫 응답이 걸렸다), h02, h03, h06에서는 true다. policy issue 3건 (h01 1, h05 2)은 모두 1라운드 수리로 복구됐다 (repaired 3, dropped 0). ungated 마일스톤 없음.
+- conditions executable: 5개 과제 모두 전부 실행 가능 (8/8, 5/5, 10/10, 13/13, 4/4).
+- check runnable: 28/28. M20 `deepseek-fix2`는 같은 5개 과제에서 check 28개 중 14개 (위 M20 결과 (b)). 분모가 같으므로 like-for-like다. fix2 과제별은 h01 3/3, h02 2/6, h03 7/7, h05 1/7, h06 1/5였다. 차단이 없어진 것은 M20a의 정책 검증과 수리 루프 변경 때문으로 보지만, 이 한 번의 실행 (n=1)으로 귀속을 확정하지 않는다.
+- pass on reference: h01 5/8, h02 5/5, h03 10/10, h05 6/13, h06 4/4. 전부 통과가 아니다 (h01 조건 3개, h05 조건 7개가 최종 reference 상태에서 실패). 이는 정책 차단이 아니라 별개 차원이며 그대로 보고하고 수정하지 않았다.
+- 지출 (판정 기준은 `/auth/key` usage 차이): 실행 전 0.744352115 → 실행 후 0.747357183, 차이 **0.003005**. limit_remaining 3.2526, 만료 2026-10-29T02:17Z. 유료 누계는 이전 6.42 + M20 키 사용량 0.747357 (M20 종료 판독 0.742195 포함) = 약 7.167 (≈ 7.17)이다. 행별 planner $ 합은 0.0041 (표시 반올림 값의 합)로 계정 차이 0.003005보다 크며, 행 값은 추정치라 권위는 계정 차이에 있다. `test_m20a_spend`의 deepseek 행 합 0.0041은 cap 0.05 이내다.
+- 미기록 차이: M20 종료 판독 0.742195와 이번 실행 전 판독 0.744352 사이에 0.002157이 있다. M20a에서 기록된 유료 세그먼트가 없어 원인을 확정할 수 없다 (지연 청구일 가능성, 미검증). 누계에는 이미 포함되어 있다.
+- 한계 (caveats):
+  - n=1/과제. 과제별 분산을 추정할 수 없다.
+  - `deepseek-v3.2`는 ADR-38의 가격 규칙으로 cheap tier지만 (입력 0.28 / 출력 0.42), 여기서는 강한 cascade 역할의 planner로 쓰였다. cheap tier 주장의 근거로 쓰지 않는다.
+  - planner만 측정했다. 계획 품질, 정책 준수, check 실행 가능성까지다. G2 end-to-end (실행 완료율) 효과는 측정하지 않았다.
+  - pass on reference 격차 (h01, h05)는 남아 있다.
+  - G1/G2 결과가 아니며 기본값을 바꾸지 않았다.
+
