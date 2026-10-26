@@ -1,6 +1,7 @@
 """Copy M20 run artifacts into a committed fixture dir, sanitized (M20a step 0).
 
-Usage: uv run python tests/m20a_artifacts.py copy --src "$TMPDIR/cora-m20" --dst tests/fixtures/m20/artifacts
+Usage: uv run python tests/m20a_artifacts.py copy
+    --src "$TMPDIR/cora-m20" --dst tests/fixtures/m20/artifacts
 """
 
 from __future__ import annotations

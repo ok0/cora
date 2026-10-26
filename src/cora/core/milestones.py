@@ -23,14 +23,19 @@ from cora.core.tools.base import ToolContext
 from cora.core.tools.builtin import RunShellTool
 
 PLAN_KEYS = frozenset({"goal", "milestones"})
-MILESTONE_KEYS = frozenset({"id", "title", "task", "check", "conditions"})
+MILESTONE_KEYS = frozenset({"id", "title", "task", "check", "conditions", "ungated"})
 CONDITION_FIELDS = {"command": "cmd", "file_exists": "path"}
 GATE_FAILED = "gate_failed"
 STATUSES = ("pending", "running", "completed", "failed", "interrupted")
 CHECKPOINT_FILE = "checkpoint.json"
 CHECKPOINT_VERSION = 1
 RUN_ID_RE = re.compile(r"\d{8}-\d{6}-[0-9a-f]{6}")
-PROJECT_KEYS = (*(k for k in OUTCOME_KEYS if k != "profile"), "run_id", "milestones")
+PROJECT_KEYS = (
+    *(k for k in OUTCOME_KEYS if k != "profile"),
+    "run_id",
+    "milestones",
+    "ungated_milestones",
+)
 
 
 class PlanError(ConfigError): ...
@@ -63,6 +68,7 @@ class Milestone:
     task: str
     check: str | None = None
     conditions: tuple[Condition, ...] = ()
+    ungated: bool = False
 
     def to_dict(self) -> dict:
         data: dict[str, Any] = {"id": self.id, "title": self.title, "task": self.task}
@@ -70,6 +76,8 @@ class Milestone:
             data["check"] = self.check
         if self.conditions:
             data["conditions"] = [c.to_dict() for c in self.conditions]
+        if self.ungated:
+            data["ungated"] = True
         return data
 
 
@@ -155,7 +163,7 @@ def parse_plan(data: Any, source: str) -> ProjectPlan:
         if unknown:
             raise bad(
                 f"milestone {i}: unknown key '{unknown[0]}' "
-                "(allowed: check, conditions, id, task, title)"
+                "(allowed: check, conditions, id, task, title, ungated)"
             )
         mid = item.get("id")
         if not isinstance(mid, str) or not mid.strip():
@@ -182,7 +190,12 @@ def parse_plan(data: Any, source: str) -> ProjectPlan:
         conditions = (
             parse_conditions(item["conditions"], where, bad) if "conditions" in item else ()
         )
-        milestones.append(Milestone(mid, item["title"], task.strip(), check, conditions))
+        ungated = item.get("ungated", False)
+        if not isinstance(ungated, bool):
+            raise bad(f"{where}: 'ungated' must be true or false")
+        milestones.append(
+            Milestone(mid, item["title"], task.strip(), check, conditions, ungated)
+        )
     return ProjectPlan(data["goal"], tuple(milestones))
 
 
@@ -212,6 +225,8 @@ def plan_to_toml(plan: ProjectPlan) -> str:
                         f"  {{ kind = \"file_exists\", path = {_toml_str(c.path or '')} }},"
                     )
             lines.append("]")
+        if m.ungated:
+            lines.append("ungated = true")
     return "\n".join(lines) + "\n"
 
 
@@ -509,6 +524,10 @@ def milestone_list(cp: Checkpoint) -> list[dict]:
     return out
 
 
+def ungated_ids(plan: ProjectPlan) -> list[str]:
+    return [m.id for m in plan.milestones if m.ungated]
+
+
 def project_outcome(
     cp: Checkpoint,
     governor: BudgetGovernor | None,
@@ -558,6 +577,7 @@ def project_outcome(
         "exit_code": exit_code(stop_reason, signal=signal),
         "run_id": cp.run_id,
         "milestones": milestone_list(cp),
+        "ungated_milestones": ungated_ids(cp.plan),
     }
 
 
@@ -586,6 +606,7 @@ def project_error_outcome(
         },
         "run_id": checkpoint.run_id if checkpoint else None,
         "milestones": milestone_list(checkpoint) if checkpoint else [],
+        "ungated_milestones": ungated_ids(checkpoint.plan) if checkpoint else [],
     }
 
 

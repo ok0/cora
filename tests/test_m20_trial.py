@@ -512,3 +512,80 @@ def test_summary_superseded_and_labels():
     assert any(line.startswith("| e2e_h01 | 2/3 |") for line in v2_block.splitlines())
     assert any(line.startswith("| e2e_h03 | 0/0 |") for line in v2_block.splitlines())
     assert any(line.startswith("| e2e_n08 | 0/0 |") for line in v2_block.splitlines())
+
+
+def test_planq_row_policy_fields(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        m20_trial,
+        "check_conditions",
+        lambda *a, **k: {
+            "conditions_total": 0,
+            "conditions_executable": 0,
+            "conditions_pass_ref": 0,
+            "all_executable": True,
+            "all_pass_ref": True,
+            "conditions_blocked": 0,
+            "checks_total": 0,
+            "check_runnable": 0,
+            "checks_blocked": 0,
+            "checks_pass_ref": 0,
+            "all_checks_runnable": True,
+        },
+    )
+    records = tmp_path / "rec"
+    text = _plan_json()
+    _write_record(records, "0001.json", 2, text)
+    _write_record(records, "0002.json", 4, text)
+    pp = {
+        "issues": 3,
+        "repaired": 2,
+        "dropped": 1,
+        "rounds": 1,
+        "ungated": ["m2"],
+        "policy_dropped": [
+            {"milestone": "m2", "field": "check", "command": "cd x", "rule": "confine:cd"}
+        ],
+    }
+    row = planq_row(
+        "e2e_h01",
+        _outcome(plan_policy=pp),
+        tmp_path / "plan.toml",
+        records,
+        "deepseek",
+        tmp_path / "c.toml",
+    )
+    assert row["plan_quality"] == "first_try"
+    assert row["policy_dropped"] == 1
+    assert row["ungated"] == ["m2"]
+    assert row["policy_issues"] == 3
+    assert row["policy_repaired"] == 2
+    assert row["policy_rounds"] == 1
+    assert row["policy_first_try"] is False
+
+
+def test_summary_policy_columns_only_when_present():
+    base = {
+        "task": "e2e_h01",
+        "label": "deepseek-v2",
+        "plan_quality": "first_try",
+        "first_reply_strict": True,
+        "milestones": 1,
+        "conditions_total": 0,
+        "conditions_executable": 0,
+        "conditions_pass_ref": 0,
+        "cost_usd": 0.01,
+    }
+    with_policy = {
+        **base,
+        "label": "deepseek-fix3",
+        "policy_issues": 1,
+        "policy_repaired": 0,
+        "policy_dropped": 1,
+        "ungated": ["m1"],
+    }
+    text = summary([with_policy], [], None)
+    assert "ungated milestones" in text
+    assert "| 1/0/1 | m1 |" in text
+    old_rows = m20_trial._read_jsonl(ROOT / "tests" / "fixtures" / "m20" / "planq.jsonl")
+    assert "ungated milestones" not in summary(old_rows, [], None)
+    assert "ungated milestones" in summary([base, with_policy], [], None)

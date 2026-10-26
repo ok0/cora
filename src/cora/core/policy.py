@@ -6,11 +6,12 @@ import os
 import re
 import sys
 import tomllib
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from fnmatch import fnmatchcase
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from cora.core import shellguard
@@ -274,17 +275,24 @@ class PolicyGate:
     def begin_run(self) -> None:
         self.tally = PolicyTally()
 
-    def check(self, tool: str, args: dict[str, Any], approval_mode: str) -> GateVerdict | None:
+    def verdict(self, tool: str, args: dict[str, Any], approval_mode: str) -> GateVerdict | None:
         mode = self.mode_for(approval_mode, tool)
         if mode is None:
             return None
         final = approval_mode == "policy"
         v = (self.engine.confine(str(args.get("command", ""))) if mode == "confine"
              else self.engine.evaluate(tool, args))
-        verdict = GateVerdict(tool, v.decision, v.rule, v.reason, final)
-        resolved = "deny" if verdict.blocked else ("allow" if final else "approval")
-        record = {"tool": tool, "args": _args_summary(tool, args), "decision": v.decision,
-                  "rule": v.rule, "reason": v.reason[:200], "mode": mode, "resolved": resolved}
+        return GateVerdict(tool, v.decision, v.rule, v.reason, final)
+
+    def check(self, tool: str, args: dict[str, Any], approval_mode: str) -> GateVerdict | None:
+        verdict = self.verdict(tool, args, approval_mode)
+        if verdict is None:
+            return None
+        mode = self.mode_for(approval_mode, tool)
+        resolved = "deny" if verdict.blocked else ("allow" if verdict.final else "approval")
+        record = {"tool": tool, "args": _args_summary(tool, args), "decision": verdict.decision,
+                  "rule": verdict.rule, "reason": verdict.reason[:200], "mode": mode,
+                  "resolved": resolved}
         self.tally.add({**record, "ts": datetime.now(UTC).isoformat()})
         if self.sink is not None:
             self.sink(record)
@@ -393,6 +401,26 @@ def load_policy(base: PolicySettings, workspace: Path) -> PolicySettings:
     return parse_policy(data, str(path))
 
 
+@dataclass(frozen=True)
+class PlanPolicy:
+    gate: PolicyGate
+    approval_mode: str
+
+    def verdict(self, command: str) -> GateVerdict:
+        v = self.gate.verdict("run_shell", {"command": command}, self.approval_mode)
+        return v if v is not None else GateVerdict("run_shell", "allow", "", "", False)
+
+    def rules_text(self) -> str:
+        return render_policy_rules(self.gate.settings, approval_mode=self.approval_mode)
+
+
+def planning_policy(base: PolicySettings, workspace: Path, approval_mode: str) -> PlanPolicy | None:
+    gate = PolicyGate(load_policy(base, workspace), workspace)
+    if gate.mode_for(approval_mode) is None:
+        return None
+    return PlanPolicy(gate, approval_mode)
+
+
 PIPE_SINKS = frozenset({"head", "tail", "wc"})
 READ_TOOLS = ("list_files", "read_file", "search", "git_status", "git_diff", "git_log",
               "todo_write", "submit_plan", "delegate")
@@ -421,3 +449,165 @@ STRICT_RULES = (
     Rule("strict:edit", "allow", ("edit_file", "write_file", "delete_file"), index=2),
     Rule("strict:shell", "allow", ("run_shell",), commands=SHELL_ALLOW, index=3),
 )
+
+
+@dataclass(frozen=True)
+class RuleHint:
+    text: str
+    remedy: str
+
+
+_H_SYNTAX = RuleHint(
+    "One plain command only: no substitution, variables, braces, subshells, heredocs, "
+    "newlines or '&'.",
+    "Put the steps in a script or test file in the workspace and run that file.")
+_H_INLINE = RuleHint(
+    "Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.",
+    "Save the code in a file in the workspace and run that file.")
+_H_OPTIONS = RuleHint(
+    "Only the plain options of allowed programs are accepted; unusual or recursive options "
+    "are denied.",
+    "Use the simple form of the command, or run a file.")
+_H_DIR = RuleHint(
+    "Commands run in the workspace root; changing directory is not allowed.",
+    "Pass paths relative to the workspace instead.")
+_H_PATHS = RuleHint(
+    "Paths must stay inside the workspace and avoid home, protected and credential files.",
+    "Use relative paths to ordinary workspace files.")
+_H_NETWORK = RuleHint(
+    "Network access is denied.",
+    "Use only files already in the workspace.")
+_H_PRIVILEGE = RuleHint(
+    "Running commands as another user is denied.",
+    "Run the command as the current user.")
+_H_UNMATCHED = RuleHint(
+    "No allow rule matches this command or tool call.",
+    "Use a command that matches an allowed pattern, or run a file with one.")
+_H_ASK = RuleHint(
+    "Needs approval, which unattended mode never grants.",
+    "Use a different allowed tool or skip this step.")
+_H_ALLOWED = RuleHint(
+    "Allowed by the policy.",
+    "No change needed.")
+
+RULE_HINTS: Mapping[str, RuleHint] = MappingProxyType({
+    "confine:substitution": _H_SYNTAX,
+    "confine:variable": _H_SYNTAX,
+    "confine:brace": _H_SYNTAX,
+    "confine:subshell": _H_SYNTAX,
+    "confine:heredoc": _H_SYNTAX,
+    "confine:newline": _H_SYNTAX,
+    "confine:background": _H_SYNTAX,
+    "confine:syntax": _H_SYNTAX,
+    "confine:parse": _H_SYNTAX,
+    "confine:empty": _H_SYNTAX,
+    "confine:env-assign": _H_SYNTAX,
+    "confine:glob": _H_SYNTAX,
+    "confine:one-liner": _H_INLINE,
+    "confine:interpreter-stdin": _H_INLINE,
+    "confine:shell-c": _H_INLINE,
+    "confine:eval": _H_INLINE,
+    "confine:source": _H_INLINE,
+    "confine:indirect": _H_INLINE,
+    "confine:xargs": _H_INLINE,
+    "confine:wrapper": _H_INLINE,
+    "confine:find-exec": _H_INLINE,
+    "confine:tar-exec": _H_INLINE,
+    "confine:git-exec": _H_INLINE,
+    "floor:pipe-exec": _H_INLINE,
+    "confine:unknown-option": _H_OPTIONS,
+    "confine:forbidden-option": _H_OPTIONS,
+    "confine:recursion": _H_OPTIONS,
+    "confine:python-option": _H_OPTIONS,
+    "confine:python-module": _H_OPTIONS,
+    "confine:uv-run": _H_OPTIONS,
+    "confine:git-config": _H_OPTIONS,
+    "confine:follow-links": _H_OPTIONS,
+    "floor:chmod-recursive": _H_OPTIONS,
+    "confine:cd": _H_DIR,
+    "confine:git-C": _H_DIR,
+    "confine:tar-C": _H_DIR,
+    "confine:tilde": _H_PATHS,
+    "floor:outside-workspace": _H_PATHS,
+    "floor:protected-path": _H_PATHS,
+    "floor:credential-file": _H_PATHS,
+    "floor:protected-write": _H_PATHS,
+    "floor:git-output": _H_PATHS,
+    "floor:network": _H_NETWORK,
+    "floor:privilege": _H_PRIVILEGE,
+    "confine:ok": _H_ALLOWED,
+    "default:read-tools": _H_ALLOWED,
+    "default:edit": _H_ALLOWED,
+    "default:shell": _H_ALLOWED,
+    "strict:read-tools": _H_ALLOWED,
+    "strict:edit": _H_ALLOWED,
+    "strict:shell": _H_ALLOWED,
+    "default:git-write": _H_ASK,
+    "default:web": _H_ASK,
+    "default:mcp": _H_ASK,
+    "default:delete": _H_ASK,
+    "default": _H_UNMATCHED,
+})
+
+
+def hint_for(verdict: Verdict | GateVerdict) -> str:
+    h = RULE_HINTS.get(verdict.rule, RULE_HINTS["default"])
+    return f"{h.text} {h.remedy}"
+
+
+RULES_MAX_CHARS = 1500
+ALLOW_PREFIX = "Allowed commands (glob patterns; * matches any text): "
+CONFINE_ONLY = "Any single command that passes the checks below is allowed."
+CONFINE_HEADER = "Also denied, whatever the pattern:"
+ASK_SENTENCE = "A command that needs approval is denied, because this run never prompts."
+
+
+def _shell_allow_patterns(settings: PolicySettings) -> list[str]:
+    pats: list[str] = []
+    for r in settings.rules:
+        if r.decision != "allow":
+            continue
+        if r.tools and not any(fnmatchcase("run_shell", p) for p in r.tools):
+            continue
+        if r.groups and not any(fnmatchcase("core", p) for p in r.groups):
+            continue
+        for p in r.commands or ("*",):
+            if p not in pats:
+                pats.append(p)
+    for p in SHELL_ALLOW:
+        if p not in pats:
+            pats.append(p)
+    return pats
+
+
+def _confinement_texts(*, network: bool) -> list[str]:
+    texts: list[str] = []
+    for rule_id, h in RULE_HINTS.items():
+        if not rule_id.startswith(("confine:", "floor:")) or rule_id == "confine:ok":
+            continue
+        if rule_id == "floor:network" and not network:
+            continue
+        if h.text not in texts:
+            texts.append(h.text)
+    return texts
+
+
+def render_policy_rules(settings: PolicySettings, *, approval_mode: str) -> str:
+    confine = approval_mode != "policy" and settings.shell_confinement
+    tail = [CONFINE_HEADER, *(f"- {t}" for t in _confinement_texts(network=not confine))]
+    if approval_mode == "policy":
+        tail.append(ASK_SENTENCE)
+    if confine:
+        head = CONFINE_ONLY
+    else:
+        pats = _shell_allow_patterns(settings)
+        budget = RULES_MAX_CHARS - len("\n".join(tail)) - 1
+        head = ALLOW_PREFIX + ", ".join(pats)
+        if len(head) > budget:
+            n = len(pats) - 1
+            while n > 0 and len(
+                    ALLOW_PREFIX + ", ".join(pats[:n]) + f" … and {len(pats) - n} more"
+            ) > budget:
+                n -= 1
+            head = ALLOW_PREFIX + ", ".join(pats[:n]) + f" … and {len(pats) - n} more"
+    return "\n".join([head, *tail])

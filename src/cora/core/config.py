@@ -139,6 +139,7 @@ class ProjectSettings:
     max_milestones: int = 8
     condition_timeout_s: int = 60
     condition_output_chars: int = 2000
+    policy_repairs: int = 1
 
 
 @dataclass(frozen=True)
@@ -684,6 +685,11 @@ def parse_config(data: dict[str, Any]) -> CoraConfig:
     for key in ("max_milestones", "condition_timeout_s", "condition_output_chars"):
         if not _positive_int(getattr(project, key)):
             raise ConfigError(f"invalid [project].{key}: must be an integer > 0")
+    if not (_nonneg_int(project.policy_repairs) and project.policy_repairs <= 3):
+        raise ConfigError(
+            "invalid [project].policy_repairs: must be an integer 0-3 "
+            "(0 = drop denied checks without a model call)"
+        )
     if "context" in data and not isinstance(data["context"], dict):
         raise ConfigError("invalid [context] section: must be a table")
     try:

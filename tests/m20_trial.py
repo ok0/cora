@@ -249,11 +249,14 @@ def planq_row(
 ) -> dict:
     entries = planner_calls(records)
     calls = len(entries)
+    pp = outcome.get("plan_policy")
+    rounds = pp["rounds"] if pp else 0
+    schema_calls = calls - rounds
     ok = bool(outcome["ok"])
     err = _error_text(outcome)
-    if ok and calls == 1:
+    if ok and schema_calls == 1:
         quality: str | None = "first_try"
-    elif ok and calls == 2:
+    elif ok and schema_calls == 2:
         quality = "after_repair"
     elif not ok and PLAN_ERROR_RE.search(err):
         quality = "blocked"
@@ -299,6 +302,12 @@ def planq_row(
         "first_reply_strict": strict,
         "milestones": outcome.get("milestone_count") if ok else None,
         **cond,
+        "policy_issues": pp["issues"] if pp else None,
+        "policy_repaired": pp["repaired"] if pp else None,
+        "policy_dropped": pp["dropped"] if pp else None,
+        "policy_rounds": pp["rounds"] if pp else None,
+        "policy_first_try": pp["issues"] == 0 if pp else None,
+        "ungated": list(pp["ungated"]) if pp else None,
         "error": err or None,
     }
 
@@ -474,11 +483,17 @@ def summary(
         checks_by_key[(c["task"], c["label"])] = c
     for label in labels:
         out.append(_label_heading(label))
-        out.append(
+        pol = any(r.get("policy_issues") is not None for r in planq_rows if r["label"] == label)
+        head = (
             "| task | quality | first reply strict | milestones | conditions executable "
             "| pass on reference | check runnable | planner $ |"
         )
-        out.append("|---|---|---|---|---|---|---|---|")
+        sep = "|---|---|---|---|---|---|---|---|"
+        if pol:
+            head += " policy issues/repaired/dropped | ungated milestones |"
+            sep += "---|---|"
+        out.append(head)
+        out.append(sep)
         for r in planq_rows:
             if r["label"] != label:
                 continue
@@ -506,10 +521,20 @@ def summary(
             else:
                 chk = "-"
             cost = "-" if r["cost_usd"] is None else f"{r['cost_usd']:.4f}"
-            out.append(
+            line = (
                 f"| {r['task']} | {r['plan_quality'] or '-'} | {strict} | {ms} | {ex} | {ps} "
                 f"| {chk} | {cost} |"
             )
+            if pol:
+                issues = r.get("policy_issues")
+                pcell = (
+                    "-"
+                    if issues is None
+                    else f"{issues}/{r['policy_repaired']}/{r['policy_dropped']}"
+                )
+                ucell = "-" if r.get("ungated") is None else (", ".join(r["ungated"]) or "none")
+                line = line[:-1] + f"| {pcell} | {ucell} |"
+            out.append(line)
     out.append("")
     base = _load_baseline(baseline)
     flags = _superseded_flags(run_rows)
