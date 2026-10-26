@@ -24,6 +24,19 @@ def test_architecture_documents_policy_layer() -> None:
     assert "policy.py" in text
 
 
+def test_usage_documents_policy_repairs() -> None:
+    text = USAGE.read_text(encoding="utf-8")
+    for needle in ("policy_repairs", "ungated", "plan_policy"):
+        assert needle in text, f"missing plan policy topic: {needle!r}"
+    assert "policy_repairs" not in (ROOT / "cora.toml").read_text(encoding="utf-8")
+
+
+def test_architecture_documents_plan_policy() -> None:
+    text = ARCHITECTURE.read_text(encoding="utf-8")
+    for needle in ("RULE_HINTS", "render_policy_rules", "plan_policy", "validate_plan_policy"):
+        assert needle in text, f"missing plan policy topic: {needle!r}"
+
+
 def test_cora_toml_copies_are_identical() -> None:
     assert (ROOT / "cora.toml").read_bytes() == (
         ROOT / "src" / "cora" / "data" / "cora.toml"

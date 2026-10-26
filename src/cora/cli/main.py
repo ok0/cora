@@ -1416,10 +1416,11 @@ def project_plan(
     max_cost: MaxCostOpt = None,
     json_: JsonOpt = False,
     quiet: QuietOpt = False,
+    approval: ApprovalOpt = None,
 ) -> None:
     raise typer.Exit(run_plan(PlanOptions(
         goal=goal, output=output, workdir=Path(workdir), config=config,
-        json=json_, quiet=quiet, max_cost=max_cost,
+        json=json_, quiet=quiet, max_cost=max_cost, approval=approval,
     )))
 
 

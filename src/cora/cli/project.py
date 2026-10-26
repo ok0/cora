@@ -44,12 +44,13 @@ from cora.core.milestones import (
     project_outcome,
 )
 from cora.core.planner import (
+    UNGATED_WARNING,
     PlanBudgetExceeded,
     generate_plan,
     plan_error_outcome,
     plan_outcome,
 )
-from cora.core.policy import POLICY_MODE_NOTICE
+from cora.core.policy import POLICY_MODE_NOTICE, planning_policy
 from cora.core.project import load_project_context
 from cora.core.tools import ApprovalPolicy, ApprovalRequest
 from cora.core.tools.mcp import McpManager
@@ -194,9 +195,11 @@ def run_project(
         planning = None
         if plan is None:
             meter = CostMeter()
+            plan_pol = planning_policy(cfg.policy, Path(opts.workdir), cfg.agent.approval)
             plan, planning = asyncio.run(generate_plan(
                 opts.goal, cfg, governor, meter=meter,
                 max_milestones=cfg.project.max_milestones,
+                policy=plan_pol,
             ))
             governor.commit()
             if opts.output is not None:
@@ -205,6 +208,15 @@ def run_project(
                 except OSError as e:
                     raise PlanError(f"cannot write plan file {opts.output}: {e}") from e
             note(f"planned {len(plan.milestones)} milestones (cost ${planning['cost_usd']:.4f})")
+            pp = planning.get("policy")
+            if pp:
+                if pp["dropped"]:
+                    note(
+                        f"plan: {pp['dropped']} check(s) denied by the policy were dropped "
+                        f"({pp['repaired']} repaired)"
+                    )
+                for mid in pp["ungated"]:
+                    warn(UNGATED_WARNING.format(id=mid))
         context = load_project_context(opts.workdir).render()
 
         def make_agent() -> Agent:
@@ -244,6 +256,8 @@ def run_project(
             condition_timeout_s=cfg.project.condition_timeout_s,
             condition_output_chars=cfg.project.condition_output_chars,
         )
+        if planning is not None and planning.get("policy") is not None:
+            runner.log.emit("plan_policy", **planning["policy"])
         running = True
         if opts.headless:
             stop, sig = run_graceful(runner, runner.execute())
@@ -328,6 +342,10 @@ def run_project(
                         f"{m['gate']['attempts']} attempt(s)",
                         err=True,
                     )
+            if doc.get("ungated_milestones"):
+                typer.echo(
+                    f"ungated milestones: {', '.join(doc['ungated_milestones'])}", err=True
+                )
             typer.echo(f"stop_reason: {doc['stop_reason']}", err=True)
             typer.echo(f"run: {doc['run_id']}", err=True)
         if running and not doc["ok"]:
@@ -351,6 +369,7 @@ class PlanOptions:
     json: bool = False
     quiet: bool = False
     max_cost: float | None = None
+    approval: str | None = None
 
 
 def run_plan(opts: PlanOptions) -> int:
@@ -371,17 +390,31 @@ def run_plan(opts: PlanOptions) -> int:
         for w in unpriced_warnings(cfg):
             typer.echo(w, err=True)
             warnings.append(w)
-        cfg = apply_agent_overrides(cfg, None, None, opts.max_cost)
+        cfg = apply_agent_overrides(cfg, opts.approval, None, opts.max_cost)
         governor = BudgetGovernor(
             BudgetLimits.from_agent(cfg.agent),
             warn_fraction=cfg.agent.budget_warn_fraction,
             clock=_clock,
             project_cost=True,
         )
-        plan, _ = asyncio.run(generate_plan(
+        pol = planning_policy(cfg.policy, Path(opts.workdir), cfg.agent.approval)
+        plan, info = asyncio.run(generate_plan(
             opts.goal, cfg, governor, meter=meter,
             max_milestones=cfg.project.max_milestones,
+            policy=pol,
         ))
+        pp = info["policy"]
+        if pp:
+            if pp["dropped"] and not opts.quiet:
+                typer.echo(
+                    f"plan: {pp['dropped']} check(s) denied by the policy were dropped "
+                    f"({pp['repaired']} repaired)",
+                    err=True,
+                )
+            for mid in pp["ungated"]:
+                w = UNGATED_WARNING.format(id=mid)
+                typer.echo(w, err=True)
+                warnings.append(w)
         try:
             atomic_write_text(opts.output, plan_to_toml(plan))
         except OSError as e:
@@ -389,6 +422,7 @@ def run_plan(opts: PlanOptions) -> int:
         doc = plan_outcome(
             opts.output, plan, meter, governor,
             wall_s=time.monotonic() - start, warnings=warnings,
+            plan_policy=info["policy"],
         )
     except PlanBudgetExceeded as e:
         msg = str(e)

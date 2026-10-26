@@ -335,6 +335,7 @@ cora project plan "작은 계산기 모듈" -o plan.toml --json
 | `--max-cost` | | 계획 호출의 USD 상한입니다. 기본값은 `[agent] max_cost_usd`입니다. |
 | `--json` | | 결과를 JSON 문서 한 줄로 stdout에 씁니다. 그 밖의 출력은 stderr로 갑니다. |
 | `--quiet` | `-q` | 진행 상황을 stderr에 출력하지 않습니다. 오류와 경고는 그대로 나옵니다. |
+| `--approval` | | 승인 모드입니다. `ask`, `auto`, `deny`, `policy` 중 하나를 씁니다. 계획이 실행될 헤드리스 실행에 맞춰 계획의 검사 명령을 검증합니다. 기본값은 `[agent] approval`입니다. 헤드리스 실행에 쓸 계획은 `--approval policy`로 만드세요. |
 | `--help` | | 도움말을 보여주고 끝냅니다. |
 
 ### 종료 코드
@@ -1298,6 +1299,11 @@ conditions = [ { kind = "command", cmd = "uv run pytest -q" }, { kind = "file_ex
 - 엄격 파싱이 실패하면 계획 JSON은 먼저 복구 단계 `strip_fences`, `extract_object`, `trailing_commas`, `single_quotes`를 시도합니다. 이 복구는 `[agent] lenient_parse = true`(기본값)일 때만 실행됩니다. 모델 복구 호출은 이 단계들이 모두 실패한 경우에만 일어납니다. 그래도 형식이 맞지 않는 응답은 종료 코드 2로 끝납니다.
 - 계획 호출 비용은 결과의 `cost_usd`와 `budget.used`에 포함되며, 호출 전에 비용 상한을 확인합니다.
 - `cora project run --goal GOAL`은 계획을 만든 뒤 `<workdir>/.cora/projects/<run_id>/plan.toml`에 저장하고 바로 실행합니다. `-o`를 주면 같은 계획을 그 파일에도 씁니다.
+- 계획 프롬프트에는 이 실행의 셸 정책 규칙(`render_policy_rules`)이 들어갑니다. 모델이 정책으로 거부될 검사 명령(`check`)이나 `command` 조건을 쓰지 않도록 알려 주기 위해서입니다.
+- 정책으로 거부된 `check`/`command` 조건은 `policy_repairs` 횟수만큼 수정 요청을 받습니다. 그래도 거부되는 항목은 버리고 기록합니다(계획 문서의 `plan_policy`, 그리고 `policy_dropped` 목록).
+- 검사가 모두 버려진 마일스톤은 `ungated = true`로 표시됩니다. 경고를 출력하고 결과의 `ungated_milestones`에 나옵니다. 이것은 오류가 아니며 종료 코드를 바꾸지 않습니다.
+- `cora project plan --approval`이 있습니다. 헤드리스 실행에 쓸 계획은 `--approval policy`로 만들어야 합니다.
+- `policy_repairs`(0–3, 기본값 1)는 `[project]` 설정입니다. 배포되는 `cora.toml`에는 이 키가 적혀 있지 않습니다. 기본값은 코드에서 오므로 M20 사전 등록이 해시로 고정한 파일이 그대로 남습니다. 바꾸려면 `[project]` 아래에 `policy_repairs = N`을 직접 씁니다. 0이면 모델을 다시 부르지 않고 거부된 검사를 바로 버립니다.
 
 ### 체크포인트와 재개
 
@@ -1327,7 +1333,7 @@ conditions = [ { kind = "command", cmd = "uv run pytest -q" }, { kind = "file_ex
 - `milestones`: 계획 순서대로 `{"id", "status", "session_id", "cost_usd"}` 객체의 목록입니다. `status`는 `completed`, `failed`, `interrupted`, `pending` 중 하나입니다. 실행 중에 멈춰서 `running`으로 남은 마일스톤은 `interrupted`로 보입니다.
 - `milestones`에서 `conditions`가 있는 마일스톤에는 `gate` 값이 붙습니다. `{"attempts", "passed", "failed_condition"}` 형식이며, 아직 도달하지 않았으면 null입니다. `conditions`가 없는 마일스톤에는 `gate` 키가 없습니다.
 - `stop_reason`은 `gate_failed`가 될 수 있습니다(완료 조건이 재시도 뒤에도 통과하지 못함).
-- `cora project plan --json` 문서의 키는 헤드리스 결과 키(profile 제외)에 `path`, `goal`, `milestone_count`를 더한 것입니다. 오류도 같은 키이며 종료 코드 2입니다(예산 초과는 4).
+- `cora project plan --json` 문서의 키는 헤드리스 결과 키(profile 제외)에 `path`, `goal`, `milestone_count`, `plan_policy`를 더한 것입니다. 오류도 같은 키이며 종료 코드 2입니다(예산 초과는 4).
 
 ### 프로젝트 종료 코드
 
@@ -1349,6 +1355,7 @@ conditions = [ { kind = "command", cmd = "uv run pytest -q" }, { kind = "file_ex
 | `max_milestones` | 8 | 계획 생성이 만들 수 있는 마일스톤 수의 상한입니다. |
 | `condition_timeout_s` | 60 | 조건 명령 하나의 시간 제한(초)입니다. |
 | `condition_output_chars` | 2000 | 실패한 조건 출력의 끝부분 중 재시도 피드백으로 남기는 글자 수입니다. |
+| `policy_repairs` | 1 | 계획의 `check`/`command` 조건이 정책으로 거부되었을 때 수정을 요청하는 횟수입니다(0–3). 배포되는 `cora.toml`에는 적혀 있지 않으며 코드 기본값을 씁니다. 바꾸려면 `[project]` 아래에 `policy_repairs = N`을 씁니다. |
 
 ## MCP 서버로 실행 (`cora mcp serve`)
 
