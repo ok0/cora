@@ -19,6 +19,7 @@ from cora.core.milestones import (
 from cora.core.planner import (
     PLAN_DOC_KEYS,
     PLANNER_SYSTEM,
+    POLICY_RULES_HEADER,
     PlanBudgetExceeded,
     generate_plan,
     plan_error_outcome,
@@ -251,15 +252,20 @@ def test_planner_system_check_is_shell_command():
     assert content.count("{") == content.count("}")
 
 
-def test_planner_system_check_policy_sentence():
+def test_planner_system_no_policy_sentence():
     content = plan_messages("build X", 8)[0].content
-    assert ROUND2 in content
-    assert (
-        '"check" is a single runnable shell command that exits 0 when the milestone is done; '
-        'omit it if no such command exists, and use "conditions" for deterministic checks.'
-    ) in content
+    assert ROUND2 not in content
+    assert "restricted shell policy" not in PLANNER_SYSTEM
+    assert "-c or -e" not in PLANNER_SYSTEM
     assert content.count("{") == content.count("}")
-    assert content.index(ROUND2) > content.index('"check" is a single runnable shell command')
+
+
+def test_plan_messages_policy_rules():
+    content = plan_messages("build X", 8, policy_rules="RULES")[0].content
+    assert content.endswith(POLICY_RULES_HEADER + "RULES")
+    plain = plan_messages("build X", 8)[0].content
+    assert plain == PLANNER_SYSTEM.format(max=8)
+    assert "Shell policy" not in plain
 
 
 def test_planner_system_language_neutral():
