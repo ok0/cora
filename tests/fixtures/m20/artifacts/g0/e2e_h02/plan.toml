@@ -1,0 +1,33 @@
+goal = "Build the ledger project according to REQUIREMENTS.md"
+
+[[milestones]]
+id = "m1"
+title = "Implement Book balance and balances"
+task = "Implement balance(account) and balances() in ledger/book.py to fulfill the requirements."
+conditions = [
+  { kind = "file_exists", path = "ledger/book.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement Report formatting and monthly summary"
+task = "Implement format_cents(n) and monthly_summary(book, account) in ledger/report.py."
+conditions = [
+  { kind = "file_exists", path = "ledger/report.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement Importer load_lines"
+task = "Implement load_lines(lines) in ledger/importer.py according to the specifications in REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "ledger/importer.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Run pytest"
+task = "Run the test suite using python -m pytest to verify implementation against tests/test_ledger.py."
+conditions = [
+  { kind = "command", cmd = "python -m pytest" },
+]

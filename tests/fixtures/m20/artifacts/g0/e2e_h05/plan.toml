@@ -1,0 +1,47 @@
+goal = "Build the project described in REQUIREMENTS.md"
+
+[[milestones]]
+id = "models"
+title = "Implement Task model"
+task = "Create tracker/models.py defining the Task dataclass with id, title, done, and priority fields, with validation for allowed priorities ('low', 'normal', 'high')."
+check = "python -c \"from tracker.models import Task; t = Task(1, 'test', priority='high'); print(t)\""
+conditions = [
+  { kind = "file_exists", path = "tracker/models.py" },
+]
+
+[[milestones]]
+id = "storage"
+title = "Implement Storage layer"
+task = "Create tracker/storage.py with load(path) and save(path, tasks) to handle JSON-lines persistence of tasks including priority, defaulting missing priority to 'normal'."
+check = "python -c \"from tracker.storage import load, save; print(load('nonexistent.json'))\""
+conditions = [
+  { kind = "file_exists", path = "tracker/storage.py" },
+]
+
+[[milestones]]
+id = "service"
+title = "Implement Service layer"
+task = "Create tracker/service.py with the Tracker class supporting add, complete, and list operations with priority validation and sorting."
+check = "python -c \"from tracker.service import Tracker; t = Tracker(':memory:'); print(t.list())\""
+conditions = [
+  { kind = "file_exists", path = "tracker/service.py" },
+]
+
+[[milestones]]
+id = "formatting"
+title = "Implement Formatting"
+task = "Create tracker/formatting.py with render(tasks) to format tasks according to the specified layout including priority markers."
+check = "python -c \"from tracker.formatting import render; from tracker.models import Task; print(render([Task(1, 'a', priority='normal')]))\""
+conditions = [
+  { kind = "file_exists", path = "tracker/formatting.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement CLI and verify with tests"
+task = "Create tracker/cli.py (and make tracker runnable via python -m tracker) implementing add, list, and done commands with the required options, arguments, and exit codes. Run pytest to verify all requirements."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "tracker/cli.py" },
+  { kind = "command", cmd = "python -m pytest -q" },
+]

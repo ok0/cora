@@ -1,0 +1,37 @@
+goal = "Build the escapes package with four modules (shell.py, jsonstr.py, winpath.py, catalog.py) as specified in REQUIREMENTS.md"
+
+[[milestones]]
+id = "shell_quote"
+title = "Implement shell.quote function"
+task = "Implement escapes/shell.py:quote(arg: str) -> str according to specifications"
+check = "python -m pytest -q -k 'test_shell_quote'"
+
+[[milestones]]
+id = "jsonstr_encode_decode"
+title = "Implement jsonstr.encode and jsonstr.decode"
+task = "Implement escapes/jsonstr.py:encode(s: str) -> str and decode(lit: str) -> str according to specifications, without importing json"
+check = "python -m pytest -q -k 'test_jsonstr'"
+
+[[milestones]]
+id = "winpath_to_posix"
+title = "Implement winpath.to_posix function"
+task = "Implement escapes/winpath.py:to_posix(path: str) -> str according to specifications"
+check = "python -m pytest -q -k 'test_winpath'"
+
+[[milestones]]
+id = "catalog_unescape_html"
+title = "Implement catalog.unescape_html function"
+task = "Implement escapes/catalog.py:unescape_html(s: str) -> str according to specifications, keeping ENTITIES unchanged"
+check = "python -m pytest -q -k 'test_catalog'"
+
+[[milestones]]
+id = "all_tests_pass"
+title = "Run full test suite"
+task = "Run the full test suite with python -m pytest -q to ensure all implementations are correct"
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]

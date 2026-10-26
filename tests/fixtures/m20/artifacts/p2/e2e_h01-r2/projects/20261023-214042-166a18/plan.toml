@@ -1,0 +1,58 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "1"
+title = "Implement parse_csv function"
+task = "Implement csvreport.parser.parse_csv according to requirements: handle commas, quoted fields with escapes, line endings, empty fields, and raise ValueError for unterminated quotes."
+check = "Test parse_csv with basic cases"
+conditions = [
+  { kind = "command", cmd = "python -c \"import csvreport.parser; result = csvreport.parser.parse_csv('a,b,c\\n1,2,3'); print('OK' if len(result)==2 and result[0]==['a','b','c'] else 'FAIL')\"" },
+]
+
+[[milestones]]
+id = "2"
+title = "Implement column_stats function"
+task = "Implement csvreport.stats.column_stats according to requirements: handle header lookup, numeric conversion, empty string filtering, and compute count/min/max/mean statistics."
+check = "Test column_stats with basic numeric data"
+conditions = [
+  { kind = "command", cmd = "python -c \"import csvreport.stats; rows = [['col','x'],['','1'],['','2']]; result = csvreport.stats.column_stats(rows, 'x'); print('OK' if result['count']==2 and result['mean']==1.5 else 'FAIL')\"" },
+]
+
+[[milestones]]
+id = "3"
+title = "Implement main function and CLI"
+task = "Implement csvreport.__init__.main according to requirements: handle argument validation, file reading, error messages, and output formatting."
+check = "Test main with correct arguments"
+conditions = [
+  { kind = "file_exists", path = "test.csv" },
+  { kind = "command", cmd = "echo 'name,age\\nAlice,30\\nBob,25' > test.csv && python -m csvreport test.csv age 2>&1 | grep -q 'count=2' && echo 'OK' || echo 'FAIL'" },
+]
+
+[[milestones]]
+id = "4"
+title = "Run partial test suite"
+task = "Run pytest to verify the implementation passes the provided test suite."
+check = "pytest runs without failures"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q 2>&1 | tail -1 | grep -q 'passed' && echo 'OK' || echo 'FAIL'" },
+]
+
+[[milestones]]
+id = "5"
+title = "Test edge cases and error handling"
+task = "Test parse_csv with quoted fields, escapes, empty files, and unterminated quotes. Test column_stats with non-numeric values, empty columns, and missing columns."
+check = "Edge cases handled correctly"
+conditions = [
+  { kind = "command", cmd = "python -c \"import csvreport.parser; try: csvreport.parser.parse_csv('\\\"open'); print('FAIL')\nexcept ValueError as e: print('OK' if 'unterminated quote' in str(e) else 'FAIL')\"" },
+]
+
+[[milestones]]
+id = "6"
+title = "Verify all required files exist"
+task = "Ensure all required files (csvreport/parser.py, csvreport/stats.py, csvreport/cli.py) are present and properly implemented."
+check = "All required files exist"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+  { kind = "file_exists", path = "csvreport/stats.py" },
+  { kind = "file_exists", path = "csvreport/cli.py" },
+]

@@ -1,0 +1,43 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory. Required files: contacts/normalize.py, contacts/merge.py, contacts/cli.py."
+
+[[milestones]]
+id = "setup"
+title = "Create package structure and stub files"
+task = "Create the contacts package structure with __init__.py and stub implementations for the three required Python files."
+check = "test -f contacts/__init__.py && test -f contacts/normalize.py && test -f contacts/merge.py && test -f contacts/cli.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "contacts/cli.py" },
+]
+
+[[milestones]]
+id = "normalize_email"
+title = "Implement email normalization"
+task = "Implement normalize_email function in contacts/normalize.py according to the specification, including handling of gmail.com/googlemail.com domains, + suffixes, and dot removal."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from contacts.normalize import normalize_email; tests = [('  John.Doe+news@GMail.com ', 'johndoe@gmail.com'), ('j.d@googlemail.com', 'jd@gmail.com'), ('Mary.Ann+x@Example.org', 'mary.ann+x@example.org'), ('NoAt ', 'noat'), ('', ''), ('test@example.com', 'test@example.com')]; all_ok = True; for inp, expected in tests: result = normalize_email(inp); if result != expected: print(f'FAIL: {repr(inp)} -> {repr(result)} (expected {repr(expected)})'); all_ok = False; sys.exit(0 if all_ok else 1)\""
+
+[[milestones]]
+id = "normalize_phone"
+title = "Implement phone normalization"
+task = "Implement normalize_phone function in contacts/normalize.py according to the specification, handling 00 prefix, 10-digit US numbers, and empty results."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from contacts.normalize import normalize_phone; tests = [('(555) 123-4567', '+15551234567'), ('0044 20 7946 0958', '+442079460958'), ('+44 20 7946 0958', '+442079460958'), ('12345', '+12345'), ('n/a', ''), ('', ''), ('00', '+'), ('+1 555 123 4567', '+15551234567')]; all_ok = True; for inp, expected in tests: result = normalize_phone(inp); if result != expected: print(f'FAIL: {repr(inp)} -> {repr(result)} (expected {repr(expected)})'); all_ok = False; sys.exit(0 if all_ok else 1)\""
+
+[[milestones]]
+id = "dedupe"
+title = "Implement deduplication logic"
+task = "Implement dedupe function in contacts/merge.py that merges rows based on normalized email, fills empty fields, and returns (kept_rows, removed_count) as specified."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from contacts.merge import dedupe; rows = [{'name': 'John', 'email': 'john.doe@gmail.com', 'phone': ''}, {'name': '', 'email': 'Mary@x.org', 'phone': '555 000 1111'}, {'name': 'Johnny', 'email': 'JohnDoe+a@gmail.com', 'phone': '5551234567'}, {'name': 'Nobody', 'email': '', 'phone': '1'}, {'name': 'N2', 'email': '', 'phone': '2'}, {'name': 'Mary', 'email': 'mary@x.org', 'phone': ''}]; kept, removed = dedupe(rows); expected_kept = [{'name': 'John', 'email': 'john.doe@gmail.com', 'phone': '5551234567'}, {'name': 'Mary', 'email': 'Mary@x.org', 'phone': '555 000 1111'}, {'name': 'Nobody', 'email': '', 'phone': '1'}, {'name': 'N2', 'email': '', 'phone': '2'}]; if len(kept) != 4 or removed != 2: print(f'FAIL: kept={len(kept)}, removed={removed} (expected 4, 2)'); sys.exit(1); for i, (k, exp) in enumerate(zip(kept, expected_kept)): if k != exp: print(f'FAIL row {i}: {k} != {exp}'); sys.exit(1); sys.exit(0)\""
+
+[[milestones]]
+id = "cli_skeleton"
+title = "Create CLI skeleton with error handling"
+task = "Implement main function in contacts/cli.py that handles argument parsing, checks for email column, and handles file reading errors with appropriate exit codes and messages."
+check = "python -c \"import sys, os, tempfile, csv; sys.path.insert(0, '.'); from contacts.cli import main; # Test missing email column; with tempfile.NamedTemporaryFile(mode='w', delete=False) as f: writer = csv.writer(f); writer.writerow(['name', 'phone']); writer.writerow(['John', '123']); fname = f.name; exit_code = main(['contacts.cli', fname, 'out.csv']); os.unlink(fname); if exit_code != 2: print(f'FAIL: expected exit 2 for missing email, got {exit_code}'); sys.exit(1); # Test file not found; exit_code = main(['contacts.cli', 'nonexistent.csv', 'out.csv']); if exit_code != 1: print(f'FAIL: expected exit 1 for unreadable file, got {exit_code}'); sys.exit(1); print('OK'); sys.exit(0)\""
+
+[[milestones]]
+id = "cli_full"
+title = "Complete CLI implementation"
+task = "Finish contacts/cli.py to read CSV, call dedupe, normalize email and phone columns, write output CSV, and print 'kept K, removed R'."
+check = "python -c \"import sys, os, tempfile, csv, subprocess; sys.path.insert(0, '.'); # Create test CSV; with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as inf: writer = csv.writer(inf); writer.writerow(['name', 'email', 'phone']); writer.writerow(['John', 'john.doe@gmail.com', '']); writer.writerow(['', 'Mary@x.org', '555 000 1111']); writer.writerow(['Johnny', 'JohnDoe+a@gmail.com', '5551234567']); writer.writerow(['Nobody', '', '1']); writer.writerow(['N2', '', '2']); writer.writerow(['Mary', 'mary@x.org', '']); inname = inf.name; outname = inname.replace('.csv', '_out.csv'); # Run CLI; result = subprocess.run([sys.executable, '-m', 'contacts.cli', inname, outname], capture_output=True, text=True); if result.returncode != 0: print(f'FAIL: CLI exit {result.returncode}: {result.stderr}'); sys.exit(1); if result.stdout.strip() != 'kept 4, removed 2': print(f'FAIL: output {repr(result.stdout.strip())}'); sys.exit(1); # Check output file; with open(outname) as f: reader = csv.DictReader(f); rows = list(reader); expected = [{'name': 'John', 'email': 'johndoe@gmail.com', 'phone': '+15551234567'}, {'name': 'Mary', 'email': 'mary@x.org', 'phone': '+15550001111'}, {'name': 'Nobody', 'email': '', 'phone': '+1'}, {'name': 'N2', 'email': '', 'phone': '+2'}]; if len(rows) != 4: print(f'FAIL: {len(rows)} rows in output'); sys.exit(1); for i, (r, exp) in enumerate(zip(rows, expected)): if r != exp: print(f'FAIL row {i}: {r} != {exp}'); sys.exit(1); os.unlink(inname); os.unlink(outname); print('OK'); sys.exit(0)\""

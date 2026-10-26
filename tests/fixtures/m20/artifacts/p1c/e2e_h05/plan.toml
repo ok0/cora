@@ -1,0 +1,61 @@
+goal = "Build a task tracker with priority support as specified in REQUIREMENTS.md"
+
+[[milestones]]
+id = "models"
+title = "Implement Task dataclass with priority field"
+task = "Create tracker/models.py with Task dataclass that has id, title, done, priority fields. Add validation for priority values (low, normal, high)."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.models import Task; t = Task(id=1, title='test', priority='normal'); assert t.priority == 'normal'; try: Task(id=2, title='test', priority='invalid'); except ValueError as e: assert 'invalid priority' in str(e); print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/models.py" },
+]
+
+[[milestones]]
+id = "storage"
+title = "Implement storage layer with priority support"
+task = "Create tracker/storage.py with load() and save() functions that handle JSON-lines format with priority field. Missing priority defaults to 'normal'."
+check = "python -c \"import sys; sys.path.insert(0, '.'); import tempfile, os; from tracker.storage import load, save; f = tempfile.NamedTemporaryFile(mode='w', delete=False); f.write('{\\\"id\\\":1,\\\"title\\\":\\\"test\\\",\\\"done\\\":false}\\n{\\\"id\\\":2,\\\"title\\\":\\\"test2\\\",\\\"done\\\":true,\\\"priority\\\":\\\"high\\\"}'); f.close(); tasks = load(f.name); assert len(tasks) == 2; assert tasks[0].priority == 'normal'; assert tasks[1].priority == 'high'; os.unlink(f.name); print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/storage.py" },
+]
+
+[[milestones]]
+id = "service"
+title = "Implement service layer with priority operations"
+task = "Create tracker/service.py with Tracker class supporting add() with priority, complete(), and list() with sort='id' and sort='priority' options."
+check = "python -c \"import sys; sys.path.insert(0, '.'); import tempfile; from tracker.service import Tracker; f = tempfile.NamedTemporaryFile(mode='w', delete=False); f.close(); t = Tracker(f.name); task1 = t.add('test1', priority='high'); assert task1.id == 1 and task1.priority == 'high'; task2 = t.add('test2', priority='low'); assert task2.id == 2; tasks = t.list(sort='priority'); assert tasks[0].priority == 'high' and tasks[0].id == 1; assert tasks[1].priority == 'normal' and tasks[1].id == 3; os.unlink(f.name); print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/service.py" },
+]
+
+[[milestones]]
+id = "formatting"
+title = "Implement formatting with priority markers"
+task = "Create tracker/formatting.py with render() function that formats tasks with H/N/L markers for priority."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.models import Task; from tracker.formatting import render; tasks = [Task(id=1, title='high task', priority='high'), Task(id=2, title='normal task', priority='normal', done=True), Task(id=3, title='low task', priority='low')]; output = render(tasks); lines = output.split('\\\\n'); assert '  1 [H] [ ] high task' in lines; assert '  2 [N] [x] normal task' in lines; assert '  3 [L] [ ] low task' in lines; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/formatting.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement command line interface"
+task = "Create tracker/cli.py with argparse setup for add, list, done commands supporting --db, --priority, and --sort options."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.cli import main; import argparse; parser = argparse.ArgumentParser(); subparsers = parser.add_subparsers(); # Check that CLI structure exists; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/cli.py" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Test basic integration"
+task = "Create __main__.py in tracker package and test that the CLI works end-to-end with sample commands."
+check = "python -c \"import sys, os, subprocess, tempfile; sys.path.insert(0, '.'); f = tempfile.NamedTemporaryFile(mode='w', delete=False); f.close(); result = subprocess.run([sys.executable, '-m', 'tracker', '--db', f.name, 'add', 'test', '--priority', 'high'], capture_output=True, text=True); assert result.returncode == 0 and 'added 1' in result.stdout; os.unlink(f.name); print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/__main__.py" },
+]
+
+[[milestones]]
+id = "tests"
+title = "Run test suite"
+task = "Run pytest to verify implementation meets requirements."
+check = "python -m pytest -q"

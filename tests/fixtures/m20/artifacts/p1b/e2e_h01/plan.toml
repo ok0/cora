@@ -1,0 +1,42 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory, implementing csvreport package with parser.py, stats.py, and cli.py"
+
+[[milestones]]
+id = "setup"
+title = "Set up project structure and verify initial state"
+task = "Create the csvreport directory structure and verify the stub files exist"
+check = "test -d csvreport && ls csvreport/*.py 2>/dev/null | wc -l | grep -q 3"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+  { kind = "file_exists", path = "csvreport/stats.py" },
+  { kind = "file_exists", path = "csvreport/cli.py" },
+]
+
+[[milestones]]
+id = "parser"
+title = "Implement parse_csv function in parser.py"
+task = "Replace the stub in csvreport/parser.py with a working implementation that meets all CSV parsing requirements"
+check = "python -c \"import csvreport.parser; test='a,b\\nc,d'; result=csvreport.parser.parse_csv(test); assert result == [['a','b'],['c','d']], result\""
+
+[[milestones]]
+id = "stats"
+title = "Implement column_stats function in stats.py"
+task = "Replace the stub in csvreport/stats.py with a working implementation that computes column statistics as specified"
+check = "python -c \"import csvreport.stats; rows=[['col'],['1'],['2']]; result=csvreport.stats.column_stats(rows, 'col'); assert result == {'count':2,'min':1.0,'max':2.0,'mean':1.5}, result\""
+
+[[milestones]]
+id = "cli"
+title = "Implement main function in cli.py and update __init__.py"
+task = "Replace the stub in csvreport/cli.py with main() implementation, update csvreport/__init__.py to export parse_csv, column_stats, and main, and ensure __main__.py exists"
+check = "python -c \"import csvreport; assert hasattr(csvreport, 'parse_csv') and hasattr(csvreport, 'column_stats') and hasattr(csvreport, 'main'); from csvreport.cli import main; assert callable(main)\""
+
+[[milestones]]
+id = "integration"
+title = "Test the complete package with pytest"
+task = "Run the partial test suite to verify basic functionality"
+check = "python -m pytest -q 2>&1 | tail -1 | grep -q 'passed'"
+
+[[milestones]]
+id = "end_to_end"
+title = "Create test data and verify end-to-end functionality"
+task = "Create a test CSV file and test the command line interface with various scenarios"
+check = "echo 'col1,col2\\n1,2\\n3,4' > test.csv && python -m csvreport test.csv col1 2>&1 | grep -q 'count=2 min=1.0 max=3.0 mean=2.0'"

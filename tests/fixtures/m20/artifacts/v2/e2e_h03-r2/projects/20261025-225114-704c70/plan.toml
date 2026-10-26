@@ -1,0 +1,70 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "m1"
+title = "Implement shell quoting"
+task = "Implement the `quote` function in `escapes/shell.py` according to the specification. The function should handle empty strings, safe character strings, and other strings with proper single-quote escaping."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.shell import quote; assert quote('') == \"''\"; assert quote('abc123') == 'abc123'; assert quote('it\\'s') == \"'it'\"\"'\"\"'s'\"; print('shell quoting tests passed')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement JSON string encoding"
+task = "Implement the `encode` function in `escapes/jsonstr.py` according to the specification. The function should return a JSON string literal with proper escaping of quotes, backslashes, control characters, and Unicode characters below 0x20."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import encode; assert encode('a\\\"b\\\\c\\n') == '\\\"a\\\\\\\"b\\\\\\\\c\\\\n\\\"'; print('json encode test passed')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement JSON string decoding"
+task = "Implement the `decode` function in `escapes/jsonstr.py` according to the specification. The function should handle all valid escape sequences, surrogate pairs, and raise ValueError for invalid inputs. Ensure decode(encode(s)) == s for all strings."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import encode, decode; test_str = 'a\\\"b\\\\c\\n\\u00a9'; assert decode(encode(test_str)) == test_str; print('json decode roundtrip test passed')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Implement Windows path conversion"
+task = "Implement the `to_posix` function in `escapes/winpath.py` according to the specification. The function should handle drive letters, UNC paths, backslash conversion, slash collapsing, and trailing slash removal."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.winpath import to_posix; assert to_posix('C:\\\\Users\\\\a b\\\\x.txt') == '/c/Users/a b/x.txt'; assert to_posix('\\\\\\\\server\\\\share\\\\f.txt') == '//server/share/f.txt'; print('winpath tests passed')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "m5"
+title = "Implement HTML entity unescaping"
+task = "Implement the `unescape_html` function in `escapes/catalog.py` according to the specification. The function should use the existing ENTITIES dictionary and handle named entities, decimal references, and hexadecimal references."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.catalog import unescape_html; assert unescape_html('&lt;p&gt;') == '<p>'; assert unescape_html('&#65;') == 'A'; assert unescape_html('&#x4a;') == 'J'; print('html unescape tests passed')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "m6"
+title = "Run partial test suite"
+task = "Run the command `python -m pytest -q` to verify the implemented functions pass the provided test suite. This is a necessary but not sufficient condition for correctness."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "m7"
+title = "Verify all required files exist"
+task = "Ensure all four required files (escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, escapes/catalog.py) are present and contain implementations."
+check = "test -f escapes/shell.py && test -f escapes/jsonstr.py && test -f escapes/winpath.py && test -f escapes/catalog.py && echo 'All required files exist'"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]

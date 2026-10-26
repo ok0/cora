@@ -1,0 +1,83 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "setup"
+title = "Examine workspace and create missing files"
+task = "List files in workspace, check if required files exist, and create any missing ones with appropriate structure."
+check = "All required files exist with correct module layout"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+  { kind = "file_exists", path = "csvreport/stats.py" },
+  { kind = "file_exists", path = "csvreport/cli.py" },
+  { kind = "file_exists", path = "csvreport/__init__.py" },
+  { kind = "file_exists", path = "csvreport/__main__.py" },
+]
+
+[[milestones]]
+id = "parser"
+title = "Implement parse_csv function"
+task = "Implement csvreport.parser.parse_csv according to requirements: handle commas, quotes, line endings, empty fields, and raise ValueError for unterminated quotes."
+check = "parse_csv passes basic test cases including edge cases"
+conditions = [
+  { kind = "command", cmd = "python -c \"import csvreport.parser; result = csvreport.parser.parse_csv('a,b\\nc,d'); assert result == [['a','b'],['c','d']]\"" },
+  { kind = "command", cmd = "python -c \"import csvreport.parser; result = csvreport.parser.parse_csv('\\\"a,b\\\",c'); assert result == [['a,b','c']]\"" },
+]
+
+[[milestones]]
+id = "stats"
+title = "Implement column_stats function"
+task = "Implement csvreport.stats.column_stats according to requirements: handle header, column lookup, float conversion, empty strings, and compute statistics."
+check = "column_stats correctly computes statistics and raises appropriate errors"
+conditions = [
+  { kind = "command", cmd = "python -c \"import csvreport.stats; rows = [['col'], ['1'], ['2'], ['3']]; result = csvreport.stats.column_stats(rows, 'col'); assert result == {'count': 3, 'min': 1.0, 'max': 3.0, 'mean': 2.0}\"" },
+  { kind = "command", cmd = "python -c \"import csvreport.stats; rows = [['col'], ['']]; result = csvreport.stats.column_stats(rows, 'col'); assert result == {'count': 0, 'min': None, 'max': None, 'mean': None}\"" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement main function and CLI"
+task = "Implement csvreport.main according to requirements: handle argument parsing, file reading, error messages, and output formatting."
+check = "main function handles basic cases correctly"
+conditions = [
+  { kind = "command", cmd = "echo 'col\\n1\\n2\\n3' > test.csv && python -c \"import csvreport; result = csvreport.main(['test.csv', 'col']); assert result == 0\" 2>&1 | grep -q 'count=3'" },
+  { kind = "command", cmd = "python -c \"import csvreport; result = csvreport.main(['nonexistent.csv', 'col']); assert result == 2\" 2>&1 | grep -q 'file not found'" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Test full integration"
+task = "Test the complete pipeline: create test CSV files, run the module as a command, verify output matches requirements."
+check = "Full command-line usage works correctly"
+conditions = [
+  { kind = "command", cmd = "echo 'price\\n10.5\\n20.0\\n30.5' > prices.csv && python -m csvreport prices.csv price 2>&1 | grep -q 'count=3 min=10.5 max=30.5 mean=20.5'" },
+  { kind = "command", cmd = "echo 'name,age\\nAlice,25\\nBob,30' > people.csv && python -m csvreport people.csv age 2>&1 | grep -q 'count=2 min=25.0 max=30.0 mean=27.5'" },
+]
+
+[[milestones]]
+id = "pytest"
+title = "Run pytest suite"
+task = "Run the provided test suite with pytest to verify implementation meets all requirements."
+check = "pytest runs successfully"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q 2>&1 | tail -1 | grep -q 'passed'" },
+]
+
+[[milestones]]
+id = "edge_cases"
+title = "Test edge cases and error handling"
+task = "Test additional edge cases: empty files, quoted fields with special characters, unterminated quotes, non-numeric values, missing columns."
+check = "Edge cases are handled correctly"
+conditions = [
+  { kind = "command", cmd = "python -c \"import csvreport.parser; try: csvreport.parser.parse_csv('\\\"a'); except ValueError as e: assert 'unterminated quote' in str(e)\"" },
+  { kind = "command", cmd = "python -c \"import csvreport.stats; rows = [['col'], ['not_a_number']]; try: csvreport.stats.column_stats(rows, 'col'); except ValueError as e: assert 'non-numeric value' in str(e)\"" },
+]
+
+[[milestones]]
+id = "finalize"
+title = "Clean up and verify exports"
+task = "Clean up test files, verify all exports are correct, and ensure __main__.py is properly set up."
+check = "Project is complete and ready"
+conditions = [
+  { kind = "command", cmd = "rm -f test.csv prices.csv people.csv" },
+  { kind = "command", cmd = "python -c \"from csvreport import parse_csv, column_stats, main; assert callable(parse_csv) and callable(column_stats) and callable(main)\"" },
+]

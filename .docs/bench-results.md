@@ -3125,3 +3125,26 @@ AC7 확인: `error_run true`인 행은 D5/D7의 P2 r2 하나뿐이며 `diagnosis
 - 비용 집계 결함: outcome `cost_usd` 0.0 vs 청구 (P2 r2).
 - 런너 milestone 집계 결함: grader 통과인데 0 done (h01 2/3).
 - 위 항목은 `.ensemble/state.md`의 "MUST DO AFTER M20"에 있으며, 개선 논의는 M20 종료 시 사용자와 한다. 로드맵 제안은 사용자가 동의하면 architect REVISION으로 넣는다.
+
+## M20a 결과 (2026-10-26)
+
+### (a) M20 산출물 보존
+
+- 보존 위치: `tests/fixtures/m20/artifacts/` (생성: `tests/m20a_artifacts.py copy`). 원본은 `$TMPDIR/cora-m20`. 파일 114개 (`MANIFEST.json`의 `files`). 민감 값은 `<M20>`, `<TMP>`, `<HOME>`으로 치환했고 줄 번호는 보존했다. 기록 도구가 잘라낸 시스템 임시 경로 조각(`/var/folders/…`)은 `<TMP-PARTIAL>`로 치환했다 (`sanitize.placeholders`, `sanitize.partial_tmp`). 치환 위치는 `v2/e2e_h03-r1/sessions/20261025-224751-214c62/events.jsonl`의 32번째 줄 1곳이며, 도구 출력이 기록 단계에서 잘린 것이다. `/c/Users/a b/x.txt` 같이 작업 내용에 해당하는 문자열은 원문 그대로 보존했다.
+- `absent_at_source` (원본에 `events.jsonl`이 없었던 실행 디렉터리, 기록만 하고 만들어내지 않음): p1, p1b, p1c, g0, g0b, g0c 그룹의 e2e_h01, e2e_h02, e2e_h03, e2e_h05, e2e_h06 (30건, plan-only 실행) 및 `v2/e2e_n08-r2` (1건. plan-only 실행이 아니며, 사유는 planner 오류로 세션이 시작되기 전에 실패한 것이다: `session_id`·`run_id` null, `iterations` 0, `exit_code` 2. `v2/e2e_n08-r2/outcome.json`의 오류 `planner reply invalid after one repair attempt: model reply is not valid JSON: Expecting value (line 1, column 1)`).
+- `blocked`: 없음.
+- 키 스캔: 114개 파일에 `sk-or-v1-…`, `AIza…` 패턴과 환경변수 키 값 일치 0건 (`key_scan.matches == 0`).
+
+### (b) deepseek-v2 policy_blocked 6회 원인 분류
+
+| run | 최종 원인 분류 | 거부된 호출 (규칙 id) | 근거 (artifact:line) |
+|---|---|---|---|
+| e2e_h01-r1 | 거부된 agent 도구 호출 → tripwire (run_shell) | run_shell: `confine:cd` 1회, `confine:one-liner` 3회 (3회째에 tripwire) | `v2/e2e_h01-r1/sessions/20261025-220907-07c65a/events.jsonl:14` (cd), `:41`, `:56`, `:119` (one-liner), `:121` (tripwire), `:122` (stop) |
+| e2e_h03-r0 | 거부된 agent 도구 호출 → tripwire (delete_file) | run_shell: `confine:cd` 1회 (`:16`), `confine:one-liner` 2회 (`:37`, `:49`). delete_file: `default:delete` 4회 (ask가 deny로 해석됨, `:76`–`:79`) | `v2/e2e_h03-r0/sessions/20261025-224335-252598/events.jsonl:84` (tripwire, count 3), `:85` (stop) |
+| e2e_h03-r1 | 거부된 agent 도구 호출 → tripwire (delete_file) | run_shell: `confine:cd` 1회 (`:19`), `confine:parse` 2회 (`:34`, `:37`). delete_file: `default:delete` 3회 (ask가 deny로 해석됨, `:67`–`:69`) | `v2/e2e_h03-r1/sessions/20261025-224751-214c62/events.jsonl:73` (tripwire, count 3), `:74` (stop) |
+| e2e_h03-r2 | 최종 원인은 edit_file tripwire (정책 거부 아님). 라벨 `policy_blocked`는 `outcome.py:53`이 모든 거부를 세기 때문 | run_shell: `confine:cd` 1회 (`:19`), `confine:one-liner` 1회 (`:28`) | `v2/e2e_h03-r2/sessions/20261025-225114-f43922/events.jsonl:57` (edit_file tripwire, count 3), `:58` (stop) |
+| e2e_n08-r0 | check 거부 (`default` 규칙, 허용 규칙 없음) → check_failed 종료 | check `test -f contacts/__init__.py && …` 1회 (`default`, deny) | `v2/e2e_n08-r0/sessions/20261025-225819-9e8303/events.jsonl:23` (policy_decision), `:24` (check, ok false), `:25` (stop, check_failed) |
+| e2e_n08-r1 | check 거부 (`default` 규칙, 허용 규칙 없음) → check_failed 종료 | check `test -f contacts/__init__.py && …` 1회 (`default`, deny) | `v2/e2e_n08-r1/sessions/20261025-225924-4737d9/events.jsonl:39` (policy_decision), `:40` (check, ok false), `:41` (stop, check_failed) |
+
+- `command` 조건이 거부된 실행: 0회.
+

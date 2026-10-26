@@ -1,0 +1,29 @@
+goal = "Build the csvreport package fulfilling all requirements and passing pytest"
+
+[[milestones]]
+id = "parser"
+title = "Implement CSV parser"
+task = "Implement parse_csv in csvreport/parser.py according to the specifications in REQUIREMENTS.md, handling standard fields, quoted fields with commas and line breaks, escaped quotes, line endings, empty lines, empty input, and unterminated quote exceptions."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+]
+
+[[milestones]]
+id = "stats"
+title = "Implement column statistics"
+task = "Implement column_stats in csvreport/stats.py according to the specifications in REQUIREMENTS.md, handling headers, missing columns, float conversion, skipping empty cells, counting, min, max, and rounded mean."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "csvreport/stats.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement CLI and package exports"
+task = "Implement main in csvreport/cli.py and ensure csvreport/__init__.py correctly exports parse_csv, column_stats, and main, supporting all command-line error handling and output formatting specified in REQUIREMENTS.md."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "csvreport/cli.py" },
+  { kind = "file_exists", path = "csvreport/__init__.py" },
+]

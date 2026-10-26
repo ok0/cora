@@ -1,0 +1,43 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "timeparse"
+title = "Implement time parsing module"
+task = "Implement parse_hhmm function in booking/timeparse.py according to requirements"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from booking.timeparse import parse_hhmm; assert parse_hhmm('12:30') == 750; assert parse_hhmm('00:00') == 0; assert parse_hhmm('23:59') == 1439; assert parse_hhmm('24:00', end=True) == 1440; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "booking/timeparse.py" },
+]
+
+[[milestones]]
+id = "intervals"
+title = "Implement intervals module"
+task = "Implement Interval class, overlaps and merge functions in booking/intervals.py according to requirements"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from booking.intervals import Interval, overlaps, merge; from booking.timeparse import parse_hhmm; i1 = Interval(parse_hhmm('09:00'), parse_hhmm('10:00')); i2 = Interval(parse_hhmm('10:00'), parse_hhmm('11:00')); assert not overlaps(i1, i2); assert merge([i1, i2]) == [i1, i2]; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "booking/intervals.py" },
+]
+
+[[milestones]]
+id = "rooms"
+title = "Implement rooms module"
+task = "Implement Schedule class with book and free_slots methods in booking/rooms.py according to requirements"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from booking.rooms import Schedule; s = Schedule(); assert s.book('A', '09:00', '10:00') == True; assert s.book('A', '09:30', '10:30') == False; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "booking/rooms.py" },
+]
+
+[[milestones]]
+id = "exports"
+title = "Set up package exports"
+task = "Update booking/__init__.py to export required names: parse_hhmm, Interval, overlaps, merge, and Schedule"
+check = "python -c \"import sys; sys.path.insert(0, '.'); import booking; assert hasattr(booking, 'parse_hhmm'); assert hasattr(booking, 'Interval'); assert hasattr(booking, 'overlaps'); assert hasattr(booking, 'merge'); assert hasattr(booking, 'Schedule'); print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "booking/__init__.py" },
+]
+
+[[milestones]]
+id = "tests"
+title = "Run test suite"
+task = "Run the provided test suite to verify implementation"
+check = "python -m pytest -q"

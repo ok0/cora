@@ -1,0 +1,6 @@
+{"ts": "2026-10-23T12:27:25.860386+00:00", "type": "project_start", "run_id": "20261023-212725-711499", "completed": [], "milestones": ["setup", "parser", "stats", "cli", "exports", "test", "integration"]}
+{"ts": "2026-10-23T12:27:25.861061+00:00", "type": "checkpoint", "completed": [], "current": "setup"}
+{"ts": "2026-10-23T12:27:25.861119+00:00", "type": "milestone_start", "id": "setup", "title": "Examine project structure and requirements"}
+{"ts": "2026-10-23T12:39:47.352630+00:00", "type": "checkpoint", "completed": [], "current": "setup"}
+{"ts": "2026-10-23T12:39:47.352796+00:00", "type": "milestone_end", "id": "setup", "status": "failed", "stop_reason": "budget_exceeded", "session_id": "20261023-212725-94bafc", "cost_usd": 0.03349813496}
+{"ts": "2026-10-23T12:39:47.353163+00:00", "type": "checkpoint", "completed": [], "current": "setup"}

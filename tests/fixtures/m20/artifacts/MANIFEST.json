@@ -1,0 +1,329 @@
+{
+ "absent_at_source": [
+  {
+   "errors": [
+    "planner reply invalid after one repair attempt: model reply is not valid JSON: Expecting value (line 1, column 1)"
+   ],
+   "file": "events.jsonl",
+   "group": "v2",
+   "reason": "absent at source (no session started: planner error)",
+   "run": "e2e_n08-r2"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h01"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h02"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h03"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h05"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h06"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h01"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h02"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h03"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h05"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h06"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h01"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h02"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h03"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h05"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "p1c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h06"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h01"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h02"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h03"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h05"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h06"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h01"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h02"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h03"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h05"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0b",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h06"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h01"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h02"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h03"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h05"
+  },
+  {
+   "file": "events.jsonl",
+   "group": "g0c",
+   "reason": "absent at source (plan-only run)",
+   "run": "e2e_h06"
+  }
+ ],
+ "blocked": [],
+ "files": [
+  "cora-m20-deepseek.toml",
+  "g0/e2e_h01/outcome.json",
+  "g0/e2e_h01/plan.toml",
+  "g0/e2e_h02/outcome.json",
+  "g0/e2e_h02/plan.toml",
+  "g0/e2e_h03/outcome.json",
+  "g0/e2e_h03/plan.toml",
+  "g0/e2e_h05/outcome.json",
+  "g0/e2e_h05/plan.toml",
+  "g0/e2e_h06/outcome.json",
+  "g0/e2e_h06/plan.toml",
+  "g0b/e2e_h01/outcome.json",
+  "g0b/e2e_h01/plan.toml",
+  "g0b/e2e_h02/outcome.json",
+  "g0b/e2e_h02/plan.toml",
+  "g0b/e2e_h03/outcome.json",
+  "g0b/e2e_h03/plan.toml",
+  "g0b/e2e_h05/outcome.json",
+  "g0b/e2e_h05/plan.toml",
+  "g0b/e2e_h06/outcome.json",
+  "g0b/e2e_h06/plan.toml",
+  "g0c/e2e_h01/outcome.json",
+  "g0c/e2e_h01/plan.toml",
+  "g0c/e2e_h02/outcome.json",
+  "g0c/e2e_h02/plan.toml",
+  "g0c/e2e_h03/outcome.json",
+  "g0c/e2e_h03/plan.toml",
+  "g0c/e2e_h05/outcome.json",
+  "g0c/e2e_h05/plan.toml",
+  "g0c/e2e_h06/outcome.json",
+  "g0c/e2e_h06/plan.toml",
+  "p1/e2e_h01/outcome.json",
+  "p1/e2e_h01/plan.toml",
+  "p1/e2e_h02/outcome.json",
+  "p1/e2e_h02/plan.toml",
+  "p1/e2e_h03/outcome.json",
+  "p1/e2e_h03/plan.toml",
+  "p1/e2e_h05/outcome.json",
+  "p1/e2e_h05/plan.toml",
+  "p1/e2e_h06/outcome.json",
+  "p1/e2e_h06/plan.toml",
+  "p1b/e2e_h01/outcome.json",
+  "p1b/e2e_h01/plan.toml",
+  "p1b/e2e_h02/outcome.json",
+  "p1b/e2e_h02/plan.toml",
+  "p1b/e2e_h03/outcome.json",
+  "p1b/e2e_h03/plan.toml",
+  "p1b/e2e_h05/outcome.json",
+  "p1b/e2e_h05/plan.toml",
+  "p1b/e2e_h06/outcome.json",
+  "p1b/e2e_h06/plan.toml",
+  "p1c/e2e_h01/outcome.json",
+  "p1c/e2e_h01/plan.toml",
+  "p1c/e2e_h02/outcome.json",
+  "p1c/e2e_h02/plan.toml",
+  "p1c/e2e_h03/outcome.json",
+  "p1c/e2e_h03/plan.toml",
+  "p1c/e2e_h05/outcome.json",
+  "p1c/e2e_h05/plan.toml",
+  "p1c/e2e_h06/outcome.json",
+  "p1c/e2e_h06/plan.toml",
+  "p2/e2e_h01-r0/outcome.json",
+  "p2/e2e_h01-r0/projects/20261023-212556-1d9111/events.jsonl",
+  "p2/e2e_h01-r0/projects/20261023-212556-1d9111/plan.toml",
+  "p2/e2e_h01-r0/sessions/20261023-212556-2e6756/events.jsonl",
+  "p2/e2e_h01-r1/outcome.json",
+  "p2/e2e_h01-r1/projects/20261023-212725-711499/events.jsonl",
+  "p2/e2e_h01-r1/projects/20261023-212725-711499/plan.toml",
+  "p2/e2e_h01-r1/sessions/20261023-212725-94bafc/events.jsonl",
+  "p2/e2e_h01-r2/outcome.json",
+  "p2/e2e_h01-r2/projects/20261023-214042-166a18/events.jsonl",
+  "p2/e2e_h01-r2/projects/20261023-214042-166a18/plan.toml",
+  "p2/e2e_h01-r2/sessions/20261023-214042-3b26d9/events.jsonl",
+  "rr/e2e_h01-r2/outcome.json",
+  "rr/e2e_h01-r2/projects/20261025-204419-6f452b/events.jsonl",
+  "rr/e2e_h01-r2/projects/20261025-204419-6f452b/plan.toml",
+  "rr/e2e_h01-r2/sessions/20261025-204419-2e971a/events.jsonl",
+  "v2/e2e_h01-r0/outcome.json",
+  "v2/e2e_h01-r0/projects/20261025-215255-bbc53e/events.jsonl",
+  "v2/e2e_h01-r0/projects/20261025-215255-bbc53e/plan.toml",
+  "v2/e2e_h01-r0/sessions/20261025-215255-2b5751/events.jsonl",
+  "v2/e2e_h01-r0/sessions/20261025-220130-0f6a6d/events.jsonl",
+  "v2/e2e_h01-r0/sessions/20261025-220520-bd35b6/events.jsonl",
+  "v2/e2e_h01-r1/outcome.json",
+  "v2/e2e_h01-r1/projects/20261025-220907-c9421c/events.jsonl",
+  "v2/e2e_h01-r1/projects/20261025-220907-c9421c/plan.toml",
+  "v2/e2e_h01-r1/sessions/20261025-220907-07c65a/events.jsonl",
+  "v2/e2e_h01-r2/outcome.json",
+  "v2/e2e_h01-r2/projects/20261025-221325-8b0046/events.jsonl",
+  "v2/e2e_h01-r2/projects/20261025-221325-8b0046/plan.toml",
+  "v2/e2e_h01-r2/sessions/20261025-221325-7c8096/events.jsonl",
+  "v2/e2e_h01-r2/sessions/20261025-221932-f4550c/events.jsonl",
+  "v2/e2e_h01-r2/sessions/20261025-222307-a486a5/events.jsonl",
+  "v2/e2e_h03-r0/outcome.json",
+  "v2/e2e_h03-r0/projects/20261025-224335-264877/events.jsonl",
+  "v2/e2e_h03-r0/projects/20261025-224335-264877/plan.toml",
+  "v2/e2e_h03-r0/sessions/20261025-224335-252598/events.jsonl",
+  "v2/e2e_h03-r1/outcome.json",
+  "v2/e2e_h03-r1/projects/20261025-224751-9ff7cc/events.jsonl",
+  "v2/e2e_h03-r1/projects/20261025-224751-9ff7cc/plan.toml",
+  "v2/e2e_h03-r1/sessions/20261025-224751-214c62/events.jsonl",
+  "v2/e2e_h03-r2/outcome.json",
+  "v2/e2e_h03-r2/projects/20261025-225114-704c70/events.jsonl",
+  "v2/e2e_h03-r2/projects/20261025-225114-704c70/plan.toml",
+  "v2/e2e_h03-r2/sessions/20261025-225114-f43922/events.jsonl",
+  "v2/e2e_n08-r0/outcome.json",
+  "v2/e2e_n08-r0/projects/20261025-225819-4d5d17/events.jsonl",
+  "v2/e2e_n08-r0/projects/20261025-225819-4d5d17/plan.toml",
+  "v2/e2e_n08-r0/sessions/20261025-225819-9e8303/events.jsonl",
+  "v2/e2e_n08-r1/outcome.json",
+  "v2/e2e_n08-r1/projects/20261025-225924-ca9c6d/events.jsonl",
+  "v2/e2e_n08-r1/projects/20261025-225924-ca9c6d/plan.toml",
+  "v2/e2e_n08-r1/sessions/20261025-225924-4737d9/events.jsonl",
+  "v2/e2e_n08-r2/outcome.json"
+ ],
+ "key_scan": {
+  "files": 114,
+  "matches": 0
+ },
+ "sanitize": {
+  "partial_tmp": [
+   {
+    "file": "v2/e2e_h03-r1/sessions/20261025-224751-214c62/events.jsonl",
+    "line": 32
+   }
+  ],
+  "placeholders": {
+   "<HOME>": "home directory",
+   "<M20>": "M20 source directory",
+   "<TMP-PARTIAL>": "truncated fragment of a system temp path (macOS per-user temp prefix) cut off by the recorder",
+   "<TMP>": "system temp directory"
+  }
+ },
+ "source": "$TMPDIR/cora-m20"
+}

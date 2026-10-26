@@ -1,0 +1,70 @@
+goal = "Implement the escapes package with shell quoting, JSON string encoding/decoding, Windows path conversion, and HTML entity unescaping"
+
+[[milestones]]
+id = "shell_quote"
+title = "Implement shell.quote function"
+task = "Implement the quote function in escapes/shell.py according to the specification. Test it with some examples."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.shell import quote; tests = [('', \"''\"), ('abc123', 'abc123'), ('it\\'s', \"'it'\"\"'\"\"'s'\"), ('a b', \"'a b'\"), ('$HOME', \"'$HOME'\")]; all_ok = True; for inp, expected in tests: out = quote(inp); if out != expected: print(f'FAIL: {repr(inp)} -> {repr(out)} expected {repr(expected)}'); all_ok = False; assert all_ok, 'Some tests failed'\""
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "jsonstr_encode"
+title = "Implement jsonstr.encode"
+task = "Implement encode in escapes/jsonstr.py without importing json. Handle quotes, backslashes, control characters, and Unicode escapes."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import encode; tests = [('a\\\"b\\\\c\\n', '\\\"a\\\\\\\"b\\\\\\\\c\\\\n\\\"'), ('\\x00\\x1f', '\\\"\\\\u0000\\\\u001f\\\"'), ('/', '\\\"/\\\"'), ('😀', '\\\"😀\\\"')]; all_ok = True; for inp, expected in tests: out = encode(inp); if out != expected: print(f'FAIL: {repr(inp)} -> {repr(out)} expected {repr(expected)}'); all_ok = False; assert all_ok, 'Some tests failed'\""
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "jsonstr_decode"
+title = "Implement jsonstr.decode"
+task = "Implement decode in escapes/jsonstr.py. Validate input format, handle escapes, surrogate pairs, and raise ValueError on errors."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import decode; tests = [('\\\"a\\\\\\\"b\\\\\\\\c\\\\n\\\"', 'a\\\"b\\\\c\\n'), ('\\\"\\\\ud83d\\\\ude00\\\"', '😀'), ('\\\"\\\\u0041\\\"', 'A')]; all_ok = True; for inp, expected in tests: out = decode(inp); if out != expected: print(f'FAIL: {repr(inp)} -> {repr(out)} expected {repr(expected)}'); all_ok = False; assert all_ok, 'Some tests failed'\""
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "jsonstr_roundtrip"
+title = "Test jsonstr roundtrip"
+task = "Ensure decode(encode(s)) == s for various strings, including edge cases."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import encode, decode; tests = ['', 'a', '\\\"', '\\\\', '\\n', '\\x00', '😀', '\\\\ud83d\\\\ude00']; all_ok = True; for s in tests: if decode(encode(s)) != s: print(f'FAIL roundtrip: {repr(s)}'); all_ok = False; assert all_ok, 'Roundtrip failed'\""
+
+[[milestones]]
+id = "winpath_to_posix"
+title = "Implement winpath.to_posix"
+task = "Implement to_posix in escapes/winpath.py. Handle drive letters, UNC paths, backslash conversion, and trailing slashes."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.winpath import to_posix; tests = [('C:\\\\Users\\\\a b\\\\x.txt', '/c/Users/a b/x.txt'), ('C:\\\\', '/c'), ('\\\\\\\\server\\\\share\\\\f.txt', '//server/share/f.txt'), ('dir\\\\file.txt', 'dir/file.txt'), ('C:\\\\tmp\\\\', '/c/tmp')]; all_ok = True; for inp, expected in tests: out = to_posix(inp); if out != expected: print(f'FAIL: {repr(inp)} -> {repr(out)} expected {repr(expected)}'); all_ok = False; assert all_ok, 'Some tests failed'\""
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "catalog_unescape"
+title = "Implement catalog.unescape_html"
+task = "Implement unescape_html in escapes/catalog.py using the fixed ENTITIES dict. Handle named, decimal, and hex references."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.catalog import unescape_html; tests = [('&eacute;', 'é'), ('&lt;p&gt;', '<p>'), ('&#65;', 'A'), ('&#x4a;', 'J'), ('&#x1F600;', '😀'), ('&bogus;', '&bogus;'), ('&#38;amp;', '&amp;')]; all_ok = True; for inp, expected in tests: out = unescape_html(inp); if out != expected: print(f'FAIL: {repr(inp)} -> {repr(out)} expected {repr(expected)}'); all_ok = False; assert all_ok, 'Some tests failed'\""
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "pytest_partial"
+title = "Run partial test suite"
+task = "Run python -m pytest -q to ensure the implemented functions pass the provided tests."
+check = "python -m pytest -q"
+
+[[milestones]]
+id = "final_check"
+title = "Verify all required files exist and are implemented"
+task = "Confirm all four required files are present and contain implementations (no NotImplementedError)."
+check = "python -c \"import sys; sys.path.insert(0, '.'); modules = ['escapes.shell', 'escapes.jsonstr', 'escapes.winpath', 'escapes.catalog']; for mod_name in modules: mod = __import__(mod_name, fromlist=['']); if hasattr(mod, 'quote'): assert mod.quote('test') not in ['', None], 'shell.quote not implemented'; if hasattr(mod, 'encode'): assert mod.encode('') not in ['', None], 'jsonstr.encode not implemented'; if hasattr(mod, 'decode'): assert mod.decode('\\\"\\\"') not in ['', None], 'jsonstr.decode not implemented'; if hasattr(mod, 'to_posix'): assert mod.to_posix('C:\\\\') not in ['', None], 'winpath.to_posix not implemented'; if hasattr(mod, 'unescape_html'): assert mod.unescape_html('&lt;') not in ['', None], 'catalog.unescape_html not implemented'; print('All modules implemented')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]

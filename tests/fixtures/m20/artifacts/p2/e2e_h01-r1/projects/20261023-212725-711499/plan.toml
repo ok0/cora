@@ -1,0 +1,62 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "setup"
+title = "Examine project structure and requirements"
+task = "List the directory contents to understand the existing files and structure, then read REQUIREMENTS.md to understand the full specification."
+check = "The user has confirmed understanding of the project structure and requirements."
+conditions = [
+  { kind = "file_exists", path = "REQUIREMENTS.md" },
+]
+
+[[milestones]]
+id = "parser"
+title = "Implement csvreport.parser.parse_csv"
+task = "Implement the parse_csv function in csvreport/parser.py according to the specification. Handle quoted fields, escaped quotes, line endings, and error cases like unterminated quotes."
+check = "The parse_csv function passes relevant tests and handles all edge cases from REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+]
+
+[[milestones]]
+id = "stats"
+title = "Implement csvreport.stats.column_stats"
+task = "Implement the column_stats function in csvreport/stats.py. Handle header validation, numeric conversion, empty cells, and compute statistics (count, min, max, mean) as specified."
+check = "The column_stats function correctly computes statistics and raises appropriate errors as per REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "csvreport/stats.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement csvreport.cli.main"
+task = "Implement the main function in csvreport/cli.py (or ensure it's properly defined). Handle command-line arguments, file reading, error messages, and output formatting as specified."
+check = "The main function correctly handles usage errors, file not found, column errors, and prints the correct output format."
+conditions = [
+  { kind = "file_exists", path = "csvreport/cli.py" },
+]
+
+[[milestones]]
+id = "exports"
+title = "Set up package exports and entry point"
+task = "Ensure csvreport/__init__.py exports parse_csv, column_stats, and main. Verify csvreport/__main__.py exists and calls main(sys.argv[1:])."
+check = "The package can be imported and run via python -m csvreport with correct function availability."
+conditions = [
+  { kind = "file_exists", path = "csvreport/__init__.py" },
+  { kind = "file_exists", path = "csvreport/__main__.py" },
+]
+
+[[milestones]]
+id = "test"
+title = "Run tests to verify implementation"
+task = "Run python -m pytest -q to check that the partial test suite passes. Address any failures."
+check = "The test suite passes without errors."
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Test the full command-line interface"
+task = "Create a test CSV file and run python -m csvreport FILE COLUMN to verify end-to-end functionality, including error cases and correct output formatting."
+check = "The CLI works correctly for valid and invalid inputs, matching the examples and error messages in REQUIREMENTS.md."

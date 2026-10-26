@@ -1,0 +1,6 @@
+{"ts": "2026-10-25T13:59:24.474311+00:00", "type": "project_start", "run_id": "20261025-225924-ca9c6d", "completed": [], "milestones": ["setup", "normalize_email", "normalize_phone", "dedupe", "cli_skeleton", "cli_full"]}
+{"ts": "2026-10-25T13:59:24.474842+00:00", "type": "checkpoint", "completed": [], "current": "setup"}
+{"ts": "2026-10-25T13:59:24.474885+00:00", "type": "milestone_start", "id": "setup", "title": "Create package structure and stub files"}
+{"ts": "2026-10-25T13:59:54.313771+00:00", "type": "checkpoint", "completed": [], "current": "setup"}
+{"ts": "2026-10-25T13:59:54.314010+00:00", "type": "milestone_end", "id": "setup", "status": "failed", "stop_reason": "policy_blocked", "session_id": "20261025-225924-4737d9", "cost_usd": 0.00313222}
+{"ts": "2026-10-25T13:59:54.314604+00:00", "type": "checkpoint", "completed": [], "current": "setup"}

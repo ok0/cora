@@ -1,0 +1,47 @@
+goal = "Build the project described in REQUIREMENTS.md"
+
+[[milestones]]
+id = "models"
+title = "Implement models module"
+task = "Create tracker/models.py containing the Task dataclass with id, title, done, and priority fields, including validation for priority values ('low', 'normal', 'high') raising ValueError."
+conditions = [
+  { kind = "file_exists", path = "tracker/models.py" },
+]
+
+[[milestones]]
+id = "storage"
+title = "Implement storage module"
+task = "Create tracker/storage.py with load(path) and save(path, tasks) to handle JSON-lines persistence, defaulting missing priorities to 'normal'."
+conditions = [
+  { kind = "file_exists", path = "tracker/storage.py" },
+]
+
+[[milestones]]
+id = "service"
+title = "Implement service module"
+task = "Create tracker/service.py with the Tracker class handling add, complete, and list operations with proper ID generation, validation, and sorting by id or priority."
+conditions = [
+  { kind = "file_exists", path = "tracker/service.py" },
+]
+
+[[milestones]]
+id = "formatting"
+title = "Implement formatting module"
+task = "Create tracker/formatting.py with render(tasks) producing the exact required text representation for tasks with priority markers (H, N, L)."
+conditions = [
+  { kind = "file_exists", path = "tracker/formatting.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement CLI module"
+task = "Create tracker/cli.py (and make it runnable via python -m tracker) supporting --db PATH, add with --priority, list with --sort, and done with appropriate error handling and exit codes."
+conditions = [
+  { kind = "file_exists", path = "tracker/cli.py" },
+]
+
+[[milestones]]
+id = "test"
+title = "Run tests"
+task = "Run python -m pytest -q to verify the implementation against the test suite."
+check = "python -m pytest -q"

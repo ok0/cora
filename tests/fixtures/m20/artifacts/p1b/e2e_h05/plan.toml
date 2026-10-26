@@ -1,0 +1,58 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "models"
+title = "Implement Task dataclass with priority validation"
+task = "Create tracker/models.py with Task dataclass that includes priority field with validation for 'low', 'normal', 'high' values"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.models import Task; t = Task(id=1, title='test', priority='normal'); print('OK' if t.priority == 'normal' else 'FAIL')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/models.py" },
+]
+
+[[milestones]]
+id = "storage"
+title = "Implement storage layer with priority support"
+task = "Create tracker/storage.py with load() and save() functions that handle priority field, defaulting to 'normal' when missing"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.storage import load, save; import tempfile; f = tempfile.NamedTemporaryFile(mode='w', delete=False); f.write('{\\\"id\\\":1,\\\"title\\\":\\\"test\\\",\\\"done\\\":false}\\n'); f.close(); tasks = load(f.name); print('OK' if tasks[0].priority == 'normal' else 'FAIL')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/storage.py" },
+]
+
+[[milestones]]
+id = "service"
+title = "Implement service layer with priority and sorting"
+task = "Create tracker/service.py with Tracker class supporting add() with priority, complete(), and list() with 'id' and 'priority' sorting"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.service import Tracker; import tempfile; f = tempfile.NamedTemporaryFile(delete=False); f.close(); t = Tracker(f.name); task = t.add('test', priority='high'); print('OK' if task.priority == 'high' else 'FAIL')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/service.py" },
+]
+
+[[milestones]]
+id = "formatting"
+title = "Implement formatting with priority markers"
+task = "Create tracker/formatting.py with render() function that formats tasks with H/N/L markers based on priority"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.formatting import render; from tracker.models import Task; tasks = [Task(id=1, title='test', priority='high', done=False)]; output = render(tasks); print('OK' if '[H]' in output else 'FAIL')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/formatting.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement command line interface with priority options"
+task = "Create tracker/cli.py with argparse implementation supporting --db, add with --priority, list with --sort, and done commands"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.cli import main; import argparse; print('OK' if hasattr(main, '__call__') else 'FAIL')\""
+conditions = [
+  { kind = "file_exists", path = "tracker/cli.py" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Test basic integration of all components"
+task = "Create a simple test script that imports all modules and performs basic operations to verify they work together"
+check = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.models import Task; from tracker.storage import load, save; from tracker.service import Tracker; from tracker.formatting import render; from tracker.cli import main; import tempfile; f = tempfile.NamedTemporaryFile(delete=False); f.close(); t = Tracker(f.name); task = t.add('integration test', priority='normal'); tasks = t.list(); output = render(tasks); print('OK' if task.id == 1 and '[N]' in output else 'FAIL')\""
+
+[[milestones]]
+id = "pytest"
+title = "Run partial test suite"
+task = "Execute python -m pytest -q to verify the implementation passes the provided test suite"
+check = "python -m pytest -q 2>&1 | tail -1 | grep -q 'passed'"

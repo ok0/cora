@@ -1,0 +1,64 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "models"
+title = "Implement Task model with priority"
+task = "Create tracker/models.py with Task dataclass that includes priority field with validation for allowed values (low, normal, high)."
+check = "Check that tracker/models.py exists and defines Task dataclass with id, title, done, priority fields and validation."
+conditions = [
+  { kind = "file_exists", path = "tracker/models.py" },
+]
+
+[[milestones]]
+id = "storage"
+title = "Implement storage layer with priority support"
+task = "Create tracker/storage.py with load and save functions that handle priority field in JSON, defaulting to 'normal' when missing."
+check = "Check that tracker/storage.py exists and implements load and save functions with priority handling."
+conditions = [
+  { kind = "file_exists", path = "tracker/storage.py" },
+]
+
+[[milestones]]
+id = "service"
+title = "Implement service layer with priority operations"
+task = "Create tracker/service.py with Tracker class supporting add with priority, complete, and list with sort by id or priority."
+check = "Check that tracker/service.py exists and implements Tracker class with add, complete, and list methods."
+conditions = [
+  { kind = "file_exists", path = "tracker/service.py" },
+]
+
+[[milestones]]
+id = "formatting"
+title = "Implement formatting with priority markers"
+task = "Create tracker/formatting.py with render function that formats tasks with priority markers (H, N, L)."
+check = "Check that tracker/formatting.py exists and implements render function with priority markers."
+conditions = [
+  { kind = "file_exists", path = "tracker/formatting.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement command line interface"
+task = "Create tracker/cli.py with CLI supporting --db option, add with --priority, list with --sort, and done commands."
+check = "Check that tracker/cli.py exists and implements CLI with required commands and options."
+conditions = [
+  { kind = "file_exists", path = "tracker/cli.py" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Test basic integration"
+task = "Run a simple test to verify all modules work together: create a task, list it, mark it done."
+check = "Check that basic CLI operations work without errors."
+conditions = [
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); from tracker.models import Task; from tracker.storage import load, save; from tracker.service import Tracker; from tracker.formatting import render; import tempfile, os; f = tempfile.NamedTemporaryFile(delete=False); f.close(); t = Tracker(f.name); task = t.add('test', 'normal'); print('added', task.id); tasks = t.list(); print('listed', len(tasks)); t.complete(task.id); print('completed'); os.unlink(f.name); print('ok')\"" },
+]
+
+[[milestones]]
+id = "tests"
+title = "Run test suite"
+task = "Run pytest to verify the implementation passes the provided test suite."
+check = "Check that pytest runs without failures."
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q" },
+]

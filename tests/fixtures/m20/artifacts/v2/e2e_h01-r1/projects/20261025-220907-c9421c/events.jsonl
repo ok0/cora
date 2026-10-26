@@ -1,0 +1,6 @@
+{"ts": "2026-10-25T13:09:07.905864+00:00", "type": "project_start", "run_id": "20261025-220907-c9421c", "completed": [], "milestones": ["m1", "m2", "m3", "m4", "m5"]}
+{"ts": "2026-10-25T13:09:07.906394+00:00", "type": "checkpoint", "completed": [], "current": "m1"}
+{"ts": "2026-10-25T13:09:07.906444+00:00", "type": "milestone_start", "id": "m1", "title": "Implement CSV parser"}
+{"ts": "2026-10-25T13:13:15.615571+00:00", "type": "checkpoint", "completed": [], "current": "m1"}
+{"ts": "2026-10-25T13:13:15.615853+00:00", "type": "milestone_end", "id": "m1", "status": "failed", "stop_reason": "policy_blocked", "session_id": "20261025-220907-07c65a", "cost_usd": 0.068475924}
+{"ts": "2026-10-25T13:13:15.616684+00:00", "type": "checkpoint", "completed": [], "current": "m1"}

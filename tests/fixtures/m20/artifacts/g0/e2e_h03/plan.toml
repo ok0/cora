@@ -1,0 +1,55 @@
+goal = "Build the escapes package according to REQUIREMENTS.md and pass all tests"
+
+[[milestones]]
+id = "run-initial-tests"
+title = "Run initial tests and inspect stubs"
+task = "Run pytest to verify the test environment and inspect the existing project structure and stubs."
+check = "pytest runs successfully"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q" },
+]
+
+[[milestones]]
+id = "implement-shell"
+title = "Implement shell quoting"
+task = "Implement `escapes.shell.quote` in `escapes/shell.py` according to the specification."
+check = "Shell quoting tests pass"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "implement-jsonstr"
+title = "Implement JSON strings encoder and decoder"
+task = "Implement `escapes.jsonstr.encode` and `decode` in `escapes/jsonstr.py` without importing `json`, adhering to all escaping and error-raising rules."
+check = "JSON string tests pass"
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "implement-winpath"
+title = "Implement Windows path converter"
+task = "Implement `escapes.winpath.to_posix` in `escapes/winpath.py` following all path conversion rules."
+check = "Windows path tests pass"
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "implement-catalog"
+title = "Implement HTML entity unescaping"
+task = "Implement `escapes.catalog.unescape_html` in `escapes/catalog.py` without modifying the `ENTITIES` table."
+check = "Catalog and HTML entity tests pass"
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "verify-all-tests"
+title = "Run full test suite"
+task = "Run `python -m pytest` to ensure all requirements and test cases pass successfully."
+check = "All tests pass"
+conditions = [
+  { kind = "command", cmd = "python -m pytest" },
+]

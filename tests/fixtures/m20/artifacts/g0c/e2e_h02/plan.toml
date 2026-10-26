@@ -1,0 +1,40 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory."
+
+[[milestones]]
+id = "explore"
+title = "Explore workspace and test suite"
+task = "Examine the directory structure, inspect REQUIREMENTS.md, ledger/models.py, and existing stubs, and run the test suite to observe failures."
+conditions = [
+  { kind = "file_exists", path = "REQUIREMENTS.md" },
+  { kind = "file_exists", path = "ledger/models.py" },
+]
+
+[[milestones]]
+id = "book"
+title = "Implement ledger/book.py"
+task = "Implement balance and balances functions in ledger/book.py according to specifications."
+conditions = [
+  { kind = "file_exists", path = "ledger/book.py" },
+]
+
+[[milestones]]
+id = "report"
+title = "Implement ledger/report.py"
+task = "Implement format_cents and monthly_summary functions in ledger/report.py according to specifications."
+conditions = [
+  { kind = "file_exists", path = "ledger/report.py" },
+]
+
+[[milestones]]
+id = "importer"
+title = "Implement ledger/importer.py"
+task = "Implement load_lines function in ledger/importer.py according to specifications with proper 1-based line error reporting."
+conditions = [
+  { kind = "file_exists", path = "ledger/importer.py" },
+]
+
+[[milestones]]
+id = "verify"
+title = "Run pytest and verify completion"
+task = "Run pytest to ensure all tests pass successfully and requirements are fully met."
+check = "pytest"

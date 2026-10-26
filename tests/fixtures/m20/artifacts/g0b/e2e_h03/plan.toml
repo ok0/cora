@@ -1,0 +1,46 @@
+goal = "Build the escapes package according to REQUIREMENTS.md and pass all tests."
+
+[[milestones]]
+id = "m1"
+title = "Implement shell quoting"
+task = "Implement escapes/shell.py according to the specifications in REQUIREMENTS.md."
+check = "python -c 'from escapes.shell import quote; assert quote(\"it\\'s\") == \\'\\x27it\\x27\"\\x27\\x27\"\\x27s\\x27\\x27'"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement JSON string encoding and decoding"
+task = "Implement escapes/jsonstr.py without importing the json module, ensuring encode and decode meet all specification and error handling requirements."
+check = "python -c 'from escapes.jsonstr import encode, decode; s = \"a\\\"b\\\\c\\n\"; assert decode(encode(s)) == s'"
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement Windows path conversion"
+task = "Implement escapes/winpath.py to convert Windows paths to POSIX paths as specified."
+check = "python -c 'from escapes.winpath import to_posix; assert to_posix(\"C:\\\\Users\\\\a b\\\\x.txt\") == \"/c/Users/a b/x.txt\"'"
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Implement HTML entity unescaping"
+task = "Implement HTML entity decoding in escapes/catalog.py while leaving the ENTITIES table completely unchanged."
+check = "python -c 'from escapes.catalog import unescape_html; assert unescape_html(\"&eacute;\") == \"é\"'"
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "m5"
+title = "Run pytest test suite"
+task = "Run the test suite using pytest to verify that all requirements are fully satisfied."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q" },
+]

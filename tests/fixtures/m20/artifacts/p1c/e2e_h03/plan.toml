@@ -1,0 +1,68 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "shell_quote"
+title = "Implement shell.quote function"
+task = "Implement the quote function in escapes/shell.py according to the specification. Test it with the provided test suite."
+check = "python -m pytest -q escapes/test_shell.py -xvs"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "command", cmd = "python -c \"import escapes.shell; assert escapes.shell.quote('') == \"''\"\"" },
+]
+
+[[milestones]]
+id = "jsonstr_encode"
+title = "Implement jsonstr.encode function"
+task = "Implement the encode function in escapes/jsonstr.py according to the specification. Test it with the provided test suite."
+check = "python -m pytest -q escapes/test_jsonstr.py::test_encode -xvs"
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "command", cmd = "python -c \"import escapes.jsonstr; assert escapes.jsonstr.encode('a\\\"b\\\\c\\n') == '\\\"a\\\\\\\"b\\\\\\\\c\\\\n\\\"'\"" },
+]
+
+[[milestones]]
+id = "jsonstr_decode"
+title = "Implement jsonstr.decode function"
+task = "Implement the decode function in escapes/jsonstr.py according to the specification. Test it with the provided test suite."
+check = "python -m pytest -q escapes/test_jsonstr.py::test_decode -xvs"
+conditions = [
+  { kind = "command", cmd = "python -c \"import escapes.jsonstr; assert escapes.jsonstr.decode('\\\"a\\\\\\\"b\\\\\\\\c\\\\n\\\"') == 'a\\\"b\\\\c\\n'\"" },
+]
+
+[[milestones]]
+id = "jsonstr_roundtrip"
+title = "Verify jsonstr.encode and decode roundtrip"
+task = "Ensure decode(encode(s)) == s for various strings. Test with the provided test suite."
+check = "python -m pytest -q escapes/test_jsonstr.py::test_roundtrip -xvs"
+conditions = [
+  { kind = "command", cmd = "python -c \"import escapes.jsonstr; s = 'test\\u00e9\\ud83d\\ude00'; assert escapes.jsonstr.decode(escapes.jsonstr.encode(s)) == s\"" },
+]
+
+[[milestones]]
+id = "winpath_to_posix"
+title = "Implement winpath.to_posix function"
+task = "Implement the to_posix function in escapes/winpath.py according to the specification. Test it with the provided test suite."
+check = "python -m pytest -q escapes/test_winpath.py -xvs"
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "command", cmd = "python -c \"import escapes.winpath; assert escapes.winpath.to_posix('C:\\\\Users\\\\a b\\\\x.txt') == '/c/Users/a b/x.txt'\"" },
+]
+
+[[milestones]]
+id = "catalog_unescape_html"
+title = "Implement catalog.unescape_html function"
+task = "Implement the unescape_html function in escapes/catalog.py according to the specification. Test it with the provided test suite."
+check = "python -m pytest -q escapes/test_catalog.py -xvs"
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+  { kind = "command", cmd = "python -c \"import escapes.catalog; assert escapes.catalog.unescape_html('&lt;p&gt;') == '<p>'\"" },
+]
+
+[[milestones]]
+id = "all_tests_pass"
+title = "Run full test suite"
+task = "Run the full test suite with pytest to ensure all functions are correctly implemented and no regressions exist."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "command", cmd = "python -c \"import escapes.shell, escapes.jsonstr, escapes.winpath, escapes.catalog; print('All modules importable')\"" },
+]

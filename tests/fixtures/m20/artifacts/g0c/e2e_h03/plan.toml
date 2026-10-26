@@ -1,0 +1,49 @@
+goal = "Build the escapes package according to REQUIREMENTS.md with all modules (shell.py, jsonstr.py, winpath.py, catalog.py) implemented and passing tests."
+
+[[milestones]]
+id = "explore"
+title = "Explore workspace and existing tests"
+task = "Inspect the existing repository structure, files, requirements, and test suite to understand what stubs and tests currently exist."
+conditions = [
+  { kind = "file_exists", path = "REQUIREMENTS.md" },
+]
+
+[[milestones]]
+id = "shell"
+title = "Implement escapes/shell.py"
+task = "Implement shell quoting function escapes.shell.quote(arg: str) -> str according to the requirements."
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "jsonstr"
+title = "Implement escapes/jsonstr.py"
+task = "Implement JSON string encoder and decoder in escapes/jsonstr.py without importing json, handling all specified escape sequences, surrogate pairs, and error conditions."
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "winpath"
+title = "Implement escapes/winpath.py"
+task = "Implement Windows to POSIX path conversion in escapes/winpath.py supporting drive letters, UNC prefixes, slashes collapsing, trailing slash removal, etc."
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "catalog"
+title = "Implement escapes/catalog.py"
+task = "Implement HTML entity and numeric reference unescaping in escapes/catalog.py while leaving the ENTITIES table unchanged."
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "verify"
+title = "Verify and run pytest"
+task = "Run pytest to ensure all tests pass and the implementation satisfies REQUIREMENTS.md completely."
+conditions = [
+  { kind = "file_exists", path = "escapes/__init__.py" },
+]

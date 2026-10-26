@@ -1,0 +1,43 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory. Required files: booking/timeparse.py, booking/intervals.py, booking/rooms.py."
+
+[[milestones]]
+id = "timeparse"
+title = "Implement time parsing module"
+task = "Create booking/timeparse.py with parse_hhmm function that meets requirements: accepts HH:MM format, handles 24:00 with end=True, raises appropriate ValueError for invalid inputs, and keeps existing format_hhmm function."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from booking.timeparse import parse_hhmm, format_hhmm; assert parse_hhmm('12:30') == 750; assert parse_hhmm('00:00') == 0; assert parse_hhmm('23:59') == 1439; assert parse_hhmm('24:00', end=True) == 1440; assert format_hhmm(1440) == '24:00'; print('timeparse basic tests passed')\""
+conditions = [
+  { kind = "file_exists", path = "booking/timeparse.py" },
+]
+
+[[milestones]]
+id = "intervals"
+title = "Implement intervals module"
+task = "Create booking/intervals.py with Interval dataclass, overlaps function, and merge function that meet requirements: Interval validates non-empty, overlaps handles half-open ranges, merge sorts and merges overlapping/touching intervals."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from booking.intervals import Interval, overlaps, merge; i1 = Interval(0, 60); i2 = Interval(30, 90); assert overlaps(i1, i2); assert merge([Interval(0, 30), Interval(30, 60)]) == [Interval(0, 60)]; print('intervals basic tests passed')\""
+conditions = [
+  { kind = "file_exists", path = "booking/intervals.py" },
+]
+
+[[milestones]]
+id = "rooms"
+title = "Implement rooms module"
+task = "Create booking/rooms.py with Schedule class implementing book and free_slots methods that meet requirements: book parses times, handles midnight wrapping, checks overlaps per room; free_slots finds gaps in day range considering bookings."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from booking.rooms import Schedule; s = Schedule(); assert s.book('A', '10:00', '12:00'); assert not s.book('A', '11:30', '13:00'); print('rooms basic tests passed')\""
+conditions = [
+  { kind = "file_exists", path = "booking/rooms.py" },
+]
+
+[[milestones]]
+id = "package"
+title = "Set up package exports"
+task = "Create booking/__init__.py to export parse_hhmm, Interval, overlaps, merge, and Schedule as specified, importing from the submodules."
+check = "python -c \"import sys; sys.path.insert(0, '.'); import booking; assert hasattr(booking, 'parse_hhmm'); assert hasattr(booking, 'Interval'); assert hasattr(booking, 'overlaps'); assert hasattr(booking, 'merge'); assert hasattr(booking, 'Schedule'); print('package exports present')\""
+conditions = [
+  { kind = "file_exists", path = "booking/__init__.py" },
+]
+
+[[milestones]]
+id = "test_suite"
+title = "Run provided test suite"
+task = "Run python -m pytest -q to verify the implementation passes the partial test suite."
+check = "python -m pytest -q"

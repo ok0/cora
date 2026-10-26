@@ -1,0 +1,37 @@
+goal = "Build the project described in REQUIREMENTS.md"
+
+[[milestones]]
+id = "m1"
+title = "Implement ledger/book.py"
+task = "Implement balance and balances in ledger/book.py according to the specifications."
+check = "python -c 'from ledger.book import Book; print(Book())'"
+conditions = [
+  { kind = "file_exists", path = "ledger/book.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement ledger/report.py"
+task = "Implement format_cents and monthly_summary in ledger/report.py according to the specifications."
+check = "python -c 'from ledger.report import format_cents; assert format_cents(1230) == \"12.30\"'"
+conditions = [
+  { kind = "file_exists", path = "ledger/report.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement ledger/importer.py"
+task = "Implement load_lines in ledger/importer.py according to the specifications."
+check = "python -c 'from ledger.importer import load_lines; load_lines([])'"
+conditions = [
+  { kind = "file_exists", path = "ledger/importer.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Run tests and verify requirements"
+task = "Run pytest to ensure all tests pass successfully."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "tests/test_ledger.py" },
+]

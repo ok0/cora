@@ -1,0 +1,34 @@
+goal = "Build the room booking project according to REQUIREMENTS.md by implementing timeparse.py, intervals.py, and rooms.py under the booking/ package and passing the tests."
+
+[[milestones]]
+id = "m1"
+title = "Explore and verify test environment"
+task = "Run pytest to examine existing tests and check project structure."
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement booking/timeparse.py"
+task = "Implement parse_hhmm in booking/timeparse.py meeting all requirements specified in REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "booking/timeparse.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement booking/intervals.py"
+task = "Implement Interval, overlaps, and merge in booking/intervals.py according to REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "booking/intervals.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Implement booking/rooms.py and pass tests"
+task = "Implement Schedule, book, and free_slots in booking/rooms.py so that the package exports everything required and passes pytest."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "booking/rooms.py" },
+]

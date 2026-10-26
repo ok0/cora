@@ -1,0 +1,58 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "m1"
+title = "Implement Book.balance() and Book.balances()"
+task = "Implement the balance(account) and balances() methods in ledger/book.py according to the requirements. balance() should return the sum of amount_cents for the given account (0 if no entries). balances() should return a dict with sorted keys of accounts that have entries, mapping to their balances."
+check = "The methods are implemented correctly and pass any existing tests."
+conditions = [
+  { kind = "file_exists", path = "ledger/book.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement format_cents()"
+task = "Implement format_cents(n: int) in ledger/report.py to format cents as described: minus sign for negative values, thousands separators in integer part, exactly two decimals. Examples: -1230 -> \"-12.30\", 5 -> \"0.05\", 123456 -> \"1,234.56\", 0 -> \"0.00\"."
+check = "The function is implemented correctly and passes any existing tests."
+conditions = [
+  { kind = "file_exists", path = "ledger/report.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement monthly_summary()"
+task = "Implement monthly_summary(book, account) in ledger/report.py to return a list of (month, total) tuples for months where the account has entries. month is \"YYYY-MM\" (first 7 chars of entry date), total is sum of amount_cents for that account in that month. List sorted by month."
+check = "The function is implemented correctly and passes any existing tests."
+conditions = [
+  { kind = "file_exists", path = "ledger/report.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Implement load_lines()"
+task = "Implement load_lines(lines: list[str]) -> Book in ledger/importer.py to parse lines as described: strip whitespace, skip empty/comments (#), split on ';' expecting 4 fields (date, account, amount, memo). Use parse_amount for amount (let ValueError propagate). Raise ValueError with line number (1-based, counting skipped lines) for wrong field count. Add entries to Book in input order."
+check = "The function is implemented correctly and passes any existing tests."
+conditions = [
+  { kind = "file_exists", path = "ledger/importer.py" },
+]
+
+[[milestones]]
+id = "m5"
+title = "Run partial test suite"
+task = "Run python -m pytest -q to ensure the partial test suite passes. This is necessary but not sufficient per requirements."
+check = "The test suite passes without errors."
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q" },
+]
+
+[[milestones]]
+id = "m6"
+title = "Verify all required files exist"
+task = "Check that all required files (ledger/book.py, ledger/report.py, ledger/importer.py, tests/test_ledger.py) are present and unchanged except for implementations."
+check = "All files exist and ledger/models.py, Book.add, Book.entries are unchanged."
+conditions = [
+  { kind = "file_exists", path = "ledger/book.py" },
+  { kind = "file_exists", path = "ledger/report.py" },
+  { kind = "file_exists", path = "ledger/importer.py" },
+  { kind = "file_exists", path = "tests/test_ledger.py" },
+]

@@ -1,0 +1,55 @@
+goal = "Build the project described in REQUIREMENTS.md"
+
+[[milestones]]
+id = "models"
+title = "Implement models"
+task = "Implement tracker/models.py defining the Task dataclass with id, title, done, and priority fields, validating allowed priorities (low, normal, high) and raising ValueError on invalid ones."
+check = "python3 -c \"import tracker.models\""
+conditions = [
+  { kind = "file_exists", path = "tracker/models.py" },
+]
+
+[[milestones]]
+id = "storage"
+title = "Implement storage"
+task = "Implement tracker/storage.py with load(path) and save(path, tasks) supporting JSON-lines with id, title, done, and priority keys, defaulting missing priorities to 'normal'."
+check = "python3 -c \"import tracker.storage\""
+conditions = [
+  { kind = "file_exists", path = "tracker/storage.py" },
+]
+
+[[milestones]]
+id = "formatting"
+title = "Implement formatting"
+task = "Implement tracker/formatting.py with render(tasks) producing the exact format string specified for tasks including priority markers H/N/L and done status."
+check = "python3 -c \"import tracker.formatting\""
+conditions = [
+  { kind = "file_exists", path = "tracker/formatting.py" },
+]
+
+[[milestones]]
+id = "service"
+title = "Implement service"
+task = "Implement tracker/service.py with the Tracker class supporting add, complete, and list with sorting by id or priority."
+check = "python3 -c \"import tracker.service\""
+conditions = [
+  { kind = "file_exists", path = "tracker/service.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement cli"
+task = "Implement tracker/cli.py (and __main__.py if needed) providing the required command-line interface with --db, add, list, and done subcommands."
+check = "python3 -m tracker --help"
+conditions = [
+  { kind = "file_exists", path = "tracker/cli.py" },
+]
+
+[[milestones]]
+id = "tests"
+title = "Run tests"
+task = "Add and run comprehensive unit tests passing pytest to ensure all requirements are fully met."
+check = "pytest -q"
+conditions = [
+  { kind = "file_exists", path = "tests/test_tracker.py" },
+]

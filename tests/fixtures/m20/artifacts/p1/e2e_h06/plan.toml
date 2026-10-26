@@ -1,0 +1,64 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "1"
+title = "Implement timeparse.py"
+task = "Create booking/timeparse.py with parse_hhmm function that accepts HH:MM strings (00-23:00-59) and returns minutes since midnight, with end=True allowing '24:00' (1440). Raise ValueError for invalid inputs. Keep existing format_hhmm."
+check = "Test parse_hhmm with valid and invalid inputs"
+conditions = [
+  { kind = "file_exists", path = "booking/timeparse.py" },
+]
+
+[[milestones]]
+id = "2"
+title = "Implement intervals.py"
+task = "Create booking/intervals.py with Interval dataclass, overlaps function that checks for overlapping minutes (touching intervals don't overlap), and merge function that sorts and merges overlapping or touching intervals."
+check = "Test Interval construction, overlaps, and merge with various cases"
+conditions = [
+  { kind = "file_exists", path = "booking/intervals.py" },
+]
+
+[[milestones]]
+id = "3"
+title = "Implement rooms.py"
+task = "Create booking/rooms.py with Schedule class that stores bookings per room. Implement book method that parses times, handles midnight wrapping, checks for overlaps, and returns bool. Implement free_slots method that returns free gaps within day range."
+check = "Test booking and free_slots with various scenarios including midnight wrapping"
+conditions = [
+  { kind = "file_exists", path = "booking/rooms.py" },
+]
+
+[[milestones]]
+id = "4"
+title = "Set up package exports"
+task = "Ensure booking/__init__.py exports parse_hhmm, Interval, overlaps, merge, and Schedule from their respective modules."
+check = "Verify imports work correctly from booking package"
+conditions = [
+  { kind = "file_exists", path = "booking/__init__.py" },
+]
+
+[[milestones]]
+id = "5"
+title = "Run partial test suite"
+task = "Execute python -m pytest -q to run the provided test suite and ensure basic functionality passes."
+check = "All tests pass in the partial test suite"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q --tb=short" },
+]
+
+[[milestones]]
+id = "6"
+title = "Test edge cases"
+task = "Create additional test cases for edge conditions: midnight wrapping, touching intervals, empty intervals, invalid time parsing, and free_slots with unknown rooms."
+check = "All edge cases behave as specified in REQUIREMENTS.md"
+conditions = [
+  { kind = "command", cmd = "python -c \"import booking; print('Edge case testing ready')\"" },
+]
+
+[[milestones]]
+id = "7"
+title = "Final verification"
+task = "Run comprehensive tests to ensure all requirements are met: time parsing, interval operations, and room booking system."
+check = "No errors in manual testing of all specified functions"
+conditions = [
+  { kind = "command", cmd = "python -c \"from booking import parse_hhmm, Interval, overlaps, merge, Schedule; print('All imports successful')\"" },
+]

@@ -1,0 +1,68 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "setup"
+title = "Set up the project structure"
+task = "Create the required directory structure and stub files as specified in REQUIREMENTS.md"
+check = "All required files exist with correct structure"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+  { kind = "file_exists", path = "csvreport/stats.py" },
+  { kind = "file_exists", path = "csvreport/cli.py" },
+  { kind = "file_exists", path = "csvreport/__init__.py" },
+  { kind = "file_exists", path = "csvreport/__main__.py" },
+]
+
+[[milestones]]
+id = "parser"
+title = "Implement CSV parser"
+task = "Implement parse_csv function in csvreport/parser.py according to specifications"
+check = "Parser handles basic cases, quoted fields, and error conditions"
+conditions = [
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); from csvreport.parser import parse_csv; result = parse_csv('a,b,c\\n1,2,3'); assert result == [['a','b','c'],['1','2','3']]\"" },
+]
+
+[[milestones]]
+id = "stats"
+title = "Implement column statistics"
+task = "Implement column_stats function in csvreport/stats.py according to specifications"
+check = "Statistics function handles numeric conversion, empty values, and error cases"
+conditions = [
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); from csvreport.stats import column_stats; rows = [['col1','col2'],['1','2'],['3','4']]; result = column_stats(rows, 'col1'); assert result['count'] == 2 and result['min'] == 1.0 and result['max'] == 3.0 and result['mean'] == 2.0\"" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement command line interface"
+task = "Implement main function in csvreport/cli.py and update __init__.py exports"
+check = "CLI handles argument validation, file reading, and output formatting"
+conditions = [
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); from csvreport import main; import io; import sys; sys.argv = ['csvreport', 'test.csv', 'col']; # Simulate basic call\"" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Test integration"
+task = "Create test files and run the partial test suite to verify integration"
+check = "Basic functionality works end-to-end"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q --tb=no 2>&1 | head -5" },
+]
+
+[[milestones]]
+id = "edge_cases"
+title = "Handle edge cases and error conditions"
+task = "Implement error handling for unterminated quotes, missing files, unknown columns, and non-numeric values"
+check = "All error conditions from REQUIREMENTS.md are properly handled"
+conditions = [
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); from csvreport.parser import parse_csv; try: parse_csv('\\\"a,b\\nc'); assert False, 'Should raise ValueError'; except ValueError as e: assert 'unterminated quote' in str(e)\"" },
+]
+
+[[milestones]]
+id = "final_test"
+title = "Run comprehensive tests"
+task = "Create comprehensive test cases covering all requirements and run the test suite"
+check = "All specified functionality works correctly"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q 2>&1 | tail -1" },
+]

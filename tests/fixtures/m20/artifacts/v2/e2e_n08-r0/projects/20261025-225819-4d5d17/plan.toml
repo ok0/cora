@@ -1,0 +1,43 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "setup"
+title = "Create package structure and basic files"
+task = "Create the contacts package directory with __init__.py and the three required Python files with minimal content."
+check = "test -f contacts/__init__.py && test -f contacts/normalize.py && test -f contacts/merge.py && test -f contacts/cli.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "contacts/cli.py" },
+]
+
+[[milestones]]
+id = "normalize_email"
+title = "Implement email normalization"
+task = "Write normalize_email in contacts/normalize.py according to the specification, with tests in a separate test file."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from contacts.normalize import normalize_email; assert normalize_email('  John.Doe+news@GMail.com ') == 'johndoe@gmail.com'; assert normalize_email('j.d@googlemail.com') == 'jd@gmail.com'; assert normalize_email('Mary.Ann+x@Example.org') == 'mary.ann+x@example.org'; assert normalize_email('NoAt ') == 'noat'; print('ok')\""
+
+[[milestones]]
+id = "normalize_phone"
+title = "Implement phone normalization"
+task = "Write normalize_phone in contacts/normalize.py according to the specification, with tests."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from contacts.normalize import normalize_phone; assert normalize_phone('(555) 123-4567') == '+15551234567'; assert normalize_phone('0044 20 7946 0958') == '+442079460958'; assert normalize_phone('+44 20 7946 0958') == '+442079460958'; assert normalize_phone('12345') == '+12345'; assert normalize_phone('n/a') == ''; print('ok')\""
+
+[[milestones]]
+id = "dedupe"
+title = "Implement deduplication logic"
+task = "Write dedupe in contacts/merge.py according to the specification, handling merging and empty emails correctly."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from contacts.merge import dedupe; rows = [{'name':'John','email':'john.doe@gmail.com','phone':''},{'name':'','email':'Mary@x.org','phone':'555 000 1111'},{'name':'Johnny','email':'JohnDoe+a@gmail.com','phone':'5551234567'},{'name':'Nobody','email':'','phone':'1'},{'name':'N2','email':'','phone':'2'},{'name':'Mary','email':'mary@x.org','phone':''}]; kept, removed = dedupe(rows); assert len(kept) == 4 and removed == 2; assert kept[0]['name'] == 'John' and kept[0]['phone'] == '5551234567'; assert kept[1]['name'] == 'Mary' and kept[1]['phone'] == '555 000 1111'; assert kept[2]['name'] == 'Nobody'; assert kept[3]['name'] == 'N2'; print('ok')\""
+
+[[milestones]]
+id = "cli"
+title = "Implement command line interface"
+task = "Write main in contacts/cli.py that reads CSV, calls dedupe, normalizes columns, writes output, and prints the summary."
+check = "python -c \"import sys, csv, tempfile, os; sys.path.insert(0, '.'); from contacts.cli import main; with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f: f.write('name,email,phone\\nJohn,john.doe@gmail.com,\\n,Mary@x.org,555 000 1111\\nJohnny,JohnDoe+a@gmail.com,5551234567\\nNobody,,1\\nN2,,2\\nMary,mary@x.org,'); fname = f.name; out = fname + '.out'; sys.argv = ['cli', fname, out]; rc = main(); assert rc == 0; with open(out) as g: lines = list(csv.reader(g)); assert lines[0] == ['name','email','phone']; assert lines[1] == ['John','johndoe@gmail.com','+15551234567']; assert lines[2] == ['Mary','mary@x.org','+15550001111']; assert lines[3] == ['Nobody','','+1']; assert lines[4] == ['N2','','+2']; os.unlink(fname); os.unlink(out); print('ok')\""
+
+[[milestones]]
+id = "error_handling"
+title = "Add error handling for missing email column and unreadable input"
+task = "Extend contacts/cli.py to handle missing email column (exit 2) and unreadable file (exit 1) as specified."
+check = "python -c \"import sys, tempfile, subprocess; sys.path.insert(0, '.'); with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f: f.write('name,phone\\nJohn,555'); fname = f.name; out = fname + '.out'; result = subprocess.run([sys.executable, '-m', 'contacts.cli', fname, out], capture_output=True, text=True); assert result.returncode == 2 and 'error: no email column' in result.stderr and not os.path.exists(out); os.unlink(fname); print('ok')\""

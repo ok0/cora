@@ -1,0 +1,37 @@
+goal = "Build the project described in REQUIREMENTS.md with required files booking/timeparse.py, booking/intervals.py, and booking/rooms.py"
+
+[[milestones]]
+id = "explore_and_test"
+title = "Explore Existing Code and Run Tests"
+task = "Inspect the existing repository structure, run pytest to see current failures or partial implementation, and inspect REQUIREMENTS.md carefully."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "REQUIREMENTS.md" },
+]
+
+[[milestones]]
+id = "implement_timeparse"
+title = "Implement Time Parsing"
+task = "Implement `parse_hhmm(s, *, end=False) -> int` in `booking/timeparse.py` according to the requirements."
+check = "python -c \"from booking.timeparse import parse_hhmm; assert parse_hhmm('24:00', end=True) == 1440\""
+conditions = [
+  { kind = "file_exists", path = "booking/timeparse.py" },
+]
+
+[[milestones]]
+id = "implement_intervals"
+title = "Implement Intervals"
+task = "Implement `Interval`, `overlaps`, and `merge` in `booking/intervals.py` adhering to the requirements."
+check = "python -c \"from booking.intervals import Interval, overlaps, merge; assert Interval(0, 10)\""
+conditions = [
+  { kind = "file_exists", path = "booking/intervals.py" },
+]
+
+[[milestones]]
+id = "implement_rooms"
+title = "Implement Rooms and Schedule"
+task = "Implement `Schedule`, `book`, and `free_slots` in `booking/rooms.py`, ensuring all requirements for wrapping, overlapping, and free slot calculation are met and package exports are correct."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "booking/rooms.py" },
+]

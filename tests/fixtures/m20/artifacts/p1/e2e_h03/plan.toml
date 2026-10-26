@@ -1,0 +1,55 @@
+goal = "Build the escapes package with shell quoting, JSON string encoding/decoding, Windows path conversion, and HTML entity unescaping"
+
+[[milestones]]
+id = "shell_quote"
+title = "Implement shell quoting"
+task = "Implement escapes/shell.py with quote() function that handles empty strings, safe characters, and single-quote escaping as specified"
+check = "Run python -m pytest -q -k test_shell to verify basic functionality"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "jsonstr_encode"
+title = "Implement JSON string encoding"
+task = "Implement escapes/jsonstr.py with encode() function that converts strings to JSON literals with proper escaping of quotes, backslashes, control characters, and Unicode"
+check = "Run python -m pytest -q -k test_jsonstr_encode to verify encoding works"
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "jsonstr_decode"
+title = "Implement JSON string decoding"
+task = "Add decode() function to escapes/jsonstr.py that parses JSON string literals, handles escape sequences, Unicode surrogates, and raises ValueError for invalid input"
+check = "Run python -m pytest -q -k test_jsonstr_decode to verify decoding and round-trip"
+conditions = [
+  { kind = "command", cmd = "python -c \"import escapes.jsonstr; s='test'; print(escapes.jsonstr.decode(escapes.jsonstr.encode(s)) == s)\"" },
+]
+
+[[milestones]]
+id = "winpath"
+title = "Implement Windows path conversion"
+task = "Implement escapes/winpath.py with to_posix() function that handles drive letters, UNC paths, backslash conversion, slash collapsing, and trailing slash removal"
+check = "Run python -m pytest -q -k test_winpath to verify path conversion"
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "catalog"
+title = "Implement HTML entity unescaping"
+task = "Implement escapes/catalog.py with unescape_html() function that uses ENTITIES dict, handles named entities, decimal/hex numeric references, and leaves invalid references unchanged"
+check = "Run python -m pytest -q -k test_catalog to verify entity decoding"
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "full_test"
+title = "Run full test suite"
+task = "Execute python -m pytest -q to ensure all tests pass"
+check = "All tests pass without errors"
+conditions = [
+  { kind = "command", cmd = "python -m pytest -q --tb=short" },
+]

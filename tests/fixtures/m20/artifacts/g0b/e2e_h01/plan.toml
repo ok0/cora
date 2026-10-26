@@ -1,0 +1,29 @@
+goal = "Build the csvreport project according to REQUIREMENTS.md including parser, stats, and CLI modules."
+
+[[milestones]]
+id = "m1"
+title = "Implement CSV parser"
+task = "Implement parse_csv in csvreport/parser.py according to the specification in REQUIREMENTS.md."
+check = "python -m pytest -k parser"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement column statistics"
+task = "Implement column_stats in csvreport/stats.py according to the specification in REQUIREMENTS.md."
+check = "python -m pytest -k stats"
+conditions = [
+  { kind = "file_exists", path = "csvreport/stats.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement CLI and exports"
+task = "Implement main in csvreport/cli.py, update csvreport/__init__.py to export parse_csv, column_stats and main, and ensure the package runs correctly from the command line."
+check = "python -m pytest"
+conditions = [
+  { kind = "file_exists", path = "csvreport/cli.py" },
+  { kind = "file_exists", path = "csvreport/__init__.py" },
+]

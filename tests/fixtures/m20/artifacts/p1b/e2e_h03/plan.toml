@@ -1,0 +1,67 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "shell_quote"
+title = "Implement shell.quote function"
+task = "Implement the quote function in escapes/shell.py according to the specification. Test with basic cases: empty string, safe characters, and strings needing quoting."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.shell import quote; assert quote('') == \"''\"; assert quote('abc123') == 'abc123'; assert quote('a b') == \"'a b'\"; assert quote(\"it's\") == \"'it'\"\"'\"\"'s'\"; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "jsonstr_encode"
+title = "Implement jsonstr.encode function"
+task = "Implement encode in escapes/jsonstr.py to produce JSON string literals. Handle quotes, backslashes, control characters, and Unicode escapes for characters below 0x20."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import encode; assert encode('a\\\"b\\\\c\\n') == '\\\"a\\\\\\\"b\\\\\\\\c\\\\n\\\"'; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "jsonstr_decode"
+title = "Implement jsonstr.decode function"
+task = "Implement decode in escapes/jsonstr.py to parse JSON string literals. Handle all escape sequences, Unicode surrogates, and raise ValueError for invalid inputs."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import decode, encode; s = 'test\\u00e9\\ud83d\\ude00'; assert decode(encode(s)) == s; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "winpath_to_posix"
+title = "Implement winpath.to_posix function"
+task = "Implement to_posix in escapes/winpath.py. Convert backslashes, handle drive letters, UNC paths, collapse slashes, and remove trailing slash."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.winpath import to_posix; assert to_posix('C:\\\\Users\\\\a b\\\\x.txt') == '/c/Users/a b/x.txt'; assert to_posix('\\\\\\\\server\\\\share\\\\f.txt') == '//server/share/f.txt'; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "catalog_unescape"
+title = "Implement catalog.unescape_html function"
+task = "Implement unescape_html in escapes/catalog.py. Decode named entities from ENTITIES, numeric references (decimal and hex), and leave unknown references unchanged."
+check = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.catalog import unescape_html; assert unescape_html('&lt;p&gt;') == '<p>'; assert unescape_html('&#65;') == 'A'; print('OK')\""
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "partial_tests"
+title = "Run partial test suite"
+task = "Run the provided test suite with pytest to ensure basic functionality works."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); import escapes.shell, escapes.jsonstr, escapes.winpath, escapes.catalog; print('Modules import OK')\"" },
+]
+
+[[milestones]]
+id = "final_verification"
+title = "Verify all required files exist and are implemented"
+task = "Check that all required files are present and contain implementations (no NotImplementedError)."
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+  { kind = "command", cmd = "python -c \"import sys; sys.path.insert(0, '.'); from escapes.shell import quote; from escapes.jsonstr import encode, decode; from escapes.winpath import to_posix; from escapes.catalog import unescape_html; print('All functions imported')\"" },
+]

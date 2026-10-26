@@ -1,0 +1,44 @@
+goal = "Build the CSV column report package with parser, stats, and CLI modules as specified in REQUIREMENTS.md"
+
+[[milestones]]
+id = "m1"
+title = "Implement CSV parser"
+task = "Implement parse_csv in csvreport/parser.py according to the specification, handling quoted fields, escapes, and error cases."
+check = "python -m pytest -q -k test_parse_csv"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement column statistics"
+task = "Implement column_stats in csvreport/stats.py according to the specification, handling numeric conversion, empty values, and error cases."
+check = "python -m pytest -q -k test_column_stats"
+conditions = [
+  { kind = "file_exists", path = "csvreport/stats.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement CLI main function"
+task = "Implement main in csvreport/cli.py according to the specification, handling argument parsing, file reading, and output formatting."
+check = "python -m pytest -q -k test_main"
+conditions = [
+  { kind = "file_exists", path = "csvreport/cli.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Set up package exports"
+task = "Update csvreport/__init__.py to export parse_csv, column_stats, and main, and ensure csvreport/__main__.py calls main correctly."
+check = "python -m pytest -q -k test_integration"
+conditions = [
+  { kind = "file_exists", path = "csvreport/__init__.py" },
+  { kind = "file_exists", path = "csvreport/__main__.py" },
+]
+
+[[milestones]]
+id = "m5"
+title = "Run full test suite"
+task = "Run the full test suite to verify all requirements are met."
+check = "python -m pytest -q"
