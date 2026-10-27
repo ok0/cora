@@ -3315,3 +3315,37 @@ Q11 답: `.docs/baselines/claude-code-m19-runs.jsonl`에 `model_usage`와 `cost_
 - 오류 결과(`error_outcome`)가 `cost_usd`와 `models`를 담는다. 헤드리스, MCP 도구, `project run` 오류 경로가 계량된 값을 넘긴다.
 - runner의 완료 처리 로직은 바뀌지 않았다.
 - 진단에서 BLUEPRINT CHANGE는 나오지 않았다(R2, (a) 참고).
+
+## M21 리허설 (2026-10-27T12:18:40Z) — 비계수, 무료 Gemini
+
+- 첫 리허설 시도는 Gemini 무료 키의 일일 할당량(모델당 500 요청/일) 초과로 HTTP 429가 나와 중단되었다. 할당량이 재설정된 뒤 같은 명령으로 6개 팔을 다시 실행했다. 아래 표와 판정은 재실행 결과다.
+- 리허설 과제는 `e2e_n12`, 팔당 r0 1회, 모델 `gemini-3.5-flash-lite`(무료 키, react). 이 실행은 계수하지 않는다.
+
+| 팔 | run dir | 상태 | iterations | 축출 | 스위치 이벤트 | 비고 |
+|---|---|---|---|---|---|---|
+| OFF | /Users/yoonjonghun/workspace/ok0/cora-public/.cora/m21/rehearsal/OFF/e2e_n12/r0 | ok | 20 | 0 | - | - |
+| M | /Users/yoonjonghun/workspace/ok0/cora-public/.cora/m21/rehearsal/M/e2e_n12/r0 | ok | 20 | 0 | repo_map:1 | - |
+| D | /Users/yoonjonghun/workspace/ok0/cora-public/.cora/m21/rehearsal/D/e2e_n12/r0 | ok | 20 | 0 | read_dedupe:1 | - |
+| C | /Users/yoonjonghun/workspace/ok0/cora-public/.cora/m21/rehearsal/C/e2e_n12/r0 | ok | 20 | 4 | observation_compress:1 | - |
+| L | /Users/yoonjonghun/workspace/ok0/cora-public/.cora/m21/rehearsal/L/e2e_n12/r0 | ok | 15 | 0 | ledger_update:10 | - |
+| S | /Users/yoonjonghun/workspace/ok0/cora-public/.cora/m21/rehearsal/S/e2e_n12/r0 | ok | 20 | 8 | ledger_update:1, ledger_evict_note:2, summary_call:2 | - |
+
+- rehearsal-check: PASS
+- keygrep: files_scanned 960, matches []
+- 지출 $0, OpenRouter 호출 0
+
+## M21 사전 등록 (2026-10-27T12:18:40Z)
+
+1. 모델: `gemini-3.5-flash-lite` (무료 키, react, `--max-iterations 30 --max-cost 0.30`, 런당 bench 호출 1회, `--seed` = 반복 번호 0..2). 비-G1, `cost_source = free_tier`, `free-tier directional`.
+2. 과제와 순서: TASK_ORDER(`e2e_n03, e2e_n06, e2e_n14, e2e_n12, e2e_n13, e2e_n01, e2e_n02, e2e_n04, e2e_n05, e2e_n07, e2e_n08, e2e_n09, e2e_n10, e2e_n11`)의 앞 T개를 측정한다. 사용자가 정한 T=5이며, 측정 과제는 `e2e_n03, e2e_n06, e2e_n14, e2e_n12, e2e_n13`이다. 과거 축출 과제는 추가하지 않는다.
+3. 팔과 설정: OFF, M, D, C, L, S 순서로 실행, 그다음 BEST. 설정 파일 이름과 sha256(`.cora/m21/arms/arms.json`): OFF `c0ebb13177d922590b50370066cb07439517c26d39b97dd8a21e60fb8b26b7ec`, M `c32f9dd4398d2c5b68eecd2e98b32b6b67811f644a4f9bc91d2dfcc2bd90151d`, D `809e5e5fc3c0d94b281004f3cab560c6d89dfbe828068695718bd4dacc564dff`, C `8487c59695a09deb61b739ddff3f2222847785871086a08519ed012ceface36f`, L `bbc8ea574fdfc451ea9de97057195c3261a894ed8dce1734ad300887cddd0431`, S `952e58439947b032a1ca931ed9ba11ff5654d55abdb32c3524ccdda900fce3a3`. 기준 `cora.toml` sha256 `b82478ef2427fad074a12cebf984479d2ff97eb2fa83c8c1de95f43b403c64b4`. 각 팔은 OFF와 스위치 한 줄만 다르다. 모든 팔 공통으로 `gemini-3.5-flash-lite` `[[models]]` 블록을 첫 항목으로 옮겨 요약 호출이 무료 모델로 가게 하며, `OPENROUTER_API_KEY`는 자식 환경에서 제거한다.
+4. n = 3 / 셀, 줄이지 않는다.
+5. 측정 항목: `run_record` 키 전부 — arm, task, repeat, attempt, run_id, status, solved, class, end_reason, stop_reason, iterations, calls, input_tokens, output_tokens, cost_usd, cost_eq_usd, wall_s, evictions, ledger_update, ledger_evict_note, summary_ok, summary_failed, read_dedupe, compressed, repo_map_chars, repo_map_tokens, peak_prompt_tokens, providers, openrouter_calls, cost_source.
+6. blocked 정의와 재시도 1회는 Design notes 그대로다. 실행이 `end_reason == "error"`이고 상세가 BLOCKED 패턴(429, 5xx, UNAVAILABLE, RESOURCE_EXHAUSTED, overloaded, rate limited, timeout, ConnectError, ReadError, RemoteProtocolError)과 맞거나 `stop_reason == "provider_timeout"`이면 채점과 무관하게 blocked다(해결 뒤 오는 지연 503도 blocked). blocked이면 60초 뒤 `r<i>-retry1`로 한 번 재시도한다. 재시도도 blocked면 그 반복은 결측이며 실패로 세지도 대체하지도 않는다. 결측이 생긴 과제는 그 스위치의 공통 과제에서 뺀다. 그 밖의 `error`/`aborted` 종료나 `report.json` 누락은 파이프라인 결함이며 세그먼트를 중단한다.
+7. 판정 규칙 R5 (a)–(d), 숫자 그대로: 여유 10%. (a) 해결 k_on ≥ k_off이고, 과제 하락 기준(3회 중 2회 이상 하락한 과제가 공통 과제의 1/4 이하)을 만족. (b) 평균 입력 토큰 ≤ 0.90 × OFF. (c) 평균 반복 ≤ 1.10 × OFF. (d) L/S = 축출 기록이 있는 실행 ≥ 5, C = 새로 압축한 관찰(`observation_compress`)이 있는 실행 ≥ 5 (압축은 축출 때가 아니라 오래된 관찰에 매 구성마다 적용되므로), M/D 해당 없음. 공통 과제 < 6이면 `not measured`. Wilson 95%이며, 구간이 겹치면 해결률 향상을 주장하지 않는다. flip은 `free-tier directional`이며 사용자 확인이 필요하다.
+8. BEST 규칙(`best_set`): 판정이 flip인 스위치들. flip이 없으면 k_on ≥ k_off인 후보 중 k_on/n이 최대인 스위치들. 한 스위치뿐이면 그 팔과 같은 설정이므로 다시 돌리지 않는다. 비면 실행하지 않는다. BEST 결과는 보조 결과이며 기본값 변경 근거가 아니다.
+9. 중단 규칙 R9: 팔 순서와 과제 순서를 고정한다. 할당량이나 시간이 부족하면 모든 팔에서 순서의 뒤쪽 과제를 같이 뺀다. n < 3은 금지한다.
+10. R6: 기본 `context_budget_tokens`는 낮추지 않는다. OFF 뒤 축출 있는 실행이 5 미만이면 선택적 스트레스 구간은 날짜 있는 수정(amendment)으로만 등록하고, 별도 보고하며, 기본값 변경 근거로 쓰지 않는다.
+11. 세그먼트: 팔 하나 = 세그먼트 하나(`plan` 출력: 런 수, 예상 호출, 예상 시간, rpm 5). 각 세그먼트는 시작 전에 사용자 승인을 기록한다. 세그먼트는 무료 할당량(모델당 500 요청/일)에 맞춰 날짜별로 나눠 실행한다. 중단되면 같은 명령으로 재개하며, 이미 있는 `report.json`은 재사용한다.
+12. 주의(R12): 무료 flash-lite는 유료 패널 모델이 아니다. M20a/b/c 수정이 하네스에 들어가 있어 M17과 비교할 수 없다. M19e2 과제는 작은 Python 프로젝트라 짧고 축출이 적을 수 있다(보정 때 14개 중 5개만 축출). n이 작아 구간이 넓다. 토큰은 제공자 사용량이며 유료 제공자 토큰화와 다를 수 있다. 지연 503(해결 뒤 오류)도 blocked로 처리한다.
+13. 이 항목은 첫 계수 실행 뒤 수정하지 않는다. 바꿀 때는 날짜 있는 `### M21 사전 등록 수정 (<date>)`만 추가한다.
