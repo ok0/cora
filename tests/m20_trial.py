@@ -62,10 +62,26 @@ def _under_root(p: Path) -> bool:
     return True
 
 
+M20B_POLICY_BLOCK = (
+    "\n[policy]                 "
+    "# cora.toml-only switch; policy rules live in .cora/policy.toml (USAGE.md, 자율 승인 정책)\n"
+    "prompt_rules = false     "
+    "# true: with an active policy gate, append the rendered shell-policy rules to the agent "
+    "system prompt (OFF until a paid A/B shows a gain)\n"
+)
+
+
+def m20_base_text() -> str:
+    text = (ROOT / "cora.toml").read_text(encoding="utf-8")
+    if not text.endswith(M20B_POLICY_BLOCK):
+        raise SystemExit(2)
+    return text[: -len(M20B_POLICY_BLOCK)]
+
+
 def _variant_lines(variant: str) -> list[str]:
-    base = (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines(keepends=True)
     if variant == "base":
-        return base
+        return (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines(keepends=True)
+    base = m20_base_text().splitlines(keepends=True)
     dl = DEADLINE_TOML.read_text(encoding="utf-8").splitlines(keepends=True)
     if len(dl) != len(base):
         raise SystemExit(2)
@@ -75,10 +91,10 @@ def _variant_lines(variant: str) -> list[str]:
     for i, prefix in zip(diff, DEADLINE_LINES, strict=True):
         if not dl[i].strip().startswith(prefix):
             raise SystemExit(2)
-    return dl
+    return dl + M20B_POLICY_BLOCK.splitlines(keepends=True)
 
 
-def make_config(model: str, out: Path, variant: str = "base") -> str:
+def make_config(model: str, out: Path, variant: str = "base", prompt_rules: bool = False) -> str:
     if variant not in VARIANTS:
         raise SystemExit(2)
     if _under_root(out):
@@ -88,9 +104,17 @@ def make_config(model: str, out: Path, variant: str = "base") -> str:
     if len(idx) != 1:
         raise SystemExit(2)
     lines.insert(idx[0] + 1, f'pin = "{model}"   # M20: single pinned model\n')
+    if prompt_rules:
+        flips = [i for i, line in enumerate(lines) if line.startswith("prompt_rules = false")]
+        if len(flips) != 1:
+            raise SystemExit(2)
+        lines[flips[0]] = lines[flips[0]].replace("prompt_rules = false", "prompt_rules = true", 1)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(lines), encoding="utf-8")
     cfg = load_config(out)
+    if cfg.policy.prompt_rules is not prompt_rules:
+        out.unlink(missing_ok=True)
+        raise SystemExit(2)
     if find_model(cfg.models, model) is None or (
         HeuristicRouter(cfg).model_for(cfg.router.default).id != model
     ):
@@ -641,6 +665,7 @@ def _build_parser() -> argparse.ArgumentParser:
     c.add_argument("model")
     c.add_argument("out", type=Path)
     c.add_argument("--variant", choices=VARIANTS, default="base")
+    c.add_argument("--prompt-rules", action="store_true")
     g = sub.add_parser("goal")
     g.add_argument("task")
     pr = sub.add_parser("prepare")
@@ -679,7 +704,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.cmd == "config":
-        print(make_config(args.model, args.out, args.variant))
+        print(make_config(args.model, args.out, args.variant, prompt_rules=args.prompt_rules))
         return 0
     if args.cmd == "goal":
         sys.stdout.write(goal_text(args.task))

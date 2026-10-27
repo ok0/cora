@@ -21,6 +21,7 @@ from cora.core.toolgroups import MCP_TOOL_PREFIX, group_of
 DECISIONS = ("allow", "ask", "deny")
 _SEVERITY = {"allow": 0, "ask": 1, "deny": 2}
 POLICY_KEYS = frozenset({"rules", "shell_confinement", "sandbox", "env_passthrough"})
+PROMPT_RULES_KEY = "prompt_rules"
 RULE_KEYS = frozenset({"id", "decision", "tool", "group", "command"})
 RESERVED_ID_PREFIXES = ("default", "floor:", "confine:", "strict:")
 MAX_LISTED_DECISIONS = 200
@@ -91,6 +92,7 @@ class PolicySettings:
     sandbox: bool = False
     env_passthrough: tuple[str, ...] = ()
     source: str = "builtin"
+    prompt_rules: bool = False
 
 
 @dataclass(frozen=True)
@@ -330,19 +332,25 @@ def _patterns(value: Any, label: str, *, command: bool = False) -> tuple[str, ..
     return tuple(" ".join(v.split()) if command else v.strip() for v in items)
 
 
-def parse_policy(raw: Any, source: str) -> PolicySettings:
+def parse_policy(raw: Any, source: str, *, allow_prompt_rules: bool = False) -> PolicySettings:
     if raw is None:
         return PolicySettings()
     where = f"invalid policy in {source}"
     if not isinstance(raw, dict):
         raise ConfigError(f"{where}: must be a table")
-    unknown = sorted(set(raw) - POLICY_KEYS)
+    keys = POLICY_KEYS | {PROMPT_RULES_KEY} if allow_prompt_rules else POLICY_KEYS
+    unknown = sorted(set(raw) - keys)
     if unknown:
         raise ConfigError(f"{where}: unknown keys {unknown}; expected keys from "
-                          f"{sorted(POLICY_KEYS)}")
+                          f"{sorted(keys)}")
     for key in ("shell_confinement", "sandbox"):
         if key in raw and not isinstance(raw[key], bool):
             raise ConfigError(f"{where}: {key} must be true or false")
+    if PROMPT_RULES_KEY in raw and not isinstance(raw[PROMPT_RULES_KEY], bool):
+        raise ConfigError(f"{where}: prompt_rules must be true or false")
+    prompt_rules = raw.get(PROMPT_RULES_KEY, False)
+    if set(raw) <= {PROMPT_RULES_KEY}:
+        return PolicySettings(prompt_rules=prompt_rules)
     env = raw.get("env_passthrough", [])
     if not isinstance(env, list) or not all(
             isinstance(n, str) and _ENV_NAME.fullmatch(n) for n in env):
@@ -383,7 +391,7 @@ def parse_policy(raw: Any, source: str) -> PolicySettings:
         seen.add(rid)
         rules.append(Rule(rid, decision, tools, groups, commands, n))
     return PolicySettings(tuple(rules), raw.get("shell_confinement", False),
-                          raw.get("sandbox", False), tuple(env), source)
+                          raw.get("sandbox", False), tuple(env), source, prompt_rules)
 
 
 def policy_file(workspace: Path) -> Path:
@@ -553,6 +561,10 @@ RULE_HINTS: Mapping[str, RuleHint] = MappingProxyType({
 def hint_for(verdict: Verdict | GateVerdict) -> str:
     h = RULE_HINTS.get(verdict.rule, RULE_HINTS["default"])
     return f"{h.text} {h.remedy}"
+
+
+def deny_observation(verdict: GateVerdict) -> str:
+    return f"{verdict.message}\nHint: {hint_for(verdict)}"
 
 
 RULES_MAX_CHARS = 1500

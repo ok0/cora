@@ -15,6 +15,7 @@ from cora.core.router import HeuristicRouter
 from m20_trial import (
     DEADLINE_LINES,
     DEADLINE_TOML,
+    M20B_POLICY_BLOCK,
     ROOT,
     check_conditions,
     checkq_row,
@@ -359,7 +360,30 @@ def test_make_config_deadline_matches_m19(tmp_path):
         for line in out.read_text(encoding="utf-8").splitlines()
         if not line.startswith("pin = ")
     ]
+    block = M20B_POLICY_BLOCK.splitlines()
+    assert gen[-len(block) :] == block
+    gen = gen[: -len(block)]
     assert gen == DEADLINE_TOML.read_text(encoding="utf-8").splitlines()
+
+
+def test_make_config_prompt_rules(tmp_path):
+    out = tmp_path / "p.toml"
+    make_config(GEMINI, out, prompt_rules=True)
+    assert load_config(out).policy.prompt_rules is True
+    gen = out.read_text(encoding="utf-8").splitlines()
+    base = (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines()
+    added = [line for line in gen if line not in base]
+    removed = [line for line in base if line not in gen]
+    assert len(added) == 2
+    assert added[0].startswith(f'pin = "{GEMINI}"')
+    assert added[1].startswith("prompt_rules = true")
+    assert len(removed) == 1
+    assert removed[0].startswith("prompt_rules = false")
+
+
+def test_m20_base_text_is_prereg():
+    digest = hashlib.sha256(m20_trial.m20_base_text().encode()).hexdigest()
+    assert digest == "7704ace8db75918f63e2f4df8e6b7d009cabf3d73cc98e0165f6c677abcd883a"
 
 
 def test_make_config_unknown_variant(tmp_path):

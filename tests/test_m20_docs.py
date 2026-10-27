@@ -5,6 +5,8 @@ import json
 import re
 from pathlib import Path
 
+import m20_trial
+
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / ".docs/bench-results.md"
 HEADING_RE = re.compile(r"^## M20 사전 등록 \(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$", re.M)
@@ -74,7 +76,7 @@ def test_prereg_items() -> None:
         "no baseline (not measured)",
     ):
         assert token in section, token
-    digest = hashlib.sha256(ROOT.joinpath("cora.toml").read_bytes()).hexdigest()
+    digest = hashlib.sha256(m20_trial.m20_base_text().encode("utf-8")).hexdigest()
     assert digest in section
 
 

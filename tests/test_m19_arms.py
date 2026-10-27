@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+import m20_trial
 from cora.cli.common import load_resolved
 from cora.cli.main import app
 
@@ -35,7 +36,7 @@ def _prereg_diff_block(arm: str) -> list[str]:
 
 @pytest.mark.parametrize("arm", list(ARM_FILES))
 def test_arm_diffs_match_registration(arm: str) -> None:
-    base = CORA_TOML.read_text(encoding="utf-8").splitlines()
+    base = m20_trial.m20_base_text().splitlines()
     fixture = (ARMS / ARM_FILES[arm]).read_text(encoding="utf-8").splitlines()
     diff = list(difflib.unified_diff(base, fixture, n=3, lineterm=""))[2:]
     assert diff == _prereg_diff_block(arm)

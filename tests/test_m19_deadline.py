@@ -9,6 +9,7 @@ import pytest
 from typer.testing import CliRunner
 
 import cora.bench.live
+import m20_trial
 from cora.cli.common import load_resolved
 from cora.cli.main import app
 from cora.core.errors import ProviderError
@@ -50,7 +51,10 @@ def _prereg_diff_block(name: str) -> list[str]:
 
 @pytest.mark.parametrize("name", list(PAIRS))
 def test_deadline_file_is_base_plus_three_values(name: str) -> None:
-    base = PAIRS[name].read_text(encoding="utf-8")
+    if PAIRS[name] == CORA_TOML:
+        base = m20_trial.m20_base_text()
+    else:
+        base = PAIRS[name].read_text(encoding="utf-8")
     expected = base
     for old, new in REPLACEMENTS:
         assert base.count(old) == 1
@@ -60,7 +64,7 @@ def test_deadline_file_is_base_plus_three_values(name: str) -> None:
 
 
 def test_deadline_diff_registered() -> None:
-    base = CORA_TOML.read_text(encoding="utf-8").splitlines()
+    base = m20_trial.m20_base_text().splitlines()
     fixture = (ARMS / "deadline.toml").read_text(encoding="utf-8").splitlines()
     diff = list(difflib.unified_diff(base, fixture, n=3, lineterm=""))[2:]
     assert diff == _prereg_diff_block("deadline")

@@ -941,7 +941,7 @@ def parse_config(data: dict[str, Any]) -> CoraConfig:
         ui=ui,
         mcp=parse_mcp(data.get("mcp")),
         sale=sale,
-        policy=parse_policy(data.get("policy"), "cora.toml [policy]"),
+        policy=parse_policy(data.get("policy"), "cora.toml [policy]", allow_prompt_rules=True),
         headless=headless,
         context=context,
         cache=cache,

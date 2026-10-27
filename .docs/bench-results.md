@@ -3194,3 +3194,50 @@ AC7 확인: `error_run true`인 행은 D5/D7의 P2 r2 하나뿐이며 `diagnosis
   - pass on reference 격차 (h01, h05)는 남아 있다.
   - G1/G2 결과가 아니며 기본값을 바꾸지 않았다.
 
+
+## M20b 결과 (2026-10-27T01:25:38Z)
+
+요약: M20b 무료 Gemini 점검은 8회 중 3회만 완료됐다. OFF e2e_h03 2회는 완료 (grader 통과), ON e2e_h03 2회와 e2e_n08 OFF/ON × r0/r1 4회는 Gemini 무료 티어의 HTTP 429 (rate limited)로 `blocked`다. 429는 재시도 1회 뒤에도 계속 실패했다. 결과는 n = 2, free tier, not G1이며 신뢰구간을 주장하지 않는다. `prompt_rules`의 효과에 대한 결론은 없다.
+
+### (a) 구성
+
+- 모델: `gemini-3.5-flash-lite` (`cost_source = free_tier`, non-G1). 유료 호출 없음, OpenRouter 키 사용 없음.
+- 구성: `uv run python tests/m20_trial.py config gemini-3.5-flash-lite <out>` (`cora.toml` + M20 `[router] pin` 한 줄). ON은 같은 명령에 `--prompt-rules`를 준 것이며 `prompt_rules = false`를 `true`로 바꾼 한 줄만 다르다.
+- sha256: OFF `6094c071046504633d5ea176d5834d54e58d9cf9548065934956edc80b8add83`, ON `0dad1cbad4999d10e7cc0413f2a30d4274e4afd5751227be45c444c65b685c42`.
+- 실행: headless, `cora project run --goal ... --headless --json --approval policy --config <cfg> --max-iterations <240|200> --max-wall-s <9600|8000> --max-cost 0.30` (M20 D5 상한, h03 240/9600, n08 200/8000). 과제 ws는 `m20_trial.py prepare`로 만들었다. `interventions = 0`.
+- 재시도 규칙: 503/429(rate limited)는 1회 재시도 후 `blocked`. 기타 오류 실행은 중단하고 보고 (발생하지 않음).
+
+### (b) 8회 표
+
+| arm | task | run | policy_deny (deny + ask_resolved_deny) | stop_reason | grader | 비고 |
+|---|---|---|---|---|---|---|
+| OFF | e2e_h03 | 0 | 1 (0 + 1) | final_answer | pass | 173 iterations |
+| OFF | e2e_h03 | 1 | 3 (1 + 2) | final_answer | pass | 162 iterations |
+| ON | e2e_h03 | 0 | - | error | blocked | HTTP 429 after 4 retries; 재시도 1회 실패 (재시도 로그는 `blocked_attempt2`) |
+| ON | e2e_h03 | 1 | - | error | blocked | HTTP 429 after 4 retries; 재시도 1회 실패 |
+| OFF | e2e_n08 | 0 | - | error | blocked | HTTP 429 after 4 retries; 재시도 1회 실패 |
+| OFF | e2e_n08 | 1 | - | error | blocked | HTTP 429 after 4 retries; 재시도 1회 실패 |
+| ON | e2e_n08 | 0 | - | error | blocked | HTTP 429 after 4 retries; 재시도 1회 실패 |
+| ON | e2e_n08 | 1 | - | error | blocked | HTTP 429 after 4 retries; 재시도 1회 실패 |
+
+- ON e2e_h03 r0의 첫 시도 (1807.7 s)도 같은 429로 끝났다. 원 기록은 `on/e2e_h03-r0/blocked_attempt1`에 보존했다. 이 실행의 grader 점수 0.889는 blocked 행이라 판정에 쓰지 않는다.
+- 로그의 `blocked`는 실행 자체가 측정되지 않았음을 뜻한다. grader와 policy 수치는 쓰지 않는다.
+
+### (c) 한계
+
+- n = 2, free tier, not G1. 신뢰구간을 주장하지 않는다. 8회 중 OFF 2회만 측정됐고 ON은 측정되지 않았다.
+- `prompt_rules`는 두 toml 사본 모두 `false`로 남는다 (P1은 유료 근거가 필요하다).
+- 수치는 `m20_trial.py runrow`가 기록한 행에서 가져왔다.
+
+### (d) 기록 대상 (R11)
+
+- `tests/fixtures/recordings/sensor_gate_slugify`는 M15b부터 이미 STALE이며 denial을 포함하지 않는다. M20b는 이 녹화를 새로 stale로 만들지 않는다.
+- `tests/fixtures/m20/artifacts`는 이벤트 로그이며 replay 녹화가 아니다.
+
+### (e) R4 coverage
+
+- `default` (`test -f` chain)는 M20 artifacts에서 sensor check 거부로만 나타났다. M20b의 hint는 tool call에만 붙으므로, 이 경로는 artifact의 `test -f` 명령을 `run_shell` tool call로 재생한 합성 경로(synthetic tool-call route)로 덮는다 (`tests/test_m20b_deny_hint.py` case 5).
+
+### (f) toml 사본과 M20 사전 등록 sha
+
+- 두 toml 사본(`cora.toml`, `src/cora/data/cora.toml`)은 현재 M20 사전 등록 sha (`7704ace8…`)와 `[policy]` 블록만큼 다르다 (D5). 블록 제외 텍스트에 대해 `m20_base_text()`로 pin을 검사한다.

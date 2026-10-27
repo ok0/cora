@@ -6,7 +6,7 @@ from collections.abc import Collection, Sequence
 from typing import Any
 
 from cora.core.errors import WorkspaceViolation
-from cora.core.policy import approval_mode_of
+from cora.core.policy import approval_mode_of, deny_observation
 from cora.core.toolgroups import group_of
 from cora.core.tools.base import ApprovalRequest, Tool, ToolContext, ToolResult
 
@@ -176,7 +176,7 @@ class ToolRegistry:
             verdict = (ctx.gate.check(name, args, approval_mode_of(ctx.approval))
                        if ctx.gate is not None else None)
             if verdict is not None and verdict.blocked:
-                return ToolResult(False, verdict.message)
+                return ToolResult(False, deny_observation(verdict))
             tool.preflight(args, ctx)
             if tool.requires_approval and not (verdict is not None and verdict.final):
                 detail = ""

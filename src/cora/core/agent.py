@@ -57,7 +57,13 @@ from cora.core.memory import (
 from cora.core.metering import CostMeter, DelegationStats, projected_cost
 from cora.core.native import NATIVE_EMPTY_REPLY, decode_arguments, flatten_tool_messages
 from cora.core.observability import EventLog
-from cora.core.policy import WRITE_TOOLS, PolicyGate, approval_mode_of, load_policy
+from cora.core.policy import (
+    WRITE_TOOLS,
+    PolicyGate,
+    approval_mode_of,
+    load_policy,
+    render_policy_rules,
+)
 from cora.core.prompts import (
     ESCALATION_NOTE,
     EXPLORE_NOTE,
@@ -68,6 +74,7 @@ from cora.core.prompts import (
     TRIPWIRE_NOTE,
     TRIPWIRE_STOP,
     build_system_prompt,
+    policy_rules_suffix,
     repeat_feedback,
 )
 from cora.core.providers import ProviderPool, provider_events, provider_workspace
@@ -302,6 +309,13 @@ class Agent:
             dedupe_reads=self.config.context.dedupe_reads,
             compress_chars=self._compress_chars(),
         )
+
+    def _policy_rules(self) -> str:
+        gate = self.ctx.gate
+        mode = approval_mode_of(self.ctx.approval)
+        if not self.config.policy.prompt_rules or gate is None or gate.mode_for(mode) is None:
+            return ""
+        return render_policy_rules(gate.settings, approval_mode=mode)
 
     def _repo_map(self, log: EventLog) -> str:
         c = self.config.context
@@ -571,7 +585,7 @@ class Agent:
                 nudge=self.config.delegation.nudge
                 and "delegate" in run_tools.names()
                 and "delegate" not in ex,
-            )
+            ) + policy_rules_suffix(self._policy_rules())
 
         log.emit(
             "models",
@@ -1234,6 +1248,7 @@ class Agent:
                     repo_map=repo_map,
                 )
                 + note
+                + policy_rules_suffix(self._policy_rules())
             )
             used = [0]
             seen = [0]

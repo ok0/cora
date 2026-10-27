@@ -1488,6 +1488,10 @@ command = "curl https://api.example.com/*"
 - `sandbox`: `true`면 macOS에서 `sandbox-exec`로 셸 명령을 감쌉니다. 기본값은 `false`입니다.
 - `env_passthrough`: 셸 명령 환경에 넘길 변수 이름 목록입니다. `API_KEY`, `TOKEN`, `SECRET`, `PASSWORD`처럼 자격 증명으로 보이는 이름은 오류가 납니다.
 
+정책이 거부한 도구 호출은 모델에게 `denied by policy (...)` 관찰 메시지와 그 아래 `Hint:` 한 줄로 돌아갑니다. 힌트 문구는 계획 단계가 쓰는 것과 같은 `RULE_HINTS` 표에서 가져옵니다. 판정(허용/거부)과 거부 횟수 집계는 바뀌지 않습니다. 힌트는 도구 호출의 거부에만 붙습니다. 샌드박스 검사(`check`)와 마일스톤 완료 조건의 거부는 기존 메시지를 그대로 씁니다. `deny` 모드에서 사용자가 거부한 `denied by user: approval required for ...`에는 힌트가 붙지 않습니다.
+
+- `[policy] prompt_rules`: 기본값은 `false`입니다. `cora.toml`의 `[policy]` 표에서만 읽으며 `.cora/policy.toml`에서는 알 수 없는 키로 거부합니다. `true`이고 정책 게이트가 활성일 때만 셸 정책 규칙(`render_policy_rules`)을 주 에이전트와 하위 에이전트 시스템 프롬프트 끝에 `Shell policy for run_shell:` 제목으로 덧붙입니다. 유료 근거가 생기기 전까지 `false`로 둡니다. 값이 bool이 아니거나 알 수 없는 키가 있으면 종료 코드 2로 끝납니다.
+
 잘못된 정책 파일이나 규칙은 조용히 허용하지 않습니다. 알 수 없는 키, 잘못된 `decision`, 중복된 `id`, 비어 있는 패턴이 있으면 CLI는 종료 코드 2로 끝나며 모델을 호출하지 않습니다.
 
 ### 판정 순서와 구체성

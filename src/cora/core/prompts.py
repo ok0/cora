@@ -141,6 +141,13 @@ def build_system_prompt(
     )
 
 
+POLICY_RULES_HEADER = "\n\nShell policy for run_shell:\n"
+
+
+def policy_rules_suffix(rules: str) -> str:
+    return POLICY_RULES_HEADER + rules if rules else ""
+
+
 SENSOR_FEEDBACK = (
     "Observation: the check command failed, so the task is not finished yet "
     "(check run {run} of at most {max_runs}).\nCheck: {command}\nOutput (last {chars} chars):\n"

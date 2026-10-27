@@ -251,3 +251,6 @@ protocols = ["react", "native"]
 max_cost_usd = 0.30
 max_iterations = 12
 stall_threshold_s = 60   # report: LLM calls slower than this (seconds) are flagged as stalls
+
+[policy]                 # cora.toml-only switch; policy rules live in .cora/policy.toml (USAGE.md, 자율 승인 정책)
+prompt_rules = false     # true: with an active policy gate, append the rendered shell-policy rules to the agent system prompt (OFF until a paid A/B shows a gain)
