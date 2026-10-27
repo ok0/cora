@@ -3241,3 +3241,28 @@ AC7 확인: `error_run true`인 행은 D5/D7의 P2 r2 하나뿐이며 `diagnosis
 ### (f) toml 사본과 M20 사전 등록 sha
 
 - 두 toml 사본(`cora.toml`, `src/cora/data/cora.toml`)은 현재 M20 사전 등록 sha (`7704ace8…`)와 `[policy]` 블록만큼 다르다 (D5). 블록 제외 텍스트에 대해 `m20_base_text()`로 pin을 검사한다.
+
+## M20c 결과 (2026-10-27T05:10:51Z)
+
+요약: M20 runner의 `milestones_done` 0/9 값을 진단했다. 비용은 $0이며 저장된 artifact만 사용했다. 소스 변경은 이 진단 커밋 이후에만 이루어진다.
+
+### (a) 진단 (소스 변경 전, R1)
+
+증거는 `tests/fixtures/m20/runs.jsonl` 5–13행과 `tests/fixtures/m20/artifacts/v2/<task>-r<n>/`다. `checkpoint.json`은 `tests/fixtures/m20/artifacts/` 아래에 보존되지 않았으므로(find 결과 0개), 저장된 상태는 `outcome.json`의 `milestones[]`에서, 정지 사유는 `projects/<run_id>/events.jsonl`의 `milestone_end` 줄에서 읽었다. 트라이얼 스크립트는 `("done","passed")` 상태만 세었고(`tests/m20_trial.py:388`), runner는 `completed`를 기록한다(`src/cora/core/milestones.py:29, :786, :859`).
+
+| task | run | runs.jsonl line | stored statuses | milestones_done (runs.jsonl) | stop_reason | grader | verdict | citation |
+|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | 0 | 5 | m1 completed, m2 completed, m3 failed, m4 pending, m5 pending | 0 | budget_exceeded | pass | (a)+(b) | tests/fixtures/m20/artifacts/v2/e2e_h01-r0/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_h01-r0/projects/20261025-215255-bbc53e/events.jsonl:7,13,17,18; tests/fixtures/m20/runs.jsonl:5 |
+| e2e_h01 | 1 | 6 | m1 failed, m2 pending, m3 pending, m4 pending, m5 pending | 0 | policy_blocked | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_h01-r1/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_h01-r1/projects/20261025-220907-c9421c/events.jsonl:5,6; tests/fixtures/m20/runs.jsonl:6 |
+| e2e_h01 | 2 | 7 | m1 completed, m2 completed, m3 failed, m4 pending, m5 pending | 0 | budget_exceeded | pass | (a)+(b) | tests/fixtures/m20/artifacts/v2/e2e_h01-r2/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_h01-r2/projects/20261025-221325-8b0046/events.jsonl:7,13,17,18; tests/fixtures/m20/runs.jsonl:7 |
+| e2e_h03 | 0 | 8 | shell_quote failed, jsonstr_encode_decode pending, winpath_to_posix pending, catalog_unescape_html pending, all_tests_pass pending | 0 | policy_blocked | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_h03-r0/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_h03-r0/projects/20261025-224335-264877/events.jsonl:5,6; tests/fixtures/m20/runs.jsonl:8 |
+| e2e_h03 | 1 | 9 | shell_quote failed, jsonstr_encode pending, jsonstr_decode pending, jsonstr_roundtrip pending, winpath_to_posix pending, catalog_unescape pending, pytest_partial pending, final_check pending | 0 | policy_blocked | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_h03-r1/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_h03-r1/projects/20261025-224751-9ff7cc/events.jsonl:5,6; tests/fixtures/m20/runs.jsonl:9 |
+| e2e_h03 | 2 | 10 | m1 failed, m2 pending, m3 pending, m4 pending, m5 pending, m6 pending, m7 pending | 0 | policy_blocked | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_h03-r2/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_h03-r2/projects/20261025-225114-704c70/events.jsonl:5,6; tests/fixtures/m20/runs.jsonl:10 |
+| e2e_n08 | 0 | 11 | setup failed, normalize_email pending, normalize_phone pending, dedupe pending, cli pending, error_handling pending | 0 | policy_blocked | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_n08-r0/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_n08-r0/projects/20261025-225819-4d5d17/events.jsonl:5,6; tests/fixtures/m20/runs.jsonl:11 |
+| e2e_n08 | 1 | 12 | setup failed, normalize_email pending, normalize_phone pending, dedupe pending, cli_skeleton pending, cli_full pending | 0 | policy_blocked | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_n08-r1/outcome.json; tests/fixtures/m20/artifacts/v2/e2e_n08-r1/projects/20261025-225924-ca9c6d/events.jsonl:5,6; tests/fixtures/m20/runs.jsonl:12 |
+| e2e_n08 | 2 | 13 | (none: milestones []) | 0 | error | fail | (b) | tests/fixtures/m20/artifacts/v2/e2e_n08-r2/outcome.json (no projects/ dir; tests/fixtures/m20/artifacts/MANIFEST.json absent_at_source); tests/fixtures/m20/runs.jsonl:13 |
+
+- (a) = 스크립트 상태 이름 불일치. 저장된 `completed` 2개(h01 r0, r2)가 트라이얼 스크립트에서 0으로 세어졌다.
+- (b) = 마일스톤 도중 정지(`budget_exceeded`, `policy_blocked`) 또는 마일스톤 시작 전 planner 오류로 완료되지 않음. 정당한 0이다.
+- verdict "other"는 없다. 따라서 R2에 따른 BLUEPRINT CHANGE는 없다. runner의 완료 처리 결함은 확인되지 않았다.
+- grader 통과 2회(h01 r0, r2)는 m3 `budget_exceeded` 중에 끝났지만 작업 공간은 grader를 통과했다. stored count 2는 total 5보다 작으므로 (b)에 해당한다.
