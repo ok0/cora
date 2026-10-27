@@ -32,7 +32,13 @@ from cora.core.errors import (
     describe_provider_error,
 )
 from cora.core.metering import format_summary
-from cora.core.outcome import error_outcome, exit_code, interrupted_result, outcome_dict
+from cora.core.outcome import (
+    error_outcome,
+    exit_code,
+    interrupted_result,
+    outcome_dict,
+    session_totals,
+)
 from cora.core.policy import POLICY_MODE_NOTICE
 from cora.core.project import load_project_context
 from cora.core.tools import ApprovalPolicy, ApprovalRequest
@@ -273,12 +279,15 @@ def run_headless(
             else 1
         )
         legacy = 2
+        cost, models = session_totals(agent.current if running and agent is not None else None)
         doc = error_outcome(
             msg,
             code,
             session_id=agent.current.id if agent is not None and agent.current else None,
             warnings=warnings,
             wall_s=time.monotonic() - start,
+            cost_usd=cost,
+            models=models,
         )
     except Exception as e:
         if not running:
@@ -287,12 +296,15 @@ def run_headless(
         errors.append(msg)
         typer.echo(f"error: {msg}", err=True)
         legacy = 1
+        cost, models = session_totals(agent.current if running and agent is not None else None)
         doc = error_outcome(
             msg,
             1,
             session_id=agent.current.id if agent is not None and agent.current else None,
             warnings=warnings,
             wall_s=time.monotonic() - start,
+            cost_usd=cost,
+            models=models,
         )
     finally:
         if manager is not None:

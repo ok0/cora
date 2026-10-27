@@ -16,7 +16,13 @@ from cora.core.budget import BudgetGovernor, BudgetLimits, BudgetUsage
 from cora.core.errors import ConfigError, CoraError, WorkspaceViolation
 from cora.core.metering import CostMeter
 from cora.core.observability import EventLog
-from cora.core.outcome import OUTCOME_KEYS, error_outcome, exit_code, outcome_stop_reason
+from cora.core.outcome import (
+    OUTCOME_KEYS,
+    error_outcome,
+    exit_code,
+    metered_totals,
+    outcome_stop_reason,
+)
 from cora.core.policy import approval_mode_of
 from cora.core.state import new_session_id
 from cora.core.tools.base import ToolContext
@@ -26,7 +32,8 @@ PLAN_KEYS = frozenset({"goal", "milestones"})
 MILESTONE_KEYS = frozenset({"id", "title", "task", "check", "conditions", "ungated"})
 CONDITION_FIELDS = {"command": "cmd", "file_exists": "path"}
 GATE_FAILED = "gate_failed"
-STATUSES = ("pending", "running", "completed", "failed", "interrupted")
+DONE_STATUS = "completed"
+STATUSES = ("pending", "running", DONE_STATUS, "failed", "interrupted")
 CHECKPOINT_FILE = "checkpoint.json"
 CHECKPOINT_VERSION = 1
 RUN_ID_RE = re.compile(r"\d{8}-\d{6}-[0-9a-f]{6}")
@@ -528,6 +535,19 @@ def ungated_ids(plan: ProjectPlan) -> list[str]:
     return [m.id for m in plan.milestones if m.ungated]
 
 
+def checkpoint_totals(cp: Checkpoint) -> tuple[float, list[str]]:
+    recs = [cp.records[m.id] for m in cp.plan.milestones]
+    p = cp.planning or {}
+    models: list[str] = []
+    if "model" in p:
+        models.append(p["model"])
+    for r in recs:
+        for mid in r.models:
+            if mid not in models:
+                models.append(mid)
+    return sum((r.cost_usd for r in recs), 0.0) + float(p.get("cost_usd", 0.0)), models
+
+
 def project_outcome(
     cp: Checkpoint,
     governor: BudgetGovernor | None,
@@ -545,13 +565,7 @@ def project_outcome(
     if session_id is None:
         session_id = next((r.session_id for r in reversed(recs) if r.session_id), None)
     p = cp.planning or {}
-    models: list[str] = []
-    if "model" in p:
-        models.append(p["model"])
-    for r in recs:
-        for mid in r.models:
-            if mid not in models:
-                models.append(mid)
+    cost, models = checkpoint_totals(cp)
     tools: dict[str, int] = {}
     for r in recs:
         for name, n in r.tools.items():
@@ -562,7 +576,7 @@ def project_outcome(
         "final_answer": final_answer,
         "session_id": session_id,
         "iterations": governor.usage().iterations if governor else cp.budget_used.iterations,
-        "cost_usd": sum((r.cost_usd for r in recs), 0.0) + float(p.get("cost_usd", 0.0)),
+        "cost_usd": cost,
         "tokens": {
             "in": sum(r.tokens_in for r in recs) + int(p.get("tokens_in", 0)),
             "out": sum(r.tokens_out for r in recs) + int(p.get("tokens_out", 0)),
@@ -590,6 +604,8 @@ def project_error_outcome(
     warnings: Sequence[str] = (),
     wall_s: float = 0.0,
     stop_reason: str = "error",
+    cost_usd: float = 0.0,
+    models: Sequence[str] = (),
 ) -> dict:
     return {
         **{
@@ -601,6 +617,8 @@ def project_error_outcome(
                 warnings=warnings,
                 wall_s=wall_s,
                 stop_reason=stop_reason,
+                cost_usd=cost_usd,
+                models=models,
             ).items()
             if k != "profile"
         },
@@ -737,7 +755,7 @@ class ProjectRunner:
                 session_id=rec.session_id,
                 cost_usd=rec.cost_usd,
             )
-            if rec.status != "completed":
+            if rec.status != DONE_STATUS:
                 break
         if len(cp.completed) == len(cp.plan.milestones):
             stop = "final_answer"
@@ -783,7 +801,7 @@ class ProjectRunner:
             gate["attempts"] += 1
             if failed is None:
                 gate.update(passed=True, failed_condition=None, feedback=None)
-                rec.status = "completed"
+                rec.status = DONE_STATUS
                 cp.completed.append(m.id)
                 cp.current = None
                 self.log.emit(
@@ -836,7 +854,11 @@ class ProjectRunner:
                 rec.status = rec.stop_reason = "interrupted"
                 if agent.current is not None:
                     rec.session_id = agent.current.id
-                    rec.cost_usd += CostMeter.from_list(agent.current.meter).total_cost_usd
+                    spent, used = metered_totals(CostMeter.from_list(agent.current.meter))
+                    rec.cost_usd += spent
+                    for model_id in used:
+                        if model_id not in rec.models:
+                            rec.models.append(model_id)
                 self.last_session_id = rec.session_id
                 self._save()
         stop = outcome_stop_reason(
@@ -856,7 +878,7 @@ class ProjectRunner:
             rec.tools[name] = rec.tools.get(name, 0) + n
         rec.policy = r.summary.get("policy")
         if stop == "final_answer" and not gated:
-            rec.status = "completed"
+            rec.status = DONE_STATUS
             cp.completed.append(m.id)
             cp.current = None
         elif stop == "final_answer":

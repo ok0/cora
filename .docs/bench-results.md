@@ -3266,3 +3266,52 @@ AC7 확인: `error_run true`인 행은 D5/D7의 P2 r2 하나뿐이며 `diagnosis
 - (b) = 마일스톤 도중 정지(`budget_exceeded`, `policy_blocked`) 또는 마일스톤 시작 전 planner 오류로 완료되지 않음. 정당한 0이다.
 - verdict "other"는 없다. 따라서 R2에 따른 BLUEPRINT CHANGE는 없다. runner의 완료 처리 결함은 확인되지 않았다.
 - grader 통과 2회(h01 r0, r2)는 m3 `budget_exceeded` 중에 끝났지만 작업 공간은 grader를 통과했다. stored count 2는 total 5보다 작으므로 (b)에 해당한다.
+
+### (b) milestones_done 정정 (2026-10-27, R5)
+
+재계산은 각 `outcome.json`의 `milestones[]`에서 `status == "completed"`인 항목만 셌다(`tests/test_m20c_accounting.py`의 `recomputed` 검사와 같은 규칙). 원래 값은 M20 절과 `tests/fixtures/m20/runs.jsonl`에 그대로 둔다.
+
+| task | run | milestones_done 원래 (M20 runs.jsonl) | milestones_done 재계산 (M20c) | milestones_total | grader | 설명 |
+|---|---|---|---|---|---|---|
+| e2e_h01 | 0 | 0 | 2 | 5 | pass | (a) 해소, (b) m3 budget_exceeded |
+| e2e_h01 | 1 | 0 | 0 | 5 | fail | (b) |
+| e2e_h01 | 2 | 0 | 2 | 5 | pass | (a) 해소, (b) m3 budget_exceeded |
+| e2e_h03 | 0 | 0 | 0 | 5 | fail | (b) |
+| e2e_h03 | 1 | 0 | 0 | 8 | fail | (b) |
+| e2e_h03 | 2 | 0 | 0 | 7 | fail | (b) |
+| e2e_n08 | 0 | 0 | 0 | 6 | fail | (b) |
+| e2e_n08 | 1 | 0 | 0 | 6 | fail | (b) |
+| e2e_n08 | 2 | 0 | 0 | 0 | fail | (b) |
+
+정정 후 grader 통과 2회의 count 2는 total 5보다 작으므로 (b)로 설명된다. 나머지 7회는 재계산 값이 0이며 (b)다.
+
+### (c) P2 r2 비용 정정 (2026-10-27, R11)
+
+- 원래 값: `cost_usd` 0.0 (`tests/fixtures/m20/runs.jsonl:3`, `tests/fixtures/m20/artifacts/p2/e2e_h01-r2/outcome.json`).
+- 재계산 값: 0.01092832844. `tests/fixtures/m20/artifacts/p2/e2e_h01-r2/sessions/20261023-214042-3b26d9/events.jsonl`의 `llm_call` 16개 `cost_usd` 합이다(모두 `cost_source` = `provider_usage`). 입력 토큰 합 59755, 출력 토큰 합 4446, 모델 `deepseek/deepseek-v3.2`. `milestones[0].cost_usd`와 일치한다.
+- 한계: 마지막 시간 초과 HTTP 시도(`RequestDeadlineExceeded`)에는 `llm_call` 이벤트도 사용량도 없어서 측정할 수 없다. 지출은 여전히 `/credits` 기준이다(M20 D6).
+- M20c부터 오류 결과는 계량된 비용을 담는다(R8).
+
+### (d) M19 arm f Claude Code 비용 (2026-10-27, R12, 선택)
+
+Q11 답: `.docs/baselines/claude-code-m19-runs.jsonl`에 `model_usage`와 `cost_recomputed_usd`가 있다. arm f 정체는 `tests/fixtures/m19/preregistration.md:13`에서 확인했다. 가격은 `tests/m15_baseline.py`의 `PRICES`와 `PRICE_SOURCE`(fetched 2026-10-15)를 따른다.
+
+| task | toml cost_usd (`.docs/baselines/claude-code-m19.toml`) | 평균 cost_recomputed_usd | 평균 Claude 보고 total_cost_usd | n |
+|---|---|---|---|---|
+| e2e_h01 | 0.07953826666666668 | 0.07953826666666668 | 0.10642126666666668 | 3 |
+| e2e_h02 | 0.06237446666666666 | 0.06237446666666666 | 0.08354346666666668 | 3 |
+| e2e_h03 | 0.08716990000000001 | 0.08716990000000001 | 0.1149289 | 3 |
+| e2e_h04 | 0.10370633333333333 | 0.10370633333333333 | 0.12993183333333333 | 3 |
+| e2e_h05 | 0.06911073333333333 | 0.06911073333333333 | 0.09216623333333333 | 3 |
+| e2e_h06 | 0.0689011 | 0.0689011 | 0.09043459999999999 | 3 |
+| e2e_hx1 | 0.062486633333333326 | 0.062486633333333326 | 0.08708763333333332 | 3 |
+| e2e_hx2 | 0.09780556666666666 | 0.09780556666666666 | 0.12914556666666666 | 3 |
+
+사전 등록 입력(`tests/fixtures/m19/`, `.docs/baselines/claude-code-m19.toml`)은 편집하지 않았다. ADR-38의 주의 사항을 그대로 옮긴다: Claude Code 비용은 toml 추정치다. 이 표의 n은 task당 3이다.
+
+### (e) 변경 요약
+
+- `core/milestones.DONE_STATUS` 상수를 추가했고 runner의 완료 판정과 기록이 이 상수를 쓴다. `tests/m20_trial.py`도 같은 상수를 쓴다.
+- 오류 결과(`error_outcome`)가 `cost_usd`와 `models`를 담는다. 헤드리스, MCP 도구, `project run` 오류 경로가 계량된 값을 넘긴다.
+- runner의 완료 처리 로직은 바뀌지 않았다.
+- 진단에서 BLUEPRINT CHANGE는 나오지 않았다(R2, (a) 참고).

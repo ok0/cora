@@ -35,6 +35,18 @@ def policy_denials(summary: dict, extra: int = 0) -> int:
     return int(pol.get("deny", 0)) + int(pol.get("ask_resolved_deny", 0)) + extra
 
 
+def metered_totals(meter: CostMeter | None) -> tuple[float, list[str]]:
+    if meter is None:
+        return 0.0, []
+    return float(meter.total_cost_usd), list(meter.summary().get("by_model", {}))
+
+
+def session_totals(session: Session | None) -> tuple[float, list[str]]:
+    if session is None:
+        return 0.0, []
+    return metered_totals(CostMeter.from_list(session.meter))
+
+
 def outcome_stop_reason(
     r: RunResult,
     *,
@@ -132,6 +144,8 @@ def error_outcome(
     warnings: Sequence[str] = (),
     wall_s: float = 0.0,
     stop_reason: str = "error",
+    cost_usd: float = 0.0,
+    models: Sequence[str] = (),
 ) -> dict:
     return {
         "ok": False,
@@ -139,10 +153,10 @@ def error_outcome(
         "final_answer": None,
         "session_id": session_id,
         "iterations": 0,
-        "cost_usd": 0.0,
+        "cost_usd": float(cost_usd),
         "tokens": {"in": 0, "out": 0},
         "wall_s": round(wall_s, 3),
-        "models": [],
+        "models": list(models),
         "profile": [],
         "tools": {},
         "policy": None,

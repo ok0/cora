@@ -20,7 +20,7 @@ from cora.core.budget import BudgetGovernor, BudgetLimits
 from cora.core.config import CoraConfig, McpServeSettings, find_config
 from cora.core.errors import CoraError, describe_provider_error
 from cora.core.metering import CostMeter
-from cora.core.outcome import error_outcome, outcome_dict
+from cora.core.outcome import error_outcome, outcome_dict, session_totals
 from cora.core.policy import POLICY_MODE_NOTICE
 from cora.core.project import load_project_context
 from cora.core.state import SessionStore
@@ -593,22 +593,28 @@ class McpServer:
                         coro = agent.resume(sid)
                 r = asyncio.run(coro)
             except CoraError as e:
+                cost, models = session_totals(agent.current)
                 doc = error_outcome(
                     describe_provider_error(e),
                     1,
                     session_id=agent.current.id if agent.current else None,
                     warnings=warnings,
                     wall_s=time.monotonic() - start,
+                    cost_usd=cost,
+                    models=models,
                 )
                 doc["budget"] = governor.to_dict()
                 return fit_result(doc, cap)
             except Exception as e:
+                cost, models = session_totals(agent.current)
                 doc = error_outcome(
                     f"{type(e).__name__}: {e}",
                     1,
                     session_id=agent.current.id if agent.current else None,
                     warnings=warnings,
                     wall_s=time.monotonic() - start,
+                    cost_usd=cost,
+                    models=models,
                 )
                 doc["budget"] = governor.to_dict()
                 return fit_result(doc, cap)

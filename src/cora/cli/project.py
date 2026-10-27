@@ -38,11 +38,13 @@ from cora.core.milestones import (
     ProjectGovernor,
     ProjectRunner,
     atomic_write_text,
+    checkpoint_totals,
     load_plan,
     plan_to_toml,
     project_error_outcome,
     project_outcome,
 )
+from cora.core.outcome import metered_totals
 from cora.core.planner import (
     UNGATED_WARNING,
     PlanBudgetExceeded,
@@ -132,6 +134,15 @@ def run_project(
     legacy: int | None = None
     sig: int | None = None
     doc: dict | None = None
+    plan_meter: CostMeter | None = None
+
+    def spent() -> tuple[float, list[str]]:
+        if running and cp is not None:
+            return checkpoint_totals(cp)
+        if plan_meter is not None and plan_meter.records:
+            return metered_totals(plan_meter)
+        return 0.0, []
+
     try:
         store = CheckpointStore(Path(opts.workdir) / ".cora" / "projects")
         if opts.run_id is None and opts.plan is not None and opts.goal is not None:
@@ -194,7 +205,7 @@ def run_project(
         )
         planning = None
         if plan is None:
-            meter = CostMeter()
+            meter = plan_meter = CostMeter()
             plan_pol = planning_policy(cfg.policy, Path(opts.workdir), cfg.agent.approval)
             plan, planning = asyncio.run(generate_plan(
                 opts.goal, cfg, governor, meter=meter,
@@ -284,6 +295,7 @@ def run_project(
                 else 1
             )
             legacy = 2
+        cost, models = spent()
         doc = project_error_outcome(
             msg,
             code,
@@ -292,6 +304,8 @@ def run_project(
             warnings=warnings,
             wall_s=time.monotonic() - start,
             stop_reason=stop_reason,
+            cost_usd=cost,
+            models=models,
         )
         if isinstance(e, PlanBudgetExceeded) and governor is not None:
             doc["budget"] = governor.to_dict()
@@ -302,6 +316,7 @@ def run_project(
         errors.append(msg)
         typer.echo(f"error: {msg}", err=True)
         legacy = 1
+        cost, models = spent()
         doc = project_error_outcome(
             msg,
             1,
@@ -309,6 +324,8 @@ def run_project(
             session_id=runner.last_session_id if runner is not None else None,
             warnings=warnings,
             wall_s=time.monotonic() - start,
+            cost_usd=cost,
+            models=models,
         )
     finally:
         if manager is not None:

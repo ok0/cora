@@ -383,10 +383,10 @@ OpenRouter가 계정 오류를 돌려주면 CORA는 원문 대신 영어 안내�
 - `final_answer`: 최종 답입니다. 없으면 null입니다.
 - `session_id`: 세션 id입니다. `cora resume <id>`로 이어 갈 수 있습니다.
 - `iterations`: 반복 횟수입니다.
-- `cost_usd`: 세션 누적 비용입니다. `--resume`이면 이전 요청의 비용도 포함합니다.
+- `cost_usd`: 세션 누적 비용입니다. `--resume`이면 이전 요청의 비용도 포함합니다. 오류로 끝난 실행도 첫 모델 호출 뒤의 오류이면 그때까지 계량한 비용을 담습니다. 모델 호출 전 오류이면 0.0입니다. 응답 없이 시간이 끝난 호출(예: `RequestDeadlineExceeded`)은 사용량이 없어 포함되지 않습니다.
 - `tokens`: `{"in": ..., "out": ...}` 형식의 세션 누적 토큰 수입니다.
 - `wall_s`: 이번 실행의 벽시계 시간(초)입니다.
-- `models`: 쓴 모델 id 목록입니다.
+- `models`: 쓴 모델 id 목록입니다. 오류 결과에서도 계량된 모델이 나옵니다 (모델 호출 전 오류이면 빈 목록).
 - `profile`: (model, provider)별 calls/tokens/`cost_usd`/`cost_source`/`p50_latency_s`/`excluded_from_cost_usd` 목록입니다.
 - `tools`: 이번 실행에서 도구별 호출 횟수입니다.
 - `policy`: 정책 모드와 결정 요약입니다.
@@ -1332,6 +1332,7 @@ conditions = [ { kind = "command", cmd = "uv run pytest -q" }, { kind = "file_ex
 - `run_id`: 체크포인트의 run id입니다. 계획 오류 때문에 체크포인트가 만들어지기 전에 끝났으면 null입니다.
 - `milestones`: 계획 순서대로 `{"id", "status", "session_id", "cost_usd"}` 객체의 목록입니다. `status`는 `completed`, `failed`, `interrupted`, `pending` 중 하나입니다. 실행 중에 멈춰서 `running`으로 남은 마일스톤은 `interrupted`로 보입니다.
 - `milestones`에서 `conditions`가 있는 마일스톤에는 `gate` 값이 붙습니다. `{"attempts", "passed", "failed_condition"}` 형식이며, 아직 도달하지 않았으면 null입니다. `conditions`가 없는 마일스톤에는 `gate` 키가 없습니다.
+- `project run`의 오류 결과의 `cost_usd`는 오류까지 실행된 마일스톤 비용과 계획 비용의 합입니다. 완료된 마일스톤은 `status`가 `completed`인 것만 셉니다.
 - `stop_reason`은 `gate_failed`가 될 수 있습니다(완료 조건이 재시도 뒤에도 통과하지 못함).
 - `cora project plan --json` 문서의 키는 헤드리스 결과 키(profile 제외)에 `path`, `goal`, `milestone_count`, `plan_policy`를 더한 것입니다. 오류도 같은 키이며 종료 코드 2입니다(예산 초과는 4).
 

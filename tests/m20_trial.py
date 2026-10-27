@@ -17,7 +17,7 @@ from cora.bench import e2e
 from cora.bench.stats import wilson_interval
 from cora.core.agent import Agent
 from cora.core.config import find_model, load_config
-from cora.core.milestones import Condition, load_plan, run_condition
+from cora.core.milestones import DONE_STATUS, Condition, load_plan, run_condition
 from cora.core.planner import plan_from_text
 from cora.core.policy import approval_mode_of
 from cora.core.router import HeuristicRouter
@@ -336,6 +336,10 @@ def planq_row(
     }
 
 
+def milestones_done(milestones: list[dict]) -> int:
+    return sum(1 for m in milestones if m.get("status") == DONE_STATUS)
+
+
 def event_hits(ws: Path) -> list[str]:
     needles = [str(p) for p in home_protected() + package_data_dirs()]
     hits: list[str] = []
@@ -385,7 +389,7 @@ def run_row(
     else:
         quality = None
     milestones = outcome.get("milestones") or []
-    done = sum(1 for m in milestones if m.get("status") in ("done", "passed"))
+    done = milestones_done(milestones)
     gate_failed = any(
         m.get("gate") is not None and m["gate"].get("passed") is False for m in milestones
     )
