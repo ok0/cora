@@ -524,6 +524,8 @@ class WorkingMemory:
         )
         self.ledger_text = ""
         self._evicted: list[tuple[Message, str | None]] = []
+        self.dedupe_count = 0
+        self.compressed_count = 0
 
     def pin(self, msg: Message) -> None:
         self.pinned.append(msg)
@@ -544,6 +546,7 @@ class WorkingMemory:
                 if self.read_paths[i] == tag:
                     self.recent[i] = dataclasses.replace(self.recent[i], content=superseded(tag))
                     self.read_paths[i] = None
+                    self.dedupe_count += 1
         self.recent.append(msg)
         self.read_paths.append(tag)
         if self.ledger is not None and tag is not None:
@@ -558,12 +561,18 @@ class WorkingMemory:
             for i, t in enumerate(self.read_paths)
             if t is not None and t not in self.read_paths[i + 1 :]
         }
-        compress_observations(
+        self.compressed_count += compress_observations(
             self.recent,
             self.compress_chars,
             self.settings.keep_last_messages,
             protected=protected,
         )
+
+    def drain_context_counts(self) -> tuple[int, int]:
+        counts = (self.dedupe_count, self.compressed_count)
+        self.dedupe_count = 0
+        self.compressed_count = 0
+        return counts
 
     def _assemble(self, system_prompt: str) -> list[Message]:
         messages = [Message(role="system", content=system_prompt), *self.pinned]

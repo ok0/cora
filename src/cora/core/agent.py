@@ -326,7 +326,7 @@ class Agent:
                            max_files=c.max_files, cache_path=self.state_dir / CACHE_RELPATH)
         text = rm.render(c.repo_map_max_chars)
         log.emit("repo_map", files=len(rm.entries), parsed=rm.parsed, capped=rm.capped,
-                 chars=len(text))
+                 chars=len(text), tokens=estimate_tokens(text))
         return text
 
     def _spec(self, model_id: str | None, tier: str | None) -> ModelSpec:
@@ -873,6 +873,13 @@ class Agent:
                 return
             added = memory.ledger.add_summary(ltext(text))
             log.emit("summary_call", ok=True, evicted=len(ev), chars=len(added))
+
+        def context_events() -> None:
+            dedupe, compressed = memory.drain_context_counts()
+            if dedupe:
+                log.emit("read_dedupe", superseded=dedupe, iteration=session.iteration)
+            if compressed:
+                log.emit("observation_compress", compressed=compressed, iteration=session.iteration)
 
         async def after_build() -> None:
             led = memory.ledger
@@ -1676,6 +1683,7 @@ class Agent:
                             return budget_stop(cap)
                         msgs = memory.build(system_prompt(protocol))
                         await after_build()
+                        context_events()
                         tools = (
                             run_tools.schemas(excluded(), terse=terse)
                             if protocol == "native"
