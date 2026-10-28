@@ -3397,3 +3397,118 @@ Q11 답: `.docs/baselines/claude-code-m19-runs.jsonl`에 `model_usage`와 `cost_
     복사하지 않은 것: `.reference/`, `.ensemble/`, `.cora/`, 키 파일. 이 파일들은 이 pin의 시험에 필요하지 않았다.
 16. **결함 후보 (R14, 고치지 않음).** (a) **M17 경로 길이 민감성:** M17 identity 테스트 (`test_m17_off_identity`, `test_m17b_keys`, `test_m17_agent`, 6개)는 `sys.executable` 길이에 따라 결과가 바뀐다. 픽스처의 `<PYTHON>` 정규화는 에이전트의 문맥 예산 적용 뒤에 실행되므로, 인터프리터 경로가 요청 내용에 새어 든다. 87자 경로에서는 6개가 실패하고, 61자 경로(같은 픽스처)에서는 통과한다. 후속 마일스톤 후보이며 이번에 고치지 않는다. (b) `run_row`의 `plan_quality`가 `planning.calls`를 써서 M20a 정책 수리 라운드를 `after_repair`로 잘못 읽는다. (c) `run_row`에 `policy_dropped`/`ungated` 열이 없다. (d) `run_row`가 `gate_failed`/`check_failed`를 `error_run`으로 표시한다. 보고 단계에서 out-of-repo 추출기로 (b)와 (c)를 계산하고 (d)는 중단 분류에서 우회한다. (e) M21 wave 1 계수기와 이벤트는 PIN에 들어 있으며 스위치는 OFF다 (6cc5fa2).
 
+
+## M20d 결과 (2026-10-28T05:34:33Z)
+
+요약 (먼저 읽을 것): G2 재측정 (M20a–c 수정, 고정 하네스, deepseek-v2, deadline, cap $0.30/run)은 보고 전용이다. 측정된 셀은 두 개다. `e2e_n08`은 n=3 전부 `policy_blocked`로 끝났고 완료 0/3이다. `e2e_h03`은 n=2 (r0, r1)만 실행했고 둘 다 grader 통과 (`budget_exceeded`로 끝남, 2/2)이다. r2는 잔여 배정이 가드 $0.32 아래로 떨어져 시작하지 않았으므로 h03은 n=3 주장을 하지 않는다 ("not measured (budget)", r0·r1은 증거로만 둔다). `e2e_h01`은 S3 절단 규칙 (S1+S2 ≤ $0.2757)에 막혀 "not measured (budget)"이다. Claude Code `e2e_n08` 기준선은 "no baseline (not measured)"이다: 헤드리스 실행이 자동 모드 분류기에 의해 거부되었다 (항목 (e)). 합계 M20d 지출은 $0.916035 (배정 $1.20 중), 계정 누적 유료 $8.0725 (≤ $10). M20d 완료율 2/5 (Wilson 95% [0.118, 0.769]). M20의 2/9와 나란히 보되, n = 3 (그리고 h03은 n = 2) 차이는 지시적일 뿐이다. 누구도 기본값을 바꾸지 않았다.
+
+(a) 지출 표 (`/auth/key` 차이가 권위값이며, outcome `cost_usd` 합은 장부 값이다 (R12)):
+
+| 세그먼트 | 승인 (UTC) | 리허설 | 추정 (등록 / `bench plan`) | `/auth/key` usage 전 → 후 | `/credits` total_usage 전 → 후 | 델타 (auth) | outcome 합 | M20d 누적 | 계정 누적 유료 |
+|---|---|---|---|---|---|---|---|---|---|
+| S1 e2e_n08 (r0–r2, 3회 실행) | 2026-10-28T01:56:20Z | PASS (replay miss, records 0, leaks []) | 등록 $0.0067 (절단; 현실 상한 $0.90) / bench plan $0.30 | 0.748458 → 1.182587 | 7.156512 → 7.590641 | 0.434129 | 0.434129 | 0.434129 | 7.590641 |
+| S2 e2e_h03 (r0–r1, 2회 실행; r2 가드 실패) | 2026-10-28T04:01:33Z | PASS (replay miss, records 0, leaks []) | 등록 $0.0468 (현실 완료 시 $0.60–0.81) / bench plan $0.72 | 1.182587 → 1.664492 | 7.590641 → 8.072547 | 0.481906 | 0.486144 | 0.916035 | 8.072547 |
+| S3 e2e_h01 | — | — | — | — | — | 0 | — | 0.916035 | 8.072547 |
+| CC e2e_n08 | — | — | — | — | — | $0 (구독) | — | — | — |
+
+- 잔여 배정 = 1.20 − 0.916035 = 0.283965 (< 0.32, 가드 미달; S3 필요 0.9243 미달).
+- 장부 대사: S1 outcome 합과 auth 델타가 0.000000 차이로 일치. S2는 outcome 합이 auth보다 0.004238 높다 (불일치 기록, 권위값은 auth).
+- 계정 누적 (`/credits`): 시작 7.156512 (U0 시점 2026-10-28T01:48Z) → 8.072547 (지출 0.916035와 일치).
+- 주의 (M20c 한계): timeout으로 끊긴 시도는 미계량될 수 있다. 이번 시리즈의 모든 run은 `unmetered = 0`이다 (`events.jsonl`에서 `RequestDeadlineExceeded|provider_timeout|ReadTimeout` 0줄). 플래그가 선 run은 없다.
+- 셀 상태: e2e_n08 n=3 측정 (0/3); e2e_h03 n=2 (2/2, n<3 주장 없음, "not measured (budget)" for n=3); e2e_h01 "not measured (budget)"; CC e2e_n08 "no baseline (not measured)".
+
+(b) 요약 표. `tests/m20_trial.py summary` 출력을 그대로 옮긴다 (입력 `--planq` 빈 파일, `--runs $B/runs.jsonl`, `--baseline $R/.docs/baselines/claude-code-m19.toml`):
+
+```
+### (1) Plan quality, per label
+
+```
+
+보조 표 (verbatim 출력은 위 한 줄뿐이다). 이 helper는 라벨이 `deepseek`로 시작하는 run만 (2) 절에 그린다. 시리즈 라벨 `m20d-deepseek-v2`는 그 조건에 맞지 않아 (2)와 (3)이 비었다. 그래서 같은 `runs.jsonl`에서 `label`의 접두만 `deepseek-v2`로 바꾼 사본 (`/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-m20d/runs-display-label.jsonl`, 숫자 변경 없음)을 같은 명령으로 다시 돌렸다. 아래는 그 사본 출력이다 (표시용 한정, 숫자는 원본과 같다):
+
+```
+### (1) Plan quality, per label
+
+### (2) Per-run (deepseek-v2)
+main series: deadline config, project caps, post-fix planner prompt (R11 rounds 1-2)
+| task | run | completed | stop_reason | interventions | iterations | $ | wall_s | plan | gate_failed | leaks |
+|---|---|---|---|---|---|---|---|---|---|---|
+| e2e_n08 | 0 | no | policy_blocked | 0 | 128 | 0.1707 | 1413.448 | first_try | yes | 0+0 |
+| e2e_n08 | 1 | no | policy_blocked | 0 | 171 | 0.2572 | 2063.998 | first_try | yes | 0+0 |
+| e2e_n08 | 2 | no | policy_blocked | 0 | 3 | 0.0062 | 217.604 | first_try | yes | 0+0 |
+| e2e_h03 | 0 | yes | budget_exceeded | 0 | 182 | 0.2017 | 1653.069 | first_try | yes | 0+0 |
+| e2e_h03 | 1 | yes | budget_exceeded | 0 | 187 | 0.2844 | 3561.528 | first_try | no | 0+0 |
+
+### (3) Per task (deepseek-v2)
+main series: deadline config, project caps, post-fix planner prompt (R11 rounds 1-2)
+| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |
+|---|---|---|---|---|---|---|
+| e2e_h01 | 0/0 | not measured (budget) | - | - | - | - |
+| e2e_h03 | 2/2 | no claim (n<3) | 0.4861 | 0.2431 | 3/3 | 0.0872 |
+| e2e_n08 | 0/3 | [0.000, 0.562] | 0.4341 | 0.1447 | no baseline (not measured) | - |
+
+### (4) Overall (deepseek-v2)
+main series: deadline config, project caps, post-fix planner prompt (R11 rounds 1-2)
+| completed | n | rate | wilson | $ total | solved per $ | $ per completed | interventions |
+|---|---|---|---|---|---|---|---|
+| 2 | 5 | 0.400 | [0.118, 0.769] | 0.9203 | 2.173 | 0.4601 | 0 |
+```
+
+R9 열을 가진 추출 표 (`/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-m20d/m20d_extract.py`, 출력 `/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-m20d/extract.jsonl`; 행 원본 `/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/cora-m20d/runs.jsonl`):
+
+| task | run | stop_reason | policy_blocked | policy_deny (+ask→deny) | policy_dropped | policy_rounds | ungated | planner_invalid | plan | milestones_done (row) | completed (grader) | cost_usd (outcome) | wall_s | iterations | cap_bound (≥0.29 rule) | unmetered |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| e2e_n08 | 0 | policy_blocked | True | 12 (+6) | 0 | 0 | [] | False | first_try | 4 | False | 0.1707 | 1413 | 128 | False | 0 |
+| e2e_n08 | 1 | policy_blocked | True | 16 (+4) | 0 | 0 | [] | False | first_try | 4 | False | 0.2572 | 2064 | 171 | False | 0 |
+| e2e_n08 | 2 | policy_blocked | True | 5 (+0) | 0 | 0 | [] | False | first_try | 0 | False | 0.0062 | 218 | 3 | False | 0 |
+| e2e_h03 | 0 | budget_exceeded | False | 12 (+5) | 0 | 0 | [] | False | first_try | 6 | True | 0.2017 | 1653 | 182 | False | 0 |
+| e2e_h03 | 1 | budget_exceeded | False | 10 (+2) | 0 | 0 | [] | False | first_try | 5 | True | 0.2844 | 3562 | 187 | False | 0 |
+
+주석: `cap_bound` 규칙 (budget_exceeded이고 cost ≥ 0.29)은 h03의 두 budget_exceeded (0.2017, 0.2844)를 잡지 못한다. 이 규칙은 결함 후보다 (항목 (e)). `milestones_done`은 runrow의 값이다 (completed 상태만 셈).
+
+(c) M20 대 M20d, 태스크별 (M20: `tests/fixtures/m20/runs.jsonl` 5–13행, M20c (b) 정정 적용. M20d: 위 추출 표와 runrow):
+
+| task | M20 grader k/n | M20 policy_blocked | M20 policy_deny 합 | M20 planner reply invalid | M20 milestones_done (저장 → M20c 재계산) | M20 plan | M20 $/run | M20d grader k/n | M20d policy_blocked | M20d policy_deny 합 | M20d planner invalid | M20d milestones_done | M20d $/run |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | 2/3 | 1 | 26 (12+4+10) | 0 | 0 → 2, 0, 2 | first_try ×3 | 0.2976, 0.0690, 0.2496 | not measured (budget) | - | - | - | - | - |
+| e2e_h03 | 0/3 | 3 | 8 (3+3+2) | 0 | 0 → 0, 0, 0 | first_try ×3 | 0.0246, 0.0143, 0.0079 | 2/2 (n<3, 주장 없음) | 0 | 22 (12+10) | 0 | 6, 5 | 0.2017, 0.2844 |
+| e2e_n08 | 0/3 | 2 | 2 (1+1+0) | 1 (r2) | 0 → 0, 0, 0 | first_try ×2, failed ×1 | 0.0024, 0.0043, 0.0000 | 0/3 | 3 | 33 (12+16+5) | 0 | 4, 4, 0 | 0.1707, 0.2572, 0.0062 |
+| 합계 | 2/9 | 6 | 36 | 1 | — | — | — | 2/5 (Wilson 95% [0.118, 0.769]) | 3 | 55 | 0 | — | — |
+
+- 효과 귀속 (정확히 어떤 수정이 어떤 차이를 만들었는지): M20a (정책 검증·수리·drop)는 M20d에서 한 번도 발동하지 않았다 (`policy_rounds` 0, `policy_dropped` 0, `ungated` 0; 계획 품질은 모두 first_try). M20b (거부 관찰의 규칙 힌트, prompt_rules 기본 OFF)는 거부 관찰에 영향을 주었을 수 있으나, 이 n에서는 거부 수 차이를 M20b에 귀속할 수 없다. M20c는 회계만 바꿨다 (`milestones_done` 재계산, error 비용 계량). M21 wave 1 계수기·이벤트는 PIN에 있으나 스위치는 OFF다 (효과 없음 기대). h01은 M20d에서 측정되지 않았으므로 M20 h01 2/3과 직접 비교할 수 없다.
+- n = 3 (h03은 n = 2) 차이는 지시적일 뿐이다. 특히 n08은 M20의 2/2 policy_blocked 뒤 1회 planner-invalid였는데, M20d에서는 3회 모두 계획이 first_try로 통과하고 실행이 policy_blocked로 끝났다 (planner-invalid 0).
+
+(d) 누출 검사:
+- 모든 run의 `leaks` / `protected_hits`는 `[]`이다 (runrow의 leaks 0+0). 리허설 (S1, S2)도 `[]`이다.
+- Claude Code 감사: 실행하지 않았으므로 감사 결과가 없다 (항목 (e)의 14번).
+- `keygrep`: `$K $U python tests/m20_trial.py keygrep $B $C $R/.docs/bench-results.md $R/.ensemble/milestones/M20d` → `{"files_scanned": 295, "matches": []}`, exit 0. M21 산출물은 스캔하지 않았다.
+
+(e) 결함, 한계, 기록된 사실:
+1. (결함 후보, 고치지 않음) `run_row`의 `plan_quality`가 `planning.calls`를 써서 M20a 정책 수리 라운드를 `after_repair`로 잘못 읽을 수 있다. 이번 시리즈에서는 `policy_rounds` = 0이라 실제로 발생하지 않았다.
+2. (결함 후보, 고치지 않음) `run_row`에 `policy_dropped` / `ungated` 열이 없다. 이 보고에서는 추출기가 계산했다 (이번 시리즈: dropped 0, ungated 0).
+3. (결함 후보) `runrow`는 `gate_failed` 플래그를 grader 통과 run에도 세운다 (h03 r0: completed true, gate_failed yes). `error_run`은 false다 (exit 4/5는 결과로 본다). Stop classification은 exit code를 직접 쓰지 않았다.
+4. (결함 후보) 추출기의 `cap_bound` 규칙 (budget_exceeded, cost ≥ 0.29)은 h03 r0 (0.2017)와 r1 (0.2844)을 잡지 못한다. 상한에 걸린 중단은 전부 budget_exceeded로 세야 한다.
+5. (결함 후보) `summary` helper는 라벨이 `deepseek`로 시작하는 run만 (2)·(3) 절에 그린다. 시리즈 라벨 `m20d-deepseek-v2`는 빠진다. 위 (b) 보조 표는 접두만 바꾼 사본으로 그렸다.
+6. (결함 후보, 고치지 않음) M17 identity 테스트 (`test_m17_off_identity`, `test_m17b_keys`, `test_m17_agent`)는 `sys.executable` 길이에 따라 실패한다 (87자 경로 실패, 61자 경로 통과). 픽스처의 `<PYTHON>` 정규화가 문맥 예산 적용 뒤에 실행되기 때문이다. 이 시리즈는 61자 경로의 pin (`/Users/yoonjonghun/workspace/ok0/cora-pin-d1`)에서 실행되었다.
+7. (한계) 벽시계 시간 (S2 r1): 3561.5 s (약 59분)로 등록된 현실 범위 (약 55분)를 넘었다. 시간 상한 9600 s 안에 있었다.
+8. (한계) S2 장부 불일치: outcome 합 0.486144 대 auth 델타 0.481906 (차이 +0.004238). S1은 0 차이였다. 권위값은 auth이다. 원인은 조사하지 않았다.
+9. (관찰) n08 r2는 3 iteration 만에 `policy_blocked` (정책 deny 5, 계획 first_try)로 끝났다. n08 3회 모두 `policy_blocked` (iteration 128, 171, 3)이다. 이 패턴 (정책 차단에 의한 조기 종료, 완료 0/3)은 후속 마일스톤의 결함 후보다. 원인 진단은 하지 않았다.
+10. (한계, 기록) 등록된 순서 변경: M20 (h01, h03, n08) → M20d (n08, h03, h01). 이유는 항목 5에 있다. 실행은 n08 → h03 순서로 이루어졌다.
+11. (한계) 상한 도달 (cap-bound) 중단: h03 r0 (0.2017)와 r1 (0.2844)은 `budget_exceeded`로 끝났지만 grader는 통과시켰다. 완료 계산은 grader로 했다.
+12. (한계) 벽시계 경합: 실행 중 M21이 같은 기계에서 돌았는지는 확인하지 않았다. 확인 시점 (결과 작성 중)에는 `m21` 프로세스가 0개였다. 실행 구간 중 경합 여부는 기록할 증거가 없다.
+13. (한계) M21 wave 1 계수기·이벤트는 PIN 6cc5fa2에 들어 있으며 스위치는 OFF다. 공통 설정은 `prompt_rules` OFF, `policy_repairs` 기본 1이다.
+14. (한계, Claude Code 기준선) `e2e_n08` Claude Code 기준선 (protocol §15, n=3)은 실행되지 않았다. 헤드리스 `claude -p` 실행이 자동 모드 분류기에 의해 "Create Unsafe Agents" 사유로 거부되었다 (실행 전 차단; 출력 파일 없음). 셀은 "no baseline (not measured)"이다. 우회하지 않았다. CC 프롬프트 (`agent_prompt`)는 CORA의 `goal_text`와 다르므로 기준선이 성립하더라도 같은 과제 조건이 아니다.
+15. (한계) 리허설은 배관 검사 (replay miss)일 뿐이며, 에이전트 루프와 정책 경로는 r0에서 처음 실측되었다.
+16. (사실) S3 (e2e_h01)는 절단 규칙 (S1+S2 ≤ $0.2757)에 따라 시작하지 않았다. 실제 S1+S2 = $0.916035. 호출 0. "not measured (budget)".
+17. (사실) 지출, 키 사용: 키 값은 어디에도 출력하거나 저장하지 않았다. `/auth/key` 응답 원본 파일은 키 형태 문자열이 있어 삭제했고, 필요한 필드만 장부에 적었다.
+18. (사실) 승인 시각: S1 2026-10-28T01:56:20Z, S2 2026-10-28T04:01:33Z (장부 `$B/ledger.md`).
+
+(f) 종료 게이트 (pin `/Users/yoonjonghun/workspace/ok0/cora-pin-d1`, PIN 0ae6359):
+- `uv run pytest --full`: 3245 passed, 3 skipped, exit 0 (120.2 s).
+- `uv run ruff check src tests`: All checks passed! (exit 0).
+- `cmp cora.toml src/cora/data/cora.toml`: exit 0.
+- `git status --porcelain` (pin): 0줄.
+- `git rev-parse HEAD` (pin): 0ae6359929009bd4cb213c00c4ce12a708c6cc35 = PIN.
+- M20d 커밋은 main에서 `.docs/bench-results.md`만 바꾼다 (Group B 18a936b: +48 lines, 0 deletions; 이 결과 커밋도 같은 파일 하나만 바꾼다). 커밋 후 `git log --format='%h %s' PIN..HEAD`와 `git show --stat`은 보고 메시지에 기록한다.
+- 시험 실행: 빠른 시험은 `uv run pytest -q` (pin)에서 exit 0 (Group A 재확인). 문서 시험 부분집합 (main): `tests/test_bench_docs.py tests/test_m20_docs.py tests/test_m20a_docs.py tests/test_m20b_docs.py tests/test_m20c_accounting.py tests/test_m21_ab.py` (커밋 전 실행).
+
