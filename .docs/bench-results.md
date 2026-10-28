@@ -3531,3 +3531,229 @@ R9 열을 가진 추출 표 (`/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/c
 - M20d 커밋은 main에서 `.docs/bench-results.md`만 바꾼다 (Group B 18a936b: +48 lines, 0 deletions; 이 결과 커밋도 같은 파일 하나만 바꾼다). 커밋 후 `git log --format='%h %s' PIN..HEAD`와 `git show --stat`은 보고 메시지에 기록한다.
 - 시험 실행: 빠른 시험은 `uv run pytest -q` (pin)에서 exit 0 (Group A 재확인). 문서 시험 부분집합 (main): `tests/test_bench_docs.py tests/test_m20_docs.py tests/test_m20a_docs.py tests/test_m20b_docs.py tests/test_m20c_accounting.py tests/test_m21_ab.py` (커밋 전 실행).
 
+
+## M20e 결과 (2026-10-28T10:04:33Z)
+
+요약 (먼저 읽을 것): M20e는 M20d 결과를 다시 셈하고 진단만 한다. 실행과 과금은 없다 (`cora run`, `bench`, `/auth/key`, `/credits` 호출 0). 입력은 M20d 픽스처 (`tests/fixtures/m20d/`)이며, 모든 수치는 `tests/m20_trial.py` helper를 그 위에서 돌린 값이다. 이 절의 인용 `artifacts/m20d-deepseek-v2/`는 기준 경로이며 아래 인용은 그 아래 상대 경로다. 주요 정정 두 가지: (1) 상한 도달 판정이 M20d 규칙 (`cost ≥ 0.29`)에서 "any tripped cap" 규칙으로 바뀌어 h03 r0·r1이 상한 도달로 잡힌다 (`cap_bound` False → True). (2) `gate_failed`는 미실행 placeholder gate를 세고 있었다. 실패 gate 이벤트는 0건이다 (`gate_failed_any` False). 하네스 정정은 `tests/m20_trial.py`에만 있고 src는 바뀌지 않았다. M20d 수치는 바뀌지 않았다.
+
+(a) 증거 보존:
+- rescue 실행 stdout: `{"files": 76, "blocked": [], "redactions": 0}`. 픽스처 파일은 `tests/fixtures/m20d/` 아래 77개다 (76 + `MANIFEST.json`).
+- 차단 항목 없음 (`blocked` []). 따라서 R3·R4·R16에 영향을 준 차단 항목이 없다. `redactions` 0이다.
+- 치환 자리표시자 (MANIFEST `placeholders`): `<HOME>` (홈 디렉터리), `<M20D>` (M20d 작업 디렉터리), `<TMP>` (시스템 임시 디렉터리), `<TMP-PARTIAL>` (잘린 임시 경로 조각). `<TMP-PARTIAL>`은 MANIFEST `partial_tmp`의 6행 (5개 파일)에 있다.
+- 레이아웃: `runs.jsonl`, `extract.jsonl`, `ledger.md`, `readiness.txt`, `rehearsal.jsonl`, `m17diff.txt`, `m20d_extract.py.txt`, `MANIFEST.json`, `artifacts/cora-m20d-deepseek-deadline.toml` (복사된 실행 설정, 선례 M20; `cora.toml` 사본 아님), `artifacts/m20d-deepseek-v2/<run>/` (`outcome.json`, `meta/`, `projects/`, `sessions/`), `artifacts/m20d-rehearsal/` (리허설 2건).
+- not_copied (MANIFEST): (1) `runs/*/ws` (작업 공간, prepare로 재생성; 메모리는 M20e 증거가 아님), (2) `runs/*/ws/.cora/sessions/*/session.json` (세션 상태 스냅샷, `events.jsonl`은 보존), (3) `rehearsal/*/ws`, `rehearsal/*/records` (빈 기록 디렉터리, records 0), (4) `scratch-*.sh`, `results-*.md`, `amend.md`, `*.txt` 로그 (운영자 임시 파일; 결과는 `.docs/bench-results.md`에 있다).
+- 정정 (scout 보고): "세션 로그 없음"은 틀렸다. 세션 로그는 원본 `runs/` 아래에 있었고, 픽스처에는 `artifacts/m20d-deepseek-v2/<run>/sessions/*/events.jsonl`로 보존되어 있다 (예: n08 r0 세션 20261028-105829-975b19).
+- 키 검사: `OPENROUTER_API_KEY`가 이 세션에서 설정되지 않아 `keygrep`은 조건부 항목 (AC1)으로 생략했다. 키 값은 어디에도 출력하지 않았다.
+
+(b) 보조 도구 정정 (R6–R9, R16):
+- 정정 규칙: `cap_bound = stop_reason == "budget_exceeded" and budget.tripped is not None`. 새 열 `cap_tripped`는 상한 이름을 담는다 (h03 → `tool_calls`). 원래 M20d 규칙은 `cap_bound_m20d`로 남긴다 (`cost ≥ 0.29`). 상한 이름은 "cost cap"이 아니라 "any tripped cap"이다. 명세와 로드맵의 "cost cap" 문구는 "any tripped cap"으로 고쳐야 한다 (두 h03 run 모두 `tool_calls`로 상한에 닿았다).
+- `cap_bound` 변화: h03 r0 `False → True`, h03 r1 `False → True`, n08 r0·r1·r2는 변화 없음 (False).
+- `gate_failed_any`, `gate_failed_final`, `gate_unrun`은 새 열이다. `gate_failed`는 그대로 둔다. 항목 (c) 참조.
+- `summary --run-label m20d-deepseek-v2` (새 옵션, `dest=run_labels`)로 같은 `runs.jsonl`에서 (2)–(4) 절이 접두 사본 없이 그려진다 (M20d (e)5 우회 불필요). 아래 출력은 `--planq` 빈 파일, `--runs tests/fixtures/m20d/runs.jsonl`, `--run-label m20d-deepseek-v2`로 얻었다. `--baseline`을 주지 않았으므로 (3)의 CC 열은 "no baseline (not measured)"다. M20d 값 (완료 2/5, Wilson 95% [0.118, 0.769], $ total 0.9203)과 같다.
+
+| run | 열 | M20d 값 | M20e 값 | 근거 |
+|---|---|---|---|---|
+| n08 r0 | plan_quality | first_try | first_try | policy.rounds 0, calls 1 (checkpoint.planning); 변화 없음 |
+| n08 r0 | cap_bound | False | False | stop policy_blocked, budget.tripped null → False (변화 없음) |
+| n08 r0 | cap_tripped (신규) | — | None | outcome.json budget.tripped null |
+| n08 r0 | gate_failed (유지) | True | True | legacy 열, 변경 없음 (미실행 placeholder gate도 True로 셈) |
+| n08 r0 | gate_failed_any (신규) | — | False | project events.jsonl의 gate 행 중 passed false 0줄 |
+| n08 r0 | gate_failed_final (신규) | — | False | attempts ≥ 1 이고 passed false인 milestone gate 없음 |
+| n08 r0 | gate_unrun (신규) | — | m5 | attempts 0 이고 passed false (placeholder, 항목 (c)) |
+| n08 r0 | policy_dropped | 0 (추출기) | 0 | planning.policy.dropped |
+| n08 r0 | policy_rounds | 0 (추출기) | 0 | planning.policy.rounds |
+| n08 r0 | ungated | [] (추출기) | [] | outcome ungated_milestones |
+| n08 r1 | plan_quality | first_try | first_try | policy.rounds 0, calls 1 (checkpoint.planning); 변화 없음 |
+| n08 r1 | cap_bound | False | False | stop policy_blocked, budget.tripped null → False (변화 없음) |
+| n08 r1 | cap_tripped (신규) | — | None | outcome.json budget.tripped null |
+| n08 r1 | gate_failed (유지) | True | True | legacy 열, 변경 없음 (미실행 placeholder gate도 True로 셈) |
+| n08 r1 | gate_failed_any (신규) | — | False | project events.jsonl의 gate 행 중 passed false 0줄 |
+| n08 r1 | gate_failed_final (신규) | — | False | attempts ≥ 1 이고 passed false인 milestone gate 없음 |
+| n08 r1 | gate_unrun (신규) | — | final_validation | attempts 0 이고 passed false (placeholder, 항목 (c)) |
+| n08 r1 | policy_dropped | 0 (추출기) | 0 | planning.policy.dropped |
+| n08 r1 | policy_rounds | 0 (추출기) | 0 | planning.policy.rounds |
+| n08 r1 | ungated | [] (추출기) | [] | outcome ungated_milestones |
+| n08 r2 | plan_quality | first_try | first_try | policy.rounds 0, calls 1 (checkpoint.planning); 변화 없음 |
+| n08 r2 | cap_bound | False | False | stop policy_blocked, budget.tripped null → False (변화 없음) |
+| n08 r2 | cap_tripped (신규) | — | None | outcome.json budget.tripped null |
+| n08 r2 | gate_failed (유지) | True | True | legacy 열, 변경 없음 (미실행 placeholder gate도 True로 셈) |
+| n08 r2 | gate_failed_any (신규) | — | False | project events.jsonl의 gate 행 중 passed false 0줄 |
+| n08 r2 | gate_failed_final (신규) | — | False | attempts ≥ 1 이고 passed false인 milestone gate 없음 |
+| n08 r2 | gate_unrun (신규) | — | normalize_email | attempts 0 이고 passed false (placeholder, 항목 (c)) |
+| n08 r2 | policy_dropped | 0 (추출기) | 0 | planning.policy.dropped |
+| n08 r2 | policy_rounds | 0 (추출기) | 0 | planning.policy.rounds |
+| n08 r2 | ungated | [] (추출기) | [] | outcome ungated_milestones |
+| h03 r0 | plan_quality | first_try | first_try | policy.rounds 0, calls 1 (checkpoint.planning); 변화 없음 |
+| h03 r0 | cap_bound | False | True | stop budget_exceeded, budget.tripped tool_calls (200/200) → 'any cap' 규칙 True |
+| h03 r0 | cap_tripped (신규) | — | tool_calls | outcome.json budget.tripped |
+| h03 r0 | gate_failed (유지) | True | True | legacy 열, 변경 없음 (미실행 placeholder gate도 True로 셈) |
+| h03 r0 | gate_failed_any (신규) | — | False | project events.jsonl의 gate 행 중 passed false 0줄 |
+| h03 r0 | gate_failed_final (신규) | — | False | attempts ≥ 1 이고 passed false인 milestone gate 없음 |
+| h03 r0 | gate_unrun (신규) | — | m7 | attempts 0 이고 passed false (placeholder, 항목 (c)) |
+| h03 r0 | policy_dropped | 0 (추출기) | 0 | planning.policy.dropped |
+| h03 r0 | policy_rounds | 0 (추출기) | 0 | planning.policy.rounds |
+| h03 r0 | ungated | [] (추출기) | [] | outcome ungated_milestones |
+| h03 r1 | plan_quality | first_try | first_try | policy.rounds 0, calls 1 (checkpoint.planning); 변화 없음 |
+| h03 r1 | cap_bound | False | True | stop budget_exceeded, budget.tripped tool_calls (200/200) → 'any cap' 규칙 True |
+| h03 r1 | cap_tripped (신규) | — | tool_calls | outcome.json budget.tripped |
+| h03 r1 | gate_failed (유지) | False | False | legacy 열, 변경 없음 (미실행 placeholder gate도 True로 셈) |
+| h03 r1 | gate_failed_any (신규) | — | False | project events.jsonl의 gate 행 중 passed false 0줄 |
+| h03 r1 | gate_failed_final (신규) | — | False | attempts ≥ 1 이고 passed false인 milestone gate 없음 |
+| h03 r1 | gate_unrun (신규) | — | [] | attempts 0 이고 passed false (placeholder, 항목 (c)) |
+| h03 r1 | policy_dropped | 0 (추출기) | 0 | planning.policy.dropped |
+| h03 r1 | policy_rounds | 0 (추출기) | 0 | planning.policy.rounds |
+| h03 r1 | ungated | [] (추출기) | [] | outcome ungated_milestones |
+
+요약 출력 (`summary --run-label m20d-deepseek-v2`):
+
+```
+### (1) Plan quality, per label
+
+### (2) Per-run (m20d-deepseek-v2)
+| task | run | completed | stop_reason | interventions | iterations | $ | wall_s | plan | gate_failed | leaks |
+|---|---|---|---|---|---|---|---|---|---|---|
+| e2e_n08 | 0 | no | policy_blocked | 0 | 128 | 0.1707 | 1413.448 | first_try | yes | 0+0 |
+| e2e_n08 | 1 | no | policy_blocked | 0 | 171 | 0.2572 | 2063.998 | first_try | yes | 0+0 |
+| e2e_n08 | 2 | no | policy_blocked | 0 | 3 | 0.0062 | 217.604 | first_try | yes | 0+0 |
+| e2e_h03 | 0 | yes | budget_exceeded | 0 | 182 | 0.2017 | 1653.069 | first_try | yes | 0+0 |
+| e2e_h03 | 1 | yes | budget_exceeded | 0 | 187 | 0.2844 | 3561.528 | first_try | no | 0+0 |
+
+### (3) Per task (m20d-deepseek-v2)
+| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |
+|---|---|---|---|---|---|---|
+| e2e_h01 | 0/0 | not measured (budget) | - | - | - | - |
+| e2e_h03 | 2/2 | no claim (n<3) | 0.4861 | 0.2431 | no baseline (not measured) | - |
+| e2e_n08 | 0/3 | [0.000, 0.562] | 0.4341 | 0.1447 | no baseline (not measured) | - |
+
+### (4) Overall (m20d-deepseek-v2)
+| completed | n | rate | wilson | $ total | solved per $ | $ per completed | interventions |
+|---|---|---|---|---|---|---|---|
+| 2 | 5 | 0.400 | [0.118, 0.769] | 0.9203 | 2.173 | 0.4601 | 0 |
+```
+
+(c) gate_failed 진단 (R10):
+- h03 r0: project events (`artifacts/m20d-deepseek-v2/e2e_h03-r0/projects/20261028-130445-3c9b6f/events.jsonl`)의 `gate` 행 6, 12, 18, 24, 30, 36은 m1–m6 (모두 `passed: true`, `attempt: 1`)이다. `milestone_end` m7은 42행에 `status: failed`, `stop_reason: budget_exceeded`로 있다. m7의 `gate` 이벤트는 없다. outcome.json milestones m7의 gate는 `{attempts: 0, passed: false}`다.
+- 원인 위치: `src/cora/core/milestones.py:720-730`에서 gate가 없을 때 만드는 자리표시자 `{"attempts": 0, "passed": false}` (726행), 그리고 `milestones.py:796-800`에서 상한 도달이면 800행에서 반환하므로 `attempts += 1` (801행)은 실행되지 않는다. 즉 gate는 실행되지 않았다.
+- 같은 패턴: n08 r0 (m5), n08 r1 (final_validation), n08 r2 (normalize_email)의 gate도 `attempts 0`, `passed false`다 (`gate_unrun`). 5개 run 모두 `gate` 이벤트 `passed: false`는 0건이다 (`gate_failed_any` False).
+- 판정 (R10): 여기서 수정 (helper 열 분리); 러너의 미실행 gate passed=false 보고는 M21 뒤 새 행 (BLUEPRINT CHANGE)
+
+(d) M17 경로 길이 (R11):
+- 근본 원인: `src/cora/core/memory.py:604`가 축출 요약 줄을 `text[:160]`으로 자른다. 인터프리터 경로가 길면 (임계 len(PY) ≤ 70 근사) 명령 안의 `<PYTHON>` 정규화 전에 경로가 잘린다. M20d (e)6의 "정규화가 문맥 예산 적용 뒤" 설명을 이 위치로 좁힌다.
+- 수정 (테스트만): `tests/test_m17_off_identity.py`의 `PY_ALIAS` (61자, `./.m17py` + `_` 53개)와 `link_python`; `tests/test_m17_agent.py`는 같은 별칭을 쓴다. `src/`는 바뀌지 않았다.
+- 관측 길이: 이 세션의 네이티브 `sys.executable` 61자 (`uv run python -c`). 87자와 171자 긴 경로는 `tests/test_m20e_m17_paths.py` (`--full`, 3 passed)에서 `len(...) ≥ min_len` 단언과 함께 실행되었다. R17의 긴 경로 전체 실행은 이 항목 (i)에서 검증자 몫으로 남긴다.
+- 판정 (R11): 여기서 수정 (tests only; src 결함 아님)
+
+(e) n08 policy_blocked (R12):
+- 표는 n08 r0·r1·r2의 `deny_table` 행 43개 전부다 (18 + 20 + 5). `in_plan`은 43행 모두 False다. `cd contacts`는 `projects/*/plan.toml`에 없다 (r2 `grep` 0건). `nth`는 run·rule별 순번이다 (nth > 1은 28행: r0 11, r1 13, r2 4). 명령 열은 helper가 자른 `args` 문자열 (100자, dict 래퍼 포함)이다. 분류는 각 행의 args를 보고 확정했다. 기본 분류: `default` (allow 누락 9행) → M22b, `confine:cd`·`unknown-option`·`python-module`·`variable` → M22, `confine:one-liner`·`newline`·`default:delete` (ask→deny) → 의도된 거부 (문서화), `in_plan` True → M25 (0행). 위치: `artifacts/m20d-deepseek-v2/` 기준 `cite` 열의 경로.
+
+| run | cite | rule | decision | tool | 명령 (100자, args 문자열) | in_plan | nth | 분류 | 행선지 |
+|---|---|---|---|---|---|---|---|---|---|
+| n08 r0 | e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl:53 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r0/ws && python3 -m unittest discover -s tests -t . 2>&1 \| tail -25; echo '-- | False | 1 | 셸가드 동치 (cd) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl:56 | confine:unknown-option | deny | run_shell | python3 -m unittest discover -s tests -t . 2>&1 \| tail -20; echo '--- files ---'; ls -a; python3 --v | False | 1 | 셸가드 동치 (unknown-option) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl:114 | confine:one-liner | deny | run_shell | python3 -c "from contacts.normalize import normalize_email as n; print(repr(n('a.b+c@GMAIL.com')))"; | False | 1 | 의도된 거부 (one-liner) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl:123 | default:delete | ask → deny | delete_file | {"path": "edge_checks.py"} | False | 1 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl:126 | default | deny | run_shell | rm edge_checks.py | False | 1 | allow 목록 누락 | M22b |
+| n08 r0 | e2e_n08-r0/sessions/20261028-110743-ca3671/events.jsonl:17 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r0/ws && python -m pytest tests/test_normalize.py -v 2>&1 \| tail -30 \|\| pytho | False | 2 | 셸가드 동치 (cd) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-110812-9bf40b/events.jsonl:26 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r0/ws && python -m pytest tests/test_merge.py -v | False | 3 | 셸가드 동치 (cd) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-110812-9bf40b/events.jsonl:56 | default:delete | ask → deny | delete_file | {"path": "test_edge.py"} | False | 2 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111159-0bb2ef/events.jsonl:23 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r0/ws && python -m pytest tests/test_cli.py -v | False | 4 | 셸가드 동치 (cd) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111159-0bb2ef/events.jsonl:74 | confine:newline | deny | run_shell | cd <M20D>/runs/e2e_n08-r0/ws && echo -e 'name,email,phone John,john.doe@gmail.com, ,mary@x.org,555 0 | False | 1 | 의도된 거부 (newline) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111159-0bb2ef/events.jsonl:80 | default | deny | run_shell | bash test_cli.sh | False | 2 | allow 목록 누락 | M22b |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111159-0bb2ef/events.jsonl:101 | default:delete | ask → deny | delete_file | {"path": "test_cli.sh"} | False | 3 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl:36 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r0/ws && python -m contacts.cli --help 2>&1 | False | 5 | 셸가드 동치 (cd) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl:41 | confine:python-module | deny | run_shell | python -m contacts.cli 2>&1 | False | 1 | 셸가드 동치 (python-module) | M22 |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl:46 | default | deny | run_shell | bash test_cli.sh 2>&1 | False | 3 | allow 목록 누락 | M22b |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl:70 | default:delete | ask → deny | delete_file | {"path": "example_input.csv"} | False | 4 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl:71 | default:delete | ask → deny | delete_file | {"path": "example_output.csv"} | False | 5 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r0 | e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl:72 | default:delete | ask → deny | delete_file | {"path": "run_example.py"} | False | 6 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl:35 | confine:variable | deny | run_shell | python3 run_tests.py; echo EXIT:$? | False | 1 | 셸가드 동치 (variable) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl:83 | confine:one-liner | deny | run_shell | python3 -c "import contacts.normalize as n; print(n.__file__); print(n.normalize_email('a.b+c.d@gmai | False | 1 | 의도된 거부 (one-liner) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl:98 | default:delete | ask → deny | delete_file | {"path": "contacts/__pycache__/normalize.cpython-314.pyc"} | False | 1 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl:104 | default | deny | run_shell | rm -rf contacts/__pycache__ tests/__pycache__ __pycache__ | False | 1 | allow 목록 누락 | M22b |
+| n08 r1 | e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl:119 | default | deny | run_shell | python3 -m compileall -f contacts | False | 2 | allow 목록 누락 | M22b |
+| n08 r1 | e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl:128 | default | deny | run_shell | rm debug_norm.py | False | 3 | allow 목록 누락 | M22b |
+| n08 r1 | e2e_n08-r1/sessions/20261028-113854-515a7c/events.jsonl:29 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r1/ws && python3 debug_norm.py; python3 run_tests.py 2>&1 \| tail -30 | False | 1 | 셸가드 동치 (cd) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-113854-515a7c/events.jsonl:43 | confine:newline | deny | run_shell | python3 - <<'PY' from contacts.normalize import normalize_email as e, normalize_phone as p cases_ema | False | 1 | 의도된 거부 (newline) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-113854-515a7c/events.jsonl:52 | default:delete | ask → deny | delete_file | {"path": "edge_check.py"} | False | 2 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114057-11e9bd/events.jsonl:26 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r1/ws && python3 run_tests.py | False | 2 | 셸가드 동치 (cd) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114057-11e9bd/events.jsonl:67 | confine:one-liner | deny | run_shell | python3 -c "from contacts.normalize import normalize_email; print(repr(normalize_email(123)))" | False | 2 | 의도된 거부 (one-liner) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114057-11e9bd/events.jsonl:115 | default:delete | ask → deny | delete_file | {"path": "edge_test.py"} | False | 3 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114607-9b2690/events.jsonl:29 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r1/ws && python3 run_tests.py 2>&1 | False | 3 | 셸가드 동치 (cd) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114607-9b2690/events.jsonl:67 | confine:cd | deny | run_shell | cd <M20D>/runs/e2e_n08-r1/ws && python3 -m contacts.cli 2>&1 | False | 4 | 셸가드 동치 (cd) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114607-9b2690/events.jsonl:70 | confine:python-module | deny | run_shell | python3 -m contacts.cli 2>&1 | False | 1 | 셸가드 동치 (python-module) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-114607-9b2690/events.jsonl:97 | default:delete | ask → deny | delete_file | {"path": "test_input.csv"} | False | 4 | 의도된 거부 (ask → deny) | 문서화 (의도된 거부) |
+| n08 r1 | e2e_n08-r1/sessions/20261028-115337-ec58da/events.jsonl:28 | confine:variable | deny | run_shell | cd <M20D>/runs/e2e_n08-r1/ws && mkdir -p /tmp/wex && printf 'name,email,phone\nJohn,john.doe@gmail.c | False | 2 | 셸가드 동치 (variable) | M22 |
+| n08 r1 | e2e_n08-r1/sessions/20261028-115337-ec58da/events.jsonl:37 | default | deny | run_shell | find . -maxdepth 1 -type f -name '*.csv' -o -name 'OUT' -o -name 'OUT.csv' | False | 4 | allow 목록 누락 | M22b |
+| n08 r1 | e2e_n08-r1/sessions/20261028-115337-ec58da/events.jsonl:43 | default | deny | run_shell | ls -la *.csv 2>/dev/null \|\| true | False | 5 | allow 목록 누락 | M22b |
+| n08 r1 | e2e_n08-r1/sessions/20261028-115337-ec58da/events.jsonl:58 | default | deny | run_shell | find . -name '*.csv' -type f | False | 6 | allow 목록 누락 | M22b |
+| n08 r2 | e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl:24 | confine:cd | deny | run_shell | cd contacts && python normalize.py | False | 1 | 셸가드 동치 (cd) | M22 |
+| n08 r2 | e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl:25 | confine:cd | deny | run_shell | cd contacts && python -c "import normalize; print(normalize.normalize_email('test.user+foo@gmail.com | False | 2 | 셸가드 동치 (cd) | M22 |
+| n08 r2 | e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl:26 | confine:cd | deny | run_shell | cd contacts && python -c "import normalize; print(normalize.normalize_email('test.user+foo@googlemai | False | 3 | 셸가드 동치 (cd) | M22 |
+| n08 r2 | e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl:27 | confine:cd | deny | run_shell | cd contacts && python -c "import normalize; print(normalize.normalize_email(' notanemail '))" | False | 4 | 셸가드 동치 (cd) | M22 |
+| n08 r2 | e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl:28 | confine:cd | deny | run_shell | cd contacts && python -c "import normalize; print(repr(normalize.normalize_email('')))" | False | 5 | 셸가드 동치 (cd) | M22 |
+
+- 중단 설명 (`stop_rows`): 세 run 모두 `tripwire` (같은 정규화 실패 3회 연속; `src/cora/core/tripwire.py` `TRIP_THRESHOLD = 3`, `src/cora/core/agent.py:1077-1100`)로 끝났다. `src/cora/core/outcome.py:64-65`가 deny > 0이면 `policy_blocked`로 분류한다.
+  - r0: 세션 20261028-111902-651232의 `events.jsonl:76` (tripwire `delete_file`, `default:delete` 3회; 승인 모드 `policy`는 묻지 않는다). 이 run의 마지막 중단은 `:77`.
+  - r1: 세션 20261028-115337-ec58da의 `events.jsonl:60` (tripwire `run_shell`, `default` 3회).
+  - r2: 세션 20261028-120515-8eca84의 `events.jsonl:37` (tripwire `run_shell`, `confine:cd` 3회). 같은 응답에 병렬 `cd contacts && …` 호출 5개 (`events.jsonl:24–28`, 03:08:33), 셋째 반복에서 중단 (iteration 3).
+- 판정 (R12): M22 (동치 집합: 43 n08 행 전부와 h03 deny, 행마다 행선지 열 참조), M22b (allow 목록 누락 9행), M25 (tripwire로 인한 policy_blocked 조기 종료; in_plan 0행). h03 deny는 r0 17행 (default:delete 5, one-liner 4, newline 3, variable 2, cd 1, parse 1, floor:outside-workspace 1), r1 12행 (one-liner 5, newline 2, default:delete 2, cd 2, default 1)이다. `floor:outside-workspace`는 기본 분류 목록에 없어 M22 동치 검사에 넣는다.
+
+(f) 장부 차이 (R13):
+- 검사 (`cost_check`): 모든 run에서 `cost_source = provider_usage`다 (llm_call 전부). outcome `cost_usd` = Σ llm_call `cost_usd` + planner `cost_usd` (차이 0). `priced`는 config 단가 (input 0.28, output 0.42, cache_read 0.028 USD/Mtok; `deepseek/deepseek-v3.2`)로 계산한 값이다. llm_call 이벤트에는 `cached_tokens` 필드가 없어 0으로 셌다.
+- h03 r0: metered (llm_call 합) 0.198267, 기록 가격 계산 0.453622 (약 2.29배). h03 r1: metered 0.281786, 계산 0.577457 (약 2.05배). 이 차이는 단가 계산 쪽 결함 후보로 기록만 하고 고치지 않았다.
+
+| run | outcome cost_usd | Σ llm_call + planner (metered) | priced (formula) | auth 델타 | outcome − auth |
+|---|---|---|---|---|---|
+| n08 r0 | 0.170665 | 0.170665 | 0.332386 | 0.166741 | +0.003924 |
+| n08 r1 | 0.257235 | 0.257235 | 0.462265 | 0.256554 | +0.000681 |
+| n08 r2 | 0.006229 | 0.006229 | 0.006729 | 0.010834 | -0.004605 |
+| h03 r0 | 0.201721 | 0.201721 | 0.453622 | 0.199749 | +0.001972 |
+| h03 r1 | 0.284423 | 0.284423 | 0.577457 | 0.282157 | +0.002266 |
+
+- auth 델타 (`ledger.md`): S1 run별 outcome − auth = +0.003924, +0.000681, −0.004605 (합 0.000000). S2 run별 +0.001972, +0.002266 (합 +0.004238).
+- 해석: S1의 run별 차이는 서로 상쇄된다. 이는 `/auth/key` 사용량이 run 경계 판독 뒤에 반영되는 지연과 맞는다. S2는 마지막 판독 (05:29:23Z)이 r1 종료 (05:29:01Z) 22초 뒤에 있었고 그 뒤 run이 없었다.
+- 판정 (R13): 문서화된 한계 (generation 기록 없음; 권위값은 /auth/key). 키 만료 (2026-10-29T02:17Z) 전 한 번의 `/auth/key` 판독 ($0 네트워크 호출이지만 R2상 M20e 범위 밖)이 지연 설명을 시험할 수 있다. 이 판독은 사용자 결정이며 수행하지 않았다.
+
+(g) h03 r1 벽시계 (R14): 아래 표는 `wall_breakdown` 결과다 (r0을 옆에 둔다).
+
+| 항목 (wall_breakdown) | h03 r0 | h03 r1 |
+|---|---|---|
+| wall_s (outcome) | 1653.1 | 3561.5 |
+| llm_s | 1469.1 | 3452.9 |
+| llm_n | 182 | 187 |
+| llm_median_s | 3.61 | 5.34 |
+| llm_max_s | 78.6 | 367.1 |
+| out_tokens | 68669 | 157050 |
+| tool_s | 4.4 | 4.7 |
+| gaps_s | 0.1 | 0.1 |
+| head_s | 0.0 | 0.0 |
+| tail_s | 0.0 | 0.0 |
+| attributed_s | 1473.6 | 3457.6 |
+| unattributed_s (wall_s − attributed_s) | 179.4 | 103.9 |
+| parse_errors | 2 | 3 |
+| retry_events | 0 (재시도 기록 없음) | 0 (재시도 기록 없음) |
+| meta/time.txt real (s) | 1653.25 | 3561.77 |
+
+- `meta/time.txt` real: r1 3561.77 (wall_s 3561.528와 0.24 s 차이).
+- 미귀속 103.9 s (r1, 전체의 약 2.9%)는 세션 span과 project head/tail로 설명되지 않는다. 계획 호출 (r1 planner 1회, tokens_out 7377, cost 0.0026)의 지연은 세션 로그에도 체크포인트에도 기록되지 않아 후보이지만 검증할 수 없다. 최대 LLM 호출 367.1 s는 공급자 지연으로 기록한다.
+- M21 경합: 실행 중 같은 기계에서 M21이 돌았는지는 증거가 없다 (M20d (e)12, 검증 불가).
+- 판정 (R14): 문서화된 한계
+
+(h) 판정 요약 (R15):
+
+| 항목 | 판정 | 행선지 | 입력 |
+|---|---|---|---|
+| R10 gate_failed | 여기서 수정 (helper 열 분리) + 미실행 gate 보고는 BLUEPRINT CHANGE | 여기서 수정; M21 뒤 새 행 (BLUEPRINT CHANGE) | 항목 (c), 5 run gate 이벤트·outcome |
+| R11 M17 경로 길이 | 여기서 수정 (tests only; src 결함 아님) | 여기서 수정 | 항목 (d), `memory.py:604` |
+| R12 n08 policy_blocked | 분류 완료 (43행) | M22 (동치 집합), M22b (allow 누락 9행), M25 (tripwire 조기 종료; in_plan 0행) | 항목 (e), deny_table·stop_rows |
+| R13 장부 차이 | 문서화된 한계 | 권위값은 /auth/key; 키 만료 전 판독은 사용자 결정 | 항목 (f), cost_check, ledger.md |
+| R14 h03 r1 벽시계 | 문서화된 한계 | 미귀속 103.9 s; 계획 호출 지연 후보 | 항목 (g), wall_breakdown, time.txt |
+
+(i) 게이트 (R17) 실행 결과 (이 절 작성 전 실행, 모두 저장소 루트, 키 없음):
+- `uv run pytest tests/test_m20e_fixtures.py tests/test_m20e_helpers.py -q`: 17 passed, 종료 코드 0.
+- `uv run pytest --full tests/test_m20e_m17_paths.py -q`: 3 passed (네이티브 61자, ≥87, ≥171), 종료 코드 0.
+- `uv run pytest tests/test_m17_off_identity.py tests/test_m17b_keys.py tests/test_m17_agent.py -q`: 30 passed, 1 skipped, 종료 코드 0.
+- `uv run ruff check src tests`: All checks passed, 종료 코드 0.
+- `cmp cora.toml src/cora/data/cora.toml`: 종료 코드 0.
+- `git diff --stat HEAD`: `tests/m20_trial.py`, `tests/test_m17_agent.py`, `tests/test_m17_off_identity.py` (3 files, 512 insertions, 24 deletions). `git status --porcelain`: 위 3개 수정 + `tests/fixtures/m20d/`, `tests/test_m20e_fixtures.py`, `tests/test_m20e_helpers.py`, `tests/test_m20e_m17_paths.py` (미추적). M21 소유 경로 변경 없음.
+- 실행하지 않음: 전체 `uv run pytest --full` 및 긴 경로 `--full` (CLAUDE.md: 검증자가 `--full` 1회). 키 미설정이라 `keygrep` 생략. 이 절 뒤 `tests/test_m20e_docs.py`는 추가 후 별도로 실행한다.

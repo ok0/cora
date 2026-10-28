@@ -3,17 +3,31 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
-from conftest import PY, ScriptedProvider, act
+from conftest import ScriptedProvider, act
 from cora.core.agent import Agent
 from cora.core.config import CoraConfig, parse_config
 from cora.core.tools import ApprovalPolicy
 
 FIXTURE = Path(__file__).parent / "fixtures" / "m17_off_prompts.json"
+# The fixture matches a 61-char interpreter path. Eviction summary lines are cut at
+# 160 chars (src/cora/core/memory.py:604), so a real path longer than 70 chars was cut
+# before norm() (M20d (e)6). The scripted command therefore runs the interpreter
+# through a fixed-length alias.
+PY_ALIAS_NAME = ".m17py" + "_" * 53
+PY_ALIAS = "./" + PY_ALIAS_NAME
+
+
+def link_python(ws: Path) -> str:
+    link = ws / PY_ALIAS_NAME
+    if not link.is_symlink():
+        link.symlink_to(sys.executable)
+    return PY_ALIAS
 
 
 def _config(memory_extra: dict) -> CoraConfig:
@@ -53,6 +67,7 @@ def capture(root: Path, memory_extra: dict | None = None) -> list[list[dict]]:
     os.environ.pop("CORA_RECORD_DIR", None)
     ws = root / "ws"
     ws.mkdir(parents=True, exist_ok=True)
+    py = link_python(ws)
     (ws / "big.txt").write_text(
         "\n".join(f"line {i} " + "x" * 60 for i in range(5000)) + "\n",
         encoding="utf-8",
@@ -60,7 +75,7 @@ def capture(root: Path, memory_extra: dict | None = None) -> list[list[dict]]:
     (ws / "a.py").write_text("x = 0\n", encoding="utf-8")
     ScriptedProvider.script[:] = [
         act("write_file", {"path": "a.py", "content": "x = 1\n"}),
-        act("run_shell", {"command": f"{PY} -c \"raise SystemExit(1)\""}),
+        act("run_shell", {"command": f"{py} -c \"raise SystemExit(1)\""}),
         *[act("read_file", {"path": "big.txt", "start_line": 1 + 50 * i}) for i in range(20)],
         "Final Answer: done",
     ]
@@ -73,6 +88,7 @@ def capture(root: Path, memory_extra: dict | None = None) -> list[list[dict]]:
     def norm(text: Any) -> Any:
         if not isinstance(text, str):
             return text
+        text = text.replace(PY_ALIAS, "<PYTHON>")
         text = text.replace(sys.executable, "<PYTHON>")
         for token in (str(ws.resolve()), str(ws), str(root)):
             text = text.replace(token, "<WS>")
@@ -97,6 +113,14 @@ def test_explicit_off_keys_match_baseline(tmp_path):
         memory_extra={"ledger": False, "ledger_max_chars": 1500, "summarize": "off"},
     )
     assert result == json.loads(FIXTURE.read_text("utf-8"))
+
+
+def test_python_alias_fixed_length(tmp_path):
+    assert len(PY_ALIAS) == 61
+    link_python(tmp_path)
+    assert subprocess.run(
+        [str(tmp_path / PY_ALIAS_NAME), "-c", "raise SystemExit(3)"]
+    ).returncode == 3
 
 
 if __name__ == "__main__":

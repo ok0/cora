@@ -1,0 +1,25 @@
+{
+  "ok": false,
+  "stop_reason": "error",
+  "final_answer": null,
+  "session_id": null,
+  "iterations": 0,
+  "cost_usd": 0.0,
+  "tokens": {
+    "in": 0,
+    "out": 0
+  },
+  "wall_s": 0.004,
+  "models": [],
+  "tools": {},
+  "policy": null,
+  "budget": null,
+  "warnings": [],
+  "errors": [
+    "replay miss: no recording for model 'deepseek/deepseek-v3.2' key 097e9a72846a1ac8c28dbb0f3373a70bdec1cd892b8a157b7f94f733f6db18bd (expected <M20D>/rehearsal/e2e_n08/records/09/097e9a72846a1ac8c28dbb0f3373a70bdec1cd892b8a157b7f94f733f6db18bd.json); the request changed since it was recorded - re-record with CORA_RECORD_MODE=record"
+  ],
+  "exit_code": 2,
+  "run_id": null,
+  "milestones": [],
+  "ungated_milestones": []
+}

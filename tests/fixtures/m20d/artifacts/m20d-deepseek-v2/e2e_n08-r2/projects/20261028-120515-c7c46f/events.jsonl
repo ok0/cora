@@ -1,0 +1,7 @@
+{"ts": "2026-10-28T03:05:15.054268+00:00", "type": "plan_policy", "issues": 0, "repaired": 0, "dropped": 0, "rounds": 0, "ungated": [], "policy_dropped": []}
+{"ts": "2026-10-28T03:05:15.054949+00:00", "type": "project_start", "run_id": "20261028-120515-c7c46f", "completed": [], "milestones": ["normalize_email", "normalize_phone", "dedupe", "cli", "integration", "lint"]}
+{"ts": "2026-10-28T03:05:15.055295+00:00", "type": "checkpoint", "completed": [], "current": "normalize_email"}
+{"ts": "2026-10-28T03:05:15.055331+00:00", "type": "milestone_start", "id": "normalize_email", "title": "Implement email normalization"}
+{"ts": "2026-10-28T03:08:33.109176+00:00", "type": "checkpoint", "completed": [], "current": "normalize_email"}
+{"ts": "2026-10-28T03:08:33.109372+00:00", "type": "milestone_end", "id": "normalize_email", "status": "failed", "stop_reason": "policy_blocked", "session_id": "20261028-120515-8eca84", "cost_usd": 0.00550575028}
+{"ts": "2026-10-28T03:08:33.109687+00:00", "type": "checkpoint", "completed": [], "current": "normalize_email"}

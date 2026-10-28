@@ -1,0 +1,49 @@
+OVERRIDE (coordinator, 2026-10-28): the pin is now $P2=<HOME>/workspace/ok0/cora-pin-d1 (detached at PIN 0ae6359929009bd4cb213c00c4ce12a708c6cc35). The old $B/pin worktree was removed. Every later group uses $P2 instead of $B/pin. Interpreter path is 61 chars (same as main), which removes the M17 path-length failures. Defect candidate (not fixed): M17 identity tests depend on sys.executable length.
+quick pytest in $P2: exit 0 (green), 267 slow skipped. Final $P2 git status:        0 lines. Cfg CFG_SHA edc1f4e337e9c674c134545d48206b2daf68fd5e78c0ebaa0f088db0535b29ac (unchanged). The 16 ignored .docs copies verified by sha256 (copy-verify-d1.txt).
+---- previous record (pin at $B/pin, now removed) ----
+M20d readiness (Group A) 2026-10-28T01:34:49Z
+PIN=0ae6359929009bd4cb213c00c4ce12a708c6cc35
+P=<M20D>/pin
+import: <M20D>/pin
+<M20D>/pin/src/cora/__init__.py
+quick pytest: NOT GREEN (40 failed, gitignored .docs/* + .reference/.ensemble/.cora absent in worktree; test_m20_docs::test_results_match_fixtures fails only because .docs/baselines/claude-code-m19.toml absent)
+CFG_SHA=edc1f4e337e9c674c134545d48206b2daf68fd5e78c0ebaa0f088db0535b29ac
+cora.toml sha=b82478ef2427fad074a12cebf984479d2ff97eb2fa83c8c1de95f43b403c64b4
+cmp cora.toml vs src/cora/data/cora.toml: rc=0
+m20_base_text sha=7704ace8db75918f63e2f4df8e6b7d009cabf3d73cc98e0165f6c677abcd883a
+deadline.toml sha=f32ed786367b204057f8001d3d36a0a5a7f962f28aa3ba9ea822d83a8c4d17c4
+prompt_rules = false lines in cfg: 1
+commits 998c46e..PIN:
+0ae6359 docs: M21 rehearsal record and pre-registration (T=5, daily chunks)
+6cc5fa2 feat: M21 wave 1 - dedupe/compress counters and events, repo_map tokens, A/B helper tests/m21_ab.py, event docs
+4576bf8 feat: M20c outcome accounting - shared DONE_STATUS, error outcomes carry metered cost and models, M20 milestones_done correction
+e361d54 docs: M20c wave 1 diagnosis table (milestones_done vs grader)
+83169a4 feat: M20b agent policy feedback - deny observations carry the rule hint, optional prompt_rules (default OFF), free OFF/ON check results
+9bfa4c7 test: M20a L plan-quality fix3 rows (gemini free, deepseek paid 0.003) and results docs
+38b1566 feat: M20a waves 3-4 project plan --approval, ungated report, docs
+6c239c2 feat: M20a wave 2 planner policy validation, repair and drop
+012acf5 feat: M20a wave 1 policy verdict/hints, ungated milestones, trial policy columns
+b0e8918 test: M20a S0 preserve M20 artifacts with sanitized fixtures and classification
+worktree status lines: 0
+
+## Revision (coordinator-approved option a, copy ignored local files)
+copied from main into $P (git-ignored, untracked, not in PIN):       16 files, list: <M20D>/copied-ignored.list
+sha256 per copied file (path under $P):
+f13aeb841e32b738548a2a6821025dfad3e59296969ab6c555a084e5206f59c0  .docs/architecture.md
+1f60bc8bac71c418538b1fab239042e7a486a98cec374d452dd4fd3ab5bce8cb  .docs/baseline-protocol.md
+a59cf76532ff0a3450643f7cce1c75017e2013d1fba7abb4c0ce9ff176709f65  .docs/baselines/claude-code-m15.toml
+a56d1923d2b9945faa4f72b6a2bd15bb6be1bf87d41483ebf07808f73dc45a9a  .docs/baselines/claude-code-m19-runs.jsonl
+3a62f14ae58804b348cfb67b1e7dbd3a105cd5e17885c452eb1aa82d54f296a0  .docs/baselines/claude-code-m19.toml
+38ccac3a52544a20d57b24f5981ee5c9a6af4d952eb68616998366069b9e753c  .docs/baselines/claude-code-runs.jsonl
+5c60e5c9a7aced2b07dc2a0a38bf02ce85908a46183bb1df9a1af78f563c6518  .docs/baselines/dry-run.toml
+405cd319669b4d73a48b390703fff84c09e76e0089028226f1a3463dca79b63d  .docs/environment.md
+06a61669f13d001ab9d10d7097ce4d1caff6b42a2a530ff1c4a19858f2743005  .docs/gap-causes.md
+b85944295fa3418efeaa2c4d0dfa510b1b08588c4c180a1d4b5bd4a3fbea2ab2  .docs/m15-command-sheet.md
+f4b5caa33868b24cc3aff0d610f1586c338314a3689535f868bc5e4436280049  .docs/m15-readiness.md
+ada8796c3cbd26300ac757ac6b3dbb944862d30db2c5ecb124e3ecb2bef4c263  .docs/online-checks.md
+14a279e043d7fce50e2ba90e1e713eeb38dfc5078f2c409eef40fd33a18b86a0  .docs/paper-digest.md
+d54dd0527053d65f9a99fa50fa6a376e382fb8793a31256feb3ba290a9ccf9c3  .docs/repo-regeneration.md
+13edb94b286f04f28a748665cc811ed26765d2b1a339ccda7d0e4c57fb69c88c  .docs/roadmap.md
+86121d19a3b3c224bcbd70244d16bf0afc38a64f7e2934dd0adc4809e7afc499  .docs/tui-checklist.md
+git status --porcelain in $P after copy: 0 lines
+quick pytest re-run (final): see <M20D>/quick-suite-final.txt

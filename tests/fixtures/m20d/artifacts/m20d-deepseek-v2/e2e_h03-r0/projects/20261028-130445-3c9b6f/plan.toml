@@ -1,0 +1,70 @@
+goal = "Implement the escapes package modules escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, and escapes/catalog.py according to REQUIREMENTS.md and make the test suite pass."
+
+[[milestones]]
+id = "m1"
+title = "Inspect existing package and tests"
+task = "Read REQUIREMENTS.md in the current directory. List files under escapes and any test files, and identify the stub functions that currently raise NotImplementedError. Do not modify source files in this milestone."
+check = "ls escapes"
+conditions = [
+  { kind = "file_exists", path = "REQUIREMENTS.md" },
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement shell quoting"
+task = "Modify escapes/shell.py so that quote(arg: str) -> str is fully implemented. An empty string must return two single quotes. A string containing only letters A-Z, a-z, digits 0-9, underscore, at sign, percent sign, plus sign, equals sign, colon, comma, period, slash, and hyphen must be returned unchanged. Any other string must be wrapped in single quotes, and each single quote inside it must be replaced by the sequence: single quote, double quote, single quote, double quote, single quote."
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement JSON string encoding and decoding"
+task = "Modify escapes/jsonstr.py to implement encode(s: str) -> str and decode(lit: str) -> str. Do not import json or use the json module. encode must return a JSON string literal whose first and last characters are double quotes. It must escape double quote and backslash by preceding them with a backslash, use short escape forms for backspace, form feed, newline, carriage return, and tab, escape other characters below 0x20 as a backslash followed by lowercase u and four lowercase hexadecimal digits, and leave all other characters unchanged, including slash and non-ASCII. decode must be the inverse for JSON string literals, accepting backslash double quote, backslash backslash, backslash slash, backslash b, backslash f, backslash n, backslash r, backslash t, and backslash u followed by four hexadecimal digits in either case. It must combine a high surrogate escape immediately followed by a low surrogate escape into one supplementary character. It must raise ValueError for malformed literals as described in REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Implement Windows path conversion"
+task = "Modify escapes/winpath.py to implement to_posix(path: str) -> str. Treat every backslash as slash. If the resulting text starts with a drive letter colon followed by slash or end of text, replace that prefix with slash and the lowercased drive letter. If the resulting text starts with two slashes, preserve that leading UNC prefix and collapse repeated slashes only after it. Collapse repeated slashes elsewhere to one slash. Remove one trailing slash. Keep all other characters unchanged."
+conditions = [
+  { kind = "file_exists", path = "escapes/winpath.py" },
+]
+
+[[milestones]]
+id = "m5"
+title = "Implement HTML entity unescaping"
+task = "Modify escapes/catalog.py to implement unescape_html(s: str) -> str. Do not change the ENTITIES table. Replace &name; with the character from ENTITIES[name] when name is present, case-sensitively. Also decode numeric references: &#NNN; as decimal and &#xHH; or &#XHH; as hexadecimal, with digits in either case. Leave unknown names and malformed references unchanged. Decode each reference only once, so replacement text is not rescanned."
+conditions = [
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "m6"
+title = "Run tests and fix failures"
+task = "Run python -m pytest -q in the current directory. Fix any failing tests by editing the escapes package modules, while preserving the required module names, function names, and the ENTITIES table. Ensure the package is importable, adding an empty escapes/__init__.py only if needed."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "m7"
+title = "Final verification"
+task = "Perform final verification. Confirm escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, and escapes/catalog.py exist and implement the required functions. Confirm the examples in REQUIREMENTS.md behave as specified, jsonstr does not import json, and ENTITIES is unchanged. Run python -m pytest -q again and ensure it exits successfully."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]

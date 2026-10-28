@@ -1,0 +1,259 @@
+{
+  "ok": false,
+  "stop_reason": "policy_blocked",
+  "final_answer": null,
+  "session_id": "20261028-111902-651232",
+  "iterations": 128,
+  "cost_usd": 0.17066475183000002,
+  "tokens": {
+    "in": 1110761,
+    "out": 61305
+  },
+  "wall_s": 1413.448,
+  "models": [
+    "deepseek/deepseek-v3.2"
+  ],
+  "tools": {
+    "list_files": 8,
+    "read_file": 40,
+    "write_file": 24,
+    "edit_file": 13,
+    "run_shell": 55,
+    "delete_file": 6,
+    "git_log": 1,
+    "search": 1
+  },
+  "policy": {
+    "mode": "policy",
+    "source": "builtin",
+    "allow": 133,
+    "ask": 6,
+    "deny": 12,
+    "ask_resolved_deny": 6,
+    "decisions_dropped": 0,
+    "decisions": [
+      {
+        "ts": "2026-10-28T02:02:07.129352+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_n08-r0/ws && python3 -m unittest discover -s tests -t . 2>&1 | tail -25; echo '---'; ls -a; python3 --version",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:02:16.496922+00:00",
+        "tool": "run_shell",
+        "args": "python3 -m unittest discover -s tests -t . 2>&1 | tail -20; echo '--- files ---'; ls -a; python3 --version",
+        "decision": "deny",
+        "rule": "confine:unknown-option",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:06:55.142710+00:00",
+        "tool": "run_shell",
+        "args": "python3 -c \"from contacts.normalize import normalize_email as n; print(repr(n('a.b+c@GMAIL.com')))\"; python3 -c \"import csv,sys; print(list(csv.reader(open('_edge_tmp/i2.csv'))))\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:07:12.125486+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"edge_checks.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:07:17.079902+00:00",
+        "tool": "run_shell",
+        "args": "rm edge_checks.py",
+        "decision": "deny",
+        "rule": "default",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:08:03.450515+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_n08-r0/ws && python -m pytest tests/test_normalize.py -v 2>&1 | tail -30 || python -m unittest tests.test_normalize -v 2>",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:09:08.869295+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_n08-r0/ws && python -m pytest tests/test_merge.py -v",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:10:37.033316+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"test_edge.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:13:08.014522+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_n08-r0/ws && python -m pytest tests/test_cli.py -v",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:16:23.016968+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_n08-r0/ws && echo -e 'name,email,phone\nJohn,john.doe@gmail.com,\n,mary@x.org,555 000 1111' > test.csv",
+        "decision": "deny",
+        "rule": "confine:newline",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:16:28.439642+00:00",
+        "tool": "run_shell",
+        "args": "bash test_cli.sh",
+        "decision": "deny",
+        "rule": "default",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:17:03.063402+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"test_cli.sh\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:19:23.279107+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_n08-r0/ws && python -m contacts.cli --help 2>&1",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:19:27.898433+00:00",
+        "tool": "run_shell",
+        "args": "python -m contacts.cli 2>&1",
+        "decision": "deny",
+        "rule": "confine:python-module",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:19:31.661783+00:00",
+        "tool": "run_shell",
+        "args": "bash test_cli.sh 2>&1",
+        "decision": "deny",
+        "rule": "default",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:20:01.702707+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"example_input.csv\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:20:01.703657+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"example_output.csv\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T02:20:01.704530+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"run_example.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      }
+    ]
+  },
+  "budget": {
+    "limits": {
+      "cost_usd": 0.3,
+      "iterations": 200,
+      "wall_s": 8000.0,
+      "tool_calls": 200
+    },
+    "used": {
+      "cost_usd": 0.17066475183000002,
+      "iterations": 128,
+      "wall_s": 1413.428,
+      "tool_calls": 159
+    },
+    "tripped": null,
+    "warned": false
+  },
+  "warnings": [],
+  "errors": [],
+  "exit_code": 5,
+  "run_id": "20261028-105829-e7026a",
+  "milestones": [
+    {
+      "id": "m1",
+      "status": "completed",
+      "session_id": "20261028-105829-975b19",
+      "cost_usd": 0.0446909184,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m2",
+      "status": "completed",
+      "session_id": "20261028-110743-ca3671",
+      "cost_usd": 0.0020126376,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m3",
+      "status": "completed",
+      "session_id": "20261028-110812-9bf40b",
+      "cost_usd": 0.03204567503,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m4",
+      "status": "completed",
+      "session_id": "20261028-111159-0bb2ef",
+      "cost_usd": 0.08218738,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m5",
+      "status": "failed",
+      "session_id": "20261028-111902-651232",
+      "cost_usd": 0.00649848,
+      "gate": {
+        "attempts": 0,
+        "passed": false,
+        "failed_condition": null
+      }
+    }
+  ],
+  "ungated_milestones": []
+}

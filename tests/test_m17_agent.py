@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 import cora.core.memory as memory_mod
-from conftest import PY, act, with_gates_off
+from conftest import act, with_gates_off
 from cora.core.agent import Agent
 from cora.core.config import CoraConfig, parse_config
 from cora.core.memory import (
@@ -24,6 +24,7 @@ from cora.core.observability import read_events
 from cora.core.state import SessionStore
 from cora.core.tools import ApprovalPolicy
 from cora.core.types import messages_tokens
+from test_m17_off_identity import PY_ALIAS, link_python
 
 REPO = Path(__file__).resolve().parents[1]
 SECRET = "sk-test-dummy-123456"
@@ -67,6 +68,7 @@ def _ws(tmp_path: Path) -> Path:
         "\n".join(f"line {i} " + "x" * 60 for i in range(5000)) + "\n",
         encoding="utf-8",
     )
+    link_python(ws)
     return ws
 
 
@@ -74,7 +76,7 @@ def _long() -> list:
     return [
         act("write_file", {"path": "a.py", "content": "x = 1\n"}),
         act("edit_file", {"path": "a.py", "old": "x = 1", "new": "x = 2"}),
-        act("run_shell", {"command": f"{PY} -c \"print('boom'); raise SystemExit(1)\""}),
+        act("run_shell", {"command": f"{PY_ALIAS} -c \"print('boom'); raise SystemExit(1)\""}),
         "garbage without action",
         *[act("read_file", {"path": "big.txt", "start_line": 1 + 50 * i}) for i in range(60)],
         "Final Answer: done",
@@ -226,7 +228,7 @@ def test_protected_and_secret_masked(scripted, tmp_path, monkeypatch):
     monkeypatch.setenv("CORA_TEST_API_KEY", SECRET)
     ws = _ws(tmp_path)
     script = [
-        act("run_shell", {"command": f"{PY} -c \"print('{SECRET}'); raise SystemExit(1)\""}),
+        act("run_shell", {"command": f"{PY_ALIAS} -c \"print('{SECRET}'); raise SystemExit(1)\""}),
         "Final Answer: done",
     ]
     _, r = _run(scripted, _cfg(ledger=True), ws, script)
@@ -241,10 +243,11 @@ def test_protected_and_secret_masked(scripted, tmp_path, monkeypatch):
 
 
 def test_non_sensor_check_recorded_in_ledger(scripted, tmp_path):
-    check = f"{PY} -c \"print('ok')\""
+    check = f"{PY_ALIAS} -c \"print('ok')\""
     scripted.script[:] = ["Final Answer: done"]
     store_on = tmp_path / "on"
     store_on.mkdir()
+    link_python(store_on)
     r_on = asyncio.run(
         Agent(_cfg(ledger=True), store_on, ApprovalPolicy("auto")).run(
             "run the check", check_command=check
@@ -256,6 +259,7 @@ def test_non_sensor_check_recorded_in_ledger(scripted, tmp_path):
 
     store_off = tmp_path / "off"
     store_off.mkdir()
+    link_python(store_off)
     scripted.script[:] = ["Final Answer: done"]
     r_off = asyncio.run(
         Agent(_cfg(ledger=False), store_off, ApprovalPolicy("auto")).run(

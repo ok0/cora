@@ -1,0 +1,216 @@
+{
+  "ok": false,
+  "stop_reason": "budget_exceeded",
+  "final_answer": null,
+  "session_id": "20261028-142410-95fc92",
+  "iterations": 187,
+  "cost_usd": 0.2844230096,
+  "tokens": {
+    "in": 1828461,
+    "out": 164427
+  },
+  "wall_s": 3561.528,
+  "models": [
+    "deepseek/deepseek-v3.2"
+  ],
+  "tools": {
+    "list_files": 9,
+    "read_file": 64,
+    "write_file": 24,
+    "edit_file": 18,
+    "run_shell": 65,
+    "delete_file": 2,
+    "git_diff": 2,
+    "search": 8,
+    "git_log": 2,
+    "git_status": 1,
+    "todo_write": 1
+  },
+  "policy": {
+    "mode": "policy",
+    "source": "builtin",
+    "allow": 184,
+    "ask": 2,
+    "deny": 10,
+    "ask_resolved_deny": 2,
+    "decisions_dropped": 0,
+    "decisions": [
+      {
+        "ts": "2026-10-28T04:39:52.594981+00:00",
+        "tool": "run_shell",
+        "args": "python - <<'PY'\nfrom escapes.shell import quote\nfrom escapes.jsonstr import encode, decode\nfrom escapes.winpath import to_posix\nfrom escapes.catalog import unescape_html\nassert quote('a b') == \"'a b'\"",
+        "decision": "deny",
+        "rule": "confine:newline",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:44:21.542536+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"check.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:44:57.947770+00:00",
+        "tool": "run_shell",
+        "args": "rm check.py",
+        "decision": "deny",
+        "rule": "default",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:04:57.773702+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"import sys; sys.path.insert(0, '.'); from escapes.shell import quote; print(repr(quote(''))); print(repr(quote('abc'))); print(repr(quote('a b'))); print(repr(quote('\\''))); print(repr(quot",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:06:39.718644+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"import sys; sys.path.insert(0, '.'); from escapes.shell import quote; print(repr(quote('\\''))); print(repr(quote('a\\'b'))); print(quote('\\'') == '''\\'\\\"\\'\\\"\\''''); print(quote('a\\'b') == ''",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:08:19.931546+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"from escapes.jsonstr import encode; import sys; dq='\\\"'; bs='\\\\'; print(repr(encode(dq+bs+'/'))) \"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:14:37.117774+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"import sys; sys.path.insert(0, '.'); from escapes.jsonstr import decode; print(decode('\\\"\\\"'))\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:15:44.269326+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_h03-r1/ws && python test_decode.py && python -m pytest -q 2>&1 | tail -20",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:15:54.996610+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"\nfrom escapes.jsonstr import decode, encode\ncases = ['\\\"\\ud83d\\ude00\\\"', '\\\"\\\\u00e9\\\"', '\\\"\\\\uD83D\\\\uDE00\\\"', '\\\"a\\\\/b\\\"', '\\\"\\\\u0041\\\\u0042\\\"']\nfor c in cases:\n    print(repr(c), '->', rep",
+        "decision": "deny",
+        "rule": "confine:newline",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:16:30.662759+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"_tmp_check.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:25:49.628356+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_h03-r1/ws && python3 check.py",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T05:27:42.221914+00:00",
+        "tool": "run_shell",
+        "args": "python3 -c \"import sys; sys.path.insert(0, '.'); from escapes.catalog import unescape_html; print(unescape_html('&amp;'))\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      }
+    ]
+  },
+  "budget": {
+    "limits": {
+      "cost_usd": 0.3,
+      "iterations": 240,
+      "wall_s": 9600.0,
+      "tool_calls": 200
+    },
+    "used": {
+      "cost_usd": 0.2844230096000001,
+      "iterations": 187,
+      "wall_s": 3561.505,
+      "tool_calls": 200
+    },
+    "tripped": "tool_calls",
+    "warned": true
+  },
+  "warnings": [
+    "warning: budget tool_calls reached 80% of its limit (160 of 200)",
+    "warning: budget cost reached 80% of its limit (0.24119338960000009 of 0.3)"
+  ],
+  "errors": [],
+  "exit_code": 4,
+  "run_id": "20261028-133123-465016",
+  "milestones": [
+    {
+      "id": "layout",
+      "status": "completed",
+      "session_id": "20261028-133123-3e2ce8",
+      "cost_usd": 0.0816951168,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "shell",
+      "status": "completed",
+      "session_id": "20261028-140328-fbd881",
+      "cost_usd": 0.02844422
+    },
+    {
+      "id": "json-encode",
+      "status": "completed",
+      "session_id": "20261028-140657-726376",
+      "cost_usd": 0.09053636
+    },
+    {
+      "id": "json-decode",
+      "status": "completed",
+      "session_id": "20261028-141447-e3f803",
+      "cost_usd": 0.0095789016
+    },
+    {
+      "id": "winpath",
+      "status": "completed",
+      "session_id": "20261028-141742-abfb6f",
+      "cost_usd": 0.01280386
+    },
+    {
+      "id": "catalog",
+      "status": "failed",
+      "session_id": "20261028-142410-95fc92",
+      "cost_usd": 0.05872776
+    },
+    {
+      "id": "tests",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0,
+      "gate": null
+    },
+    {
+      "id": "edge-review",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0
+    }
+  ],
+  "ungated_milestones": []
+}

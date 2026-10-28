@@ -1,0 +1,57 @@
+goal = "Build the contacts package described in REQUIREMENTS.md in the current directory."
+
+[[milestones]]
+id = "skeleton"
+title = "Create package skeleton and test harness"
+task = "Create contacts/__init__.py, contacts/normalize.py, contacts/merge.py, and contacts/cli.py in the current directory. Make each module importable; stubs may raise NotImplementedError except cli.main may return 0. Add tests/__init__.py, tests/test_skeleton.py that imports contacts.normalize, contacts.merge, and contacts.cli, and run_tests.py that discovers tests in tests and exits 0 only when all tests pass. Do not create CSV output files in the workspace."
+check = "python3 run_tests.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "contacts/cli.py" },
+  { kind = "file_exists", path = "tests/__init__.py" },
+  { kind = "file_exists", path = "run_tests.py" },
+]
+
+[[milestones]]
+id = "normalize"
+title = "Implement email and phone normalization"
+task = "Implement normalize_email and normalize_phone in contacts/normalize.py according to REQUIREMENTS.md. For email: strip whitespace, lowercase; if no @ return value; if domain is gmail.com or googlemail.com remove every dot from local part, drop plus suffix, and return local at gmail.com; otherwise keep local unchanged. For phone: strip input; inspect digits; if input starts with 00 return plus digits after the leading 00; otherwise if exactly 10 digits return plus 1 digits; otherwise if at least one digit return plus digits; otherwise empty string. Add tests/test_normalize.py covering the examples in REQUIREMENTS.md. Ensure python3 run_tests.py passes."
+check = "python3 run_tests.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "tests/test_normalize.py" },
+]
+
+[[milestones]]
+id = "dedupe"
+title = "Implement dedupe merge logic"
+task = "Implement dedupe in contacts/merge.py according to REQUIREMENTS.md. Use normalized email as duplicate key, but do not normalize kept raw values. Rows with empty email are never merged. The first row for a key is kept at its original position. Later duplicates fill only empty fields in the kept row; never overwrite non-empty fields; earliest non-empty supplied value wins. Return kept rows in order and removed count. Add tests/test_merge.py covering the six-row worked example and empty-email rows. Ensure python3 run_tests.py passes."
+check = "python3 run_tests.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "tests/test_merge.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement CSV command-line interface"
+task = "Implement main(argv=None) -> int in contacts/cli.py so python -m contacts.cli IN OUT works. Read IN as CSV with a header. If IN cannot be read, print exactly error: cannot read IN to stderr and return 1. If the header has no email column, print exactly error: no email column to stderr, return 2, and do not create OUT. Otherwise parse rows as dicts mapping header names to string values, use empty string for missing fields, call dedupe, normalize email of kept rows with normalize_email, and normalize phone if phone column exists with normalize_phone. Write OUT with same header and column order using csv module. Print exactly kept K, removed R to stdout and return 0. Add module entry point so running python -m contacts.cli calls main and exits with its return code. Add tests/test_cli.py using tempfile/temp directories for success, missing email header, and unreadable input, with no workspace side effects. Ensure python3 run_tests.py passes."
+check = "python3 run_tests.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/cli.py" },
+  { kind = "file_exists", path = "tests/test_cli.py" },
+]
+
+[[milestones]]
+id = "final_validation"
+title = "Final validation and cleanup"
+task = "Run python3 run_tests.py and fix any failures. Verify contacts/__init__.py, contacts/normalize.py, contacts/merge.py, and contacts/cli.py exist. Verify the worked example from REQUIREMENTS.md produces OUT with John,johndoe@gmail.com,+15551234567; Mary,mary@x.org,+15550001111; Nobody,,+1; N2,,+2 and stdout kept 4, removed 2. Remove any stray CSV or OUT files accidentally created in the workspace root."
+check = "python3 run_tests.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "contacts/cli.py" },
+]

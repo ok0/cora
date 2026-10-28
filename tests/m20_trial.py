@@ -7,9 +7,12 @@ import json
 import os
 import re
 import shutil
+import statistics
 import sys
 import tempfile
 import tomllib
+from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +27,8 @@ from cora.core.router import HeuristicRouter
 from cora.core.shellguard import home_protected, package_data_dirs
 from cora.core.tools import ApprovalPolicy
 from e2e_trial_util import grade, leakcheck, prepare  # noqa: E402
+from m20a_artifacts import KEY_RES as M20A_KEY_RES  # noqa: E402
+from m20a_artifacts import _sanitize  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_ROOT = ROOT / ".cora" / "m20"
@@ -48,6 +53,21 @@ RUN_LABEL_NOTES = {
         "(R11 rounds 1-2)"
     ),
 }
+M20D_LABEL = "m20d-deepseek-v2"
+PRE_REGISTERED_LABELS = (MAIN_RUN_LABEL, M20D_LABEL)
+M20D_RUNS = ("e2e_n08-r0", "e2e_n08-r1", "e2e_n08-r2", "e2e_h03-r0", "e2e_h03-r1")
+M20D_REHEARSALS = ("e2e_n08", "e2e_h03")
+UNMETERED_RE = re.compile(r"RequestDeadlineExceeded|provider_timeout|ReadTimeout")
+# M20d registered cap_bound threshold, kept only for `cap_bound_m20d` (dated correction)
+M20D_CAP_COST = 0.29
+KEY_SCAN_RES = (
+    *M20A_KEY_RES,
+    re.compile(r"sk-[A-Za-z0-9_-]{16,}"),
+    re.compile(r"(?i)authorization\W{0,4}(?:bearer\s+)?[A-Za-z0-9._~+/=-]{8,}"),
+    re.compile(r"(?i)bearer\s+[A-Za-z0-9._~+/=-]{16,}"),
+)
+KEY_ENV_VARS = ("OPENROUTER_API_KEY", "GEMINI_API_KEY")
+PLACEHOLDER_M20D = "<M20D>"
 
 
 def _task(task_id: str) -> e2e.E2ETask:
@@ -352,6 +372,420 @@ def event_hits(ws: Path) -> list[str]:
     return hits
 
 
+def cora_dir(run_dir: Path) -> Path:
+    cdir = run_dir / "ws" / ".cora"
+    return cdir if cdir.is_dir() else run_dir
+
+
+def read_jsonl_lines(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in lines if line.strip()]
+
+
+def project_events(cdir: Path, run_id: str | None) -> list[dict]:
+    if not run_id:
+        return []
+    return read_jsonl_lines(cdir / "projects" / run_id / "events.jsonl")
+
+
+def plan_quality_of(planning: dict, errors: list[str]) -> str | None:
+    if any("planner reply invalid" in e for e in errors):
+        return "failed"
+    calls = planning.get("calls")
+    if calls is None:
+        return None
+    rounds = (planning.get("policy") or {}).get("rounds") or 0
+    return {1: "first_try", 2: "after_repair"}.get(calls - rounds)
+
+
+def policy_columns(outcome: dict, planning: dict) -> dict:
+    pol = planning.get("policy") or {}
+    return {
+        "policy_dropped": pol.get("dropped") if "dropped" in pol else None,
+        "policy_rounds": pol.get("rounds"),
+        "ungated": outcome.get("ungated_milestones", pol.get("ungated")),
+    }
+
+
+def cap_columns(outcome: dict) -> dict:
+    tripped = (outcome.get("budget") or {}).get("tripped")
+    return {
+        "cap_tripped": tripped,
+        "cap_bound": outcome.get("stop_reason") == "budget_exceeded" and tripped is not None,
+    }
+
+
+def gate_columns(milestones: list[dict], events: list[dict]) -> dict:
+    gates = [m.get("gate") for m in milestones]
+    return {
+        "gate_failed": any(
+            m.get("gate") is not None and m["gate"].get("passed") is False for m in milestones
+        ),
+        "gate_failed_any": any(
+            e.get("type") == "gate" and e.get("passed") is False for e in events
+        ),
+        "gate_failed_final": any(
+            g is not None and (g.get("attempts") or 0) >= 1 and g.get("passed") is False
+            for g in gates
+        ),
+        "gate_unrun": [
+            m["id"]
+            for m in milestones
+            if m.get("gate") is not None
+            and (m["gate"].get("attempts") or 0) == 0
+            and m["gate"].get("passed") is False
+        ],
+    }
+
+
+def extract_row(row: dict, run_dir: Path) -> dict:
+    out = json.loads((run_dir / "outcome.json").read_text("utf-8"))
+    cdir = cora_dir(run_dir)
+    run_id = out.get("run_id")
+    cp = cdir / "projects" / str(run_id) / "checkpoint.json"
+    planning = (json.loads(cp.read_text("utf-8")).get("planning") or {}) if cp.exists() else {}
+    pol = planning.get("policy") or {}
+    errors = list(out.get("errors") or [])
+    planner_invalid = any("planner reply invalid" in e for e in errors)
+    unmetered = sum(
+        1
+        for f in sorted(cdir.glob("**/events.jsonl"))
+        for line in f.read_text(encoding="utf-8", errors="replace").splitlines()
+        if UNMETERED_RE.search(line)
+    )
+    milestones = out.get("milestones") or []
+    events = project_events(cdir, run_id)
+    cap = cap_columns(out)
+    return {
+        "task": row["task"],
+        "run": row["run"],
+        "stop_reason": out.get("stop_reason"),
+        "policy_blocked": out.get("stop_reason") == "policy_blocked",
+        "policy_deny": row.get("policy_deny"),
+        "policy_ask_resolved_deny": row.get("policy_ask_resolved_deny"),
+        **policy_columns(out, planning),
+        "planner_invalid": planner_invalid,
+        "plan": (
+            None
+            if ("rounds" not in pol and not planner_invalid)
+            else plan_quality_of(planning, errors)
+        ),
+        "milestones_done": row.get("milestones_done"),
+        "completed": row.get("completed"),
+        "cost_usd": out.get("cost_usd"),
+        "wall_s": out.get("wall_s"),
+        "iterations": out.get("iterations"),
+        "cap_bound": cap["cap_bound"],
+        "unmetered": unmetered,
+        "cap_bound_m20d": out.get("stop_reason") == "budget_exceeded"
+        and (out.get("cost_usd") or 0) >= M20D_CAP_COST,
+        "cap_tripped": cap["cap_tripped"],
+        **gate_columns(milestones, events),
+    }
+
+
+def session_logs(run_dir: Path) -> list[tuple[str, list[dict]]]:
+    found = [
+        (f.parent.name, read_jsonl_lines(f))
+        for f in (cora_dir(run_dir) / "sessions").glob("*/events.jsonl")
+    ]
+    return sorted(found, key=lambda s: (s[1][0]["ts"] if s[1] else "", s[0]))
+
+
+def deny_table(run_dir: Path) -> list[dict]:
+    plans = sorted(cora_dir(run_dir).glob("projects/*/plan.toml"))
+    plan_text = plans[0].read_text(encoding="utf-8") if plans else ""
+    seen: Counter[str] = Counter()
+    rows: list[dict] = []
+    for sid, events in session_logs(run_dir):
+        for line, e in enumerate(events, 1):
+            if e.get("type") != "policy_decision" or e.get("decision") == "allow":
+                continue
+            rule = e.get("rule")
+            seen[rule] += 1
+            args = e.get("args")
+            cmd = args.get("command") if isinstance(args, dict) else args
+            rows.append(
+                {
+                    "cite": f"{run_dir.name}/sessions/{sid}/events.jsonl:{line}",
+                    "ts": e.get("ts"),
+                    "tool": e.get("tool"),
+                    "rule": rule,
+                    "decision": e.get("decision"),
+                    "resolved": e.get("resolved"),
+                    "args": " ".join(str(args).split())[:100],
+                    "in_plan": isinstance(cmd, str) and cmd in plan_text,
+                    "nth": seen[rule],
+                }
+            )
+    return rows
+
+
+def stop_rows(run_dir: Path) -> list[dict]:
+    rows: list[dict] = []
+    for sid, events in session_logs(run_dir):
+        for line, e in enumerate(events, 1):
+            if e.get("type") not in ("tripwire", "stop"):
+                continue
+            rows.append(
+                {
+                    "cite": f"{run_dir.name}/sessions/{sid}/events.jsonl:{line}",
+                    "type": e.get("type"),
+                    "reason": e.get("reason"),
+                    "action": e.get("action"),
+                    "kind": e.get("kind"),
+                    "tool": e.get("tool"),
+                    "count": e.get("count"),
+                    "error_head": " ".join(str(e.get("error_head") or "").split())[:120],
+                }
+            )
+    return rows
+
+
+def _ts(e: dict) -> datetime:
+    return datetime.fromisoformat(e["ts"])
+
+
+def wall_breakdown(run_dir: Path, outcome: dict) -> dict:
+    sessions = [evs for _, evs in session_logs(run_dir) if evs]
+    everything = [e for evs in sessions for e in evs]
+    llm = [e for e in everything if e.get("type") == "llm_call"]
+    lat = [float(e["latency_s"]) for e in llm]
+    llm_s = sum(lat)
+    tool_s = sum(
+        (_ts(evs[i]) - _ts(evs[i - 1])).total_seconds()
+        for evs in sessions
+        for i in range(1, len(evs))
+        if evs[i].get("type") == "tool_call"
+    )
+    span_s = sum((_ts(evs[-1]) - _ts(evs[0])).total_seconds() for evs in sessions)
+    gaps_s = sum(
+        (_ts(nxt[0]) - _ts(cur[-1])).total_seconds()
+        for cur, nxt in zip(sessions, sessions[1:], strict=False)
+    )
+    pe = project_events(cora_dir(run_dir), outcome.get("run_id"))
+    head_s = tail_s = 0.0
+    if pe and sessions:
+        head_s = (_ts(sessions[0][0]) - _ts(pe[0])).total_seconds()
+        tail_s = (_ts(pe[-1]) - _ts(sessions[-1][-1])).total_seconds()
+    attributed_s = llm_s + tool_s + gaps_s + head_s + tail_s
+    result = {
+        "wall_s": outcome["wall_s"],
+        "llm_s": llm_s,
+        "llm_n": len(llm),
+        "llm_median_s": statistics.median(lat) if lat else 0.0,
+        "llm_max_s": max(lat, default=0.0),
+        "out_tokens": sum(e.get("output_tokens") or 0 for e in llm),
+        "parse_errors": sum(1 for e in everything if e.get("type") == "parse_error"),
+        "retry_events": sum(1 for e in everything if "retry" in str(e.get("type"))),
+        "tool_s": tool_s,
+        "span_s": span_s,
+        "gaps_s": gaps_s,
+        "head_s": head_s,
+        "tail_s": tail_s,
+        "attributed_s": attributed_s,
+        "unattributed_s": outcome["wall_s"] - attributed_s,
+        "in_session_other_s": span_s - llm_s - tool_s,
+    }
+    return {k: round(v, 3) for k, v in result.items()}
+
+
+def cost_check(run_dir: Path, outcome: dict, prices: dict) -> dict:
+    cp = cora_dir(run_dir) / "projects" / str(outcome.get("run_id")) / "checkpoint.json"
+    planning = (json.loads(cp.read_text("utf-8")).get("planning") or {}) if cp.exists() else {}
+    calls = [e for _, evs in session_logs(run_dir) for e in evs if e.get("type") == "llm_call"]
+    metered_s = sum(e.get("cost_usd") or 0.0 for e in calls)
+    planner_usd = planning.get("cost_usd") or 0.0
+    metered_total = metered_s + planner_usd
+    outcome_usd = outcome["cost_usd"]
+    priced = (
+        sum(
+            ((e.get("input_tokens") or 0) - (e.get("cached_tokens") or 0))
+            * prices["input_usd_per_mtok"]
+            + (e.get("cached_tokens") or 0) * prices["cache_read_usd_per_mtok"]
+            + (e.get("output_tokens") or 0) * prices["output_usd_per_mtok"]
+            for e in calls
+        )
+        / 1e6
+    )
+    result = {
+        "metered_s": metered_s,
+        "planner_usd": planner_usd,
+        "metered_total": metered_total,
+        "outcome_usd": outcome_usd,
+        "outcome_minus_metered": outcome_usd - metered_total,
+        "cost_sources": dict(Counter(e.get("cost_source") for e in calls)),
+        "input_tokens": sum(e.get("input_tokens") or 0 for e in calls),
+        "cached_tokens": sum(e.get("cached_tokens") or 0 for e in calls),
+        "output_tokens": sum(e.get("output_tokens") or 0 for e in calls),
+        "priced": priced,
+        "metered_minus_priced": metered_s - priced,
+    }
+    return {k: round(v, 9) if isinstance(v, float) else v for k, v in result.items()}
+
+
+def model_prices(config_path: Path, model_id: str) -> dict:
+    with config_path.open("rb") as f:
+        models = tomllib.load(f).get("models", [])
+    for m in models:
+        if m.get("id") == model_id:
+            return {
+                k: m.get(k, 0.0)
+                for k in ("input_usd_per_mtok", "output_usd_per_mtok", "cache_read_usd_per_mtok")
+            }
+    raise SystemExit(2)
+
+
+def _variants(p: str) -> set[str]:
+    return {p, os.path.normpath(p), os.path.realpath(p)}
+
+
+def _rescue_pairs(src: Path) -> list[tuple[str, str]]:
+    tmp = tempfile.gettempdir()
+    pairs: dict[str, str] = {}
+    for s in _variants(str(src)) | _variants(str(Path(tmp) / "cora-m20d")):
+        pairs[s] = PLACEHOLDER_M20D
+    for t in _variants(tmp):
+        pairs[t] = "<TMP>"
+    pairs[os.path.expanduser("~")] = "<HOME>"
+    return sorted(pairs.items(), key=lambda kv: len(kv[0]), reverse=True)
+
+
+def _rescue_sources(src: Path) -> dict[str, tuple[Path, list[str] | None]]:
+    plan: dict[str, tuple[Path, list[str] | None]] = {}
+    top = {
+        "runs.jsonl": ["R3"],
+        "extract.jsonl": ["R5"],
+        "rehearsal.jsonl": ["R3"],
+        "ledger.md": ["R13"],
+        "readiness.txt": ["R3"],
+        "m17diff.txt": ["R3"],
+    }
+    for name, items in top.items():
+        plan[name] = (src / name, items)
+    plan["m20d_extract.py.txt"] = (src / "m20d_extract.py", ["R5"])
+    plan["artifacts/cora-m20d-deepseek-deadline.toml"] = (
+        src / "cfg" / "cora-m20d-deepseek-deadline.toml",
+        ["R3"],
+    )
+    for run in M20D_RUNS:
+        base = f"artifacts/m20d-deepseek-v2/{run}"
+        plan[f"{base}/outcome.json"] = (src / base / "outcome.json", ["R3"])
+        projects = src / base / "projects"
+        pfiles = sorted(p for p in projects.rglob("*") if p.is_file()) if projects.is_dir() else []
+        for p in pfiles:
+            plan[f"{base}/projects/{p.relative_to(projects).as_posix()}"] = (
+                p,
+                ["R6", "R7", "R10"],
+            )
+        if not pfiles:
+            plan[f"{base}/projects"] = (projects, ["R6", "R7", "R10"])
+        runs_dir = src / "runs"
+        sessions = sorted((runs_dir / run / "ws" / ".cora" / "sessions").glob("*/events.jsonl"))
+        for s in sessions:
+            plan[f"{base}/sessions/{s.parent.name}/events.jsonl"] = (
+                s,
+                ["R12", "R14", "R13"],
+            )
+        if not sessions:
+            plan[f"{base}/sessions"] = (
+                runs_dir / run / "ws" / ".cora" / "sessions",
+                ["R12", "R14", "R13"],
+            )
+        for name in ("start.txt", "time.txt", "runrow.out"):
+            plan[f"{base}/meta/{name}"] = (runs_dir / run / name, ["R3"])
+        plan[f"{base}/meta/launch.txt"] = (runs_dir / f"{run}.launch.txt", None)
+        plan[f"{base}/meta/guard.txt"] = (runs_dir / f"{run}.guard.txt", None)
+    for t in M20D_REHEARSALS:
+        rbase = f"artifacts/m20d-rehearsal/{t}-r0"
+        plan[f"{rbase}/outcome.json"] = (src / rbase / "outcome.json", ["R3"])
+        for name in ("runrow.out", "stderr.txt"):
+            plan[f"{rbase}/meta/{name}"] = (src / "rehearsal" / t / name, None)
+    fallback = src / "rehearsal" / "runrow.out"
+    if not (src / "rehearsal" / "e2e_n08" / "runrow.out").is_file() and fallback.is_file():
+        plan["artifacts/m20d-rehearsal/e2e_n08-r0/meta/runrow.out"] = (fallback, None)
+    return plan
+
+
+def rescue(src: Path, dst: Path) -> dict:
+    src = src.absolute()
+    dst = dst.absolute()
+    pairs = _rescue_pairs(src)
+    env_vals = [(name, os.environ.get(name, "")) for name in KEY_ENV_VARS]
+    redacted = "<REDACTED>"
+    copies: dict[str, str] = {}
+    blocked: list[dict] = []
+    redactions: list[dict] = []
+    partial_tmp: list[dict] = []
+    for rel, (path, items) in _rescue_sources(src).items():
+        if not path.is_file():
+            if items is not None:
+                blocked.append({"file": rel, "items": items})
+            continue
+        with open(path, encoding="utf-8", newline="") as fh:
+            text, partial = _sanitize(fh.read(), pairs)
+        partial_tmp.extend({"file": rel, "line": n} for n in partial)
+        lines: list[str] = []
+        for n, line in enumerate(text.split("\n"), 1):
+            for rx in KEY_SCAN_RES:
+                redactions.extend(
+                    {"file": rel, "line": n, "pattern": rx.pattern} for _ in rx.finditer(line)
+                )
+                line = rx.sub(redacted, line)
+            for name, val in env_vals:
+                if len(val) >= 8:
+                    redactions.extend(
+                        {"file": rel, "line": n, "pattern": name} for _ in range(line.count(val))
+                    )
+                    line = line.replace(val, redacted)
+            lines.append(line)
+        copies[rel] = "\n".join(lines)
+    shutil.rmtree(dst, ignore_errors=True)
+    dst.mkdir(parents=True, exist_ok=True)
+    for rel, text in copies.items():
+        target = dst / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with open(target, "w", encoding="utf-8", newline="") as fh:
+            fh.write(text)
+    manifest = {
+        "source": "$TMPDIR/cora-m20d (via backup if used)",
+        "files": sorted(copies),
+        "blocked": blocked,
+        "redactions": redactions,
+        "partial_tmp": partial_tmp,
+        "not_copied": [
+            {
+                "path": "runs/*/ws (task files, .cora/memory, .cora/home)",
+                "reason": "task workspace; rebuilt by prepare; memory not evidence for M20e",
+            },
+            {
+                "path": "runs/*/ws/.cora/sessions/*/session.json",
+                "reason": "session state snapshot; events.jsonl kept",
+            },
+            {
+                "path": "rehearsal/*/ws, rehearsal/*/records, rehearsal/*.ws",
+                "reason": "task workspace / empty record dir (records 0) / path note",
+            },
+            {
+                "path": "scratch-*.sh, results-*.md, amend.md, *.txt logs",
+                "reason": "operator scratch; results already in .docs/bench-results.md",
+            },
+        ],
+        "placeholders": {
+            "<M20D>": "M20d working dir",
+            "<TMP>": "system temp directory",
+            "<HOME>": "home directory",
+            "<TMP-PARTIAL>": "truncated temp-path fragment",
+        },
+    }
+    (dst / "MANIFEST.json").write_text(
+        json.dumps(manifest, indent=1, sort_keys=True), encoding="utf-8"
+    )
+    return manifest
+
+
 def run_row(
     task_id: str,
     ws: Path,
@@ -380,19 +814,11 @@ def run_row(
     errors = list(outcome.get("errors") or [])
     planner_invalid = any("planner reply invalid" in e for e in errors)
     calls = planning.get("calls")
-    if planner_invalid:
-        quality: str | None = "failed"
-    elif calls == 1:
-        quality = "first_try"
-    elif calls == 2:
-        quality = "after_repair"
-    else:
-        quality = None
+    quality = plan_quality_of(planning, errors)
     milestones = outcome.get("milestones") or []
     done = milestones_done(milestones)
-    gate_failed = any(
-        m.get("gate") is not None and m["gate"].get("passed") is False for m in milestones
-    )
+    events = project_events(ws / ".cora", run_id)
+    gates = gate_columns(milestones, events)
     policy = outcome.get("policy")
     error_run = not planner_invalid and (
         outcome.get("stop_reason") == "error" or outcome.get("exit_code") == 1
@@ -409,14 +835,16 @@ def run_row(
         "iterations": outcome.get("iterations"),
         "cost_usd": outcome.get("cost_usd"),
         "wall_s": outcome.get("wall_s"),
+        **cap_columns(outcome),
         "interventions": interventions,
         "policy_deny": int(policy.get("deny", 0)) if policy else 0,
         "policy_ask_resolved_deny": int(policy.get("ask_resolved_deny", 0)) if policy else 0,
         "planner_calls": calls,
         "plan_quality": quality,
+        **policy_columns(outcome, planning),
         "milestones_total": len(milestones),
         "milestones_done": done,
-        "gate_failed": gate_failed,
+        **gates,
         "leaks": leaks,
         "protected_hits": hits,
         "error": "; ".join(errors) or None,
@@ -499,6 +927,7 @@ def summary(
     run_rows: list[dict],
     baseline: Path | None,
     checks_rows: list[dict] | None = None,
+    run_labels: list[str] | None = None,
 ) -> str:
     out: list[str] = []
     out.append("### (1) Plan quality, per label")
@@ -566,10 +995,9 @@ def summary(
     out.append("")
     base = _load_baseline(baseline)
     flags = _superseded_flags(run_rows)
-    run_labels = [
-        lbl for lbl in dict.fromkeys(r["label"] for r in run_rows) if lbl.startswith("deepseek")
-    ]
-    for label in run_labels:
+    all_labels = list(dict.fromkeys(r["label"] for r in run_rows))
+    labels = run_labels if run_labels is not None else all_labels
+    for label in labels:
         label_rows = [
             (r, sup) for r, sup in zip(run_rows, flags, strict=True) if r["label"] == label
         ]
@@ -604,7 +1032,7 @@ def summary(
             out.append(note)
         out.append("| task | k/n | wilson | $ total | $ per run | CC k/n | CC $ per run |")
         out.append("|---|---|---|---|---|---|---|")
-        tasks: list[str] = list(PRE_REGISTERED_TASKS) if label == MAIN_RUN_LABEL else []
+        tasks: list[str] = list(PRE_REGISTERED_TASKS) if label in PRE_REGISTERED_LABELS else []
         for r in counted:
             if r["task"] not in tasks:
                 tasks.append(r["task"])
@@ -702,6 +1130,13 @@ def _build_parser() -> argparse.ArgumentParser:
     s.add_argument("--runs", type=Path, required=True)
     s.add_argument("--baseline", type=Path, default=None)
     s.add_argument("--checks", type=Path, default=None)
+    s.add_argument("--run-label", action="append", dest="run_labels", default=None)
+    x = sub.add_parser("extract")
+    x.add_argument("--rows", type=Path, required=True)
+    x.add_argument("--runs-root", type=Path, required=True)
+    rs = sub.add_parser("rescue")
+    rs.add_argument("--src", type=Path, required=True)
+    rs.add_argument("--dst", type=Path, required=True)
     return p
 
 
@@ -750,7 +1185,32 @@ def main(argv: list[str] | None = None) -> int:
         planq_rows = _read_jsonl(args.planq)
         run_rows = _read_jsonl(args.runs)
         checks_rows = _read_jsonl(args.checks) if args.checks is not None else None
-        sys.stdout.write(summary(planq_rows, run_rows, args.baseline, checks_rows))
+        sys.stdout.write(
+            summary(
+                planq_rows,
+                run_rows,
+                args.baseline,
+                checks_rows,
+                run_labels=args.run_labels,
+            )
+        )
+        return 0
+    if args.cmd == "extract":
+        for row in _read_jsonl(args.rows):
+            run_dir = args.runs_root / f"{row['task']}-r{row['run']}"
+            print(json.dumps(extract_row(row, run_dir)))
+        return 0
+    if args.cmd == "rescue":
+        m = rescue(args.src, args.dst)
+        print(
+            json.dumps(
+                {
+                    "files": len(m["files"]),
+                    "blocked": m["blocked"],
+                    "redactions": len(m["redactions"]),
+                }
+            )
+        )
         return 0
     return 2
 

@@ -1,0 +1,56 @@
+import glob
+import json
+import os
+import re
+import sys
+
+rows_path, runs_root = sys.argv[1], sys.argv[2]
+UNMET = re.compile(r"RequestDeadlineExceeded|provider_timeout|ReadTimeout")
+
+for line in open(rows_path, encoding="utf-8"):
+    if not line.strip():
+        continue
+    r = json.loads(line)
+    task, run = r["task"], r["run"]
+    base = os.path.join(runs_root, f"{task}-r{run}")
+    out = json.load(open(os.path.join(base, "outcome.json"), encoding="utf-8"))
+    ws = os.path.join(base, "ws")
+    rid = out.get("run_id")
+    cp_path = os.path.join(ws, ".cora", "projects", str(rid), "checkpoint.json")
+    cp = json.load(open(cp_path, encoding="utf-8")) if os.path.exists(cp_path) else {}
+    planning = cp.get("planning") or {}
+    pol = planning.get("policy") or {}
+    errs = " ".join(out.get("errors") or [])
+    planner_invalid = "planner reply invalid" in errs
+    calls = planning.get("calls")
+    rounds = pol.get("rounds")
+    if planner_invalid:
+        plan = "failed"
+    elif calls is not None and rounds is not None:
+        plan = {1: "first_try", 2: "after_repair"}.get(calls - rounds)
+    else:
+        plan = None
+    unmetered = 0
+    for ev in glob.glob(os.path.join(ws, ".cora", "**", "events.jsonl"), recursive=True):
+        with open(ev, encoding="utf-8", errors="replace") as fh:
+            unmetered += sum(1 for l in fh if UNMET.search(l))
+    print(json.dumps({
+        "task": task,
+        "run": run,
+        "stop_reason": out.get("stop_reason"),
+        "policy_blocked": out.get("stop_reason") == "policy_blocked",
+        "policy_deny": r.get("policy_deny"),
+        "policy_ask_resolved_deny": r.get("policy_ask_resolved_deny"),
+        "policy_dropped": pol.get("dropped") if "dropped" in pol else None,
+        "policy_rounds": rounds,
+        "ungated": out.get("ungated_milestones"),
+        "planner_invalid": planner_invalid,
+        "plan": plan,
+        "milestones_done": r.get("milestones_done"),
+        "completed": r.get("completed"),
+        "cost_usd": out.get("cost_usd"),
+        "wall_s": out.get("wall_s"),
+        "iterations": out.get("iterations"),
+        "cap_bound": out.get("stop_reason") == "budget_exceeded" and (out.get("cost_usd") or 0) >= 0.29,
+        "unmetered": unmetered,
+    }))

@@ -1,0 +1,54 @@
+goal = "Implement the escapes package in the current directory so that escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, and escapes/catalog.py satisfy REQUIREMENTS.md."
+
+[[milestones]]
+id = "layout"
+title = "Inspect and prepare the package layout"
+task = "In the current directory, read REQUIREMENTS.md. Ensure the escapes package exists and contains escapes/__init__.py, escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, and escapes/catalog.py. Create any missing files, preserve existing stubs, and keep the ENTITIES table in escapes/catalog.py unchanged. Work only inside this directory and do not use network access."
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "shell"
+title = "Implement shell quoting"
+task = "In the current directory, edit escapes/shell.py to implement quote(arg: str) -> str. Return two single quotes for an empty string. Return the input unchanged if it contains only A-Z, a-z, 0-9, underscore, at sign, percent sign, plus, equals, colon, comma, period, slash, or hyphen. Otherwise wrap the string in single quotes and replace every internal single quote with the sequence single quote, double quote, single quote, double quote, single quote. Preserve the function name and module name."
+
+[[milestones]]
+id = "json-encode"
+title = "Implement JSON string encoding"
+task = "In the current directory, edit escapes/jsonstr.py to implement encode(s: str) -> str without importing the json module. Return a JSON string literal surrounded by double quotes. Escape double quote as backslash double quote, backslash as double backslash, and the control characters backspace, form feed, newline, carriage return, and tab as backslash b, backslash f, backslash n, backslash r, and backslash t. Encode any other character below 0x20 as backslash u followed by 00 and two lowercase hex digits. Leave slash and non-ASCII characters unchanged. Preserve the function name."
+
+[[milestones]]
+id = "json-decode"
+title = "Implement JSON string decoding"
+task = "In the current directory, edit escapes/jsonstr.py to implement decode(lit: str) -> str without importing the json module. It must be the inverse of encode. Accept backslash double quote, backslash backslash, backslash slash, backslash b, backslash f, backslash n, backslash r, backslash t, and backslash u followed by four hexadecimal digits in either case. Decode surrogate pairs such as backslash u d83d backslash u de00 to one character. Raise ValueError when lit does not start and end with double quotes, including a length-one text, when a backslash is followed by an unsupported character or ends the text, when backslash u is not followed by exactly four hexadecimal digits, or when a high surrogate is not immediately followed by a low surrogate escape or a low surrogate appears without a preceding high surrogate. Preserve the function name."
+
+[[milestones]]
+id = "winpath"
+title = "Implement Windows path conversion"
+task = "In the current directory, edit escapes/winpath.py to implement to_posix(path: str) -> str. Treat every backslash as slash. Convert a leading drive letter X: followed by slash or end of text to /x with the drive letter lowercased. Keep a leading double slash UNC prefix as double slash. Collapse repeated slashes to one except in the leading UNC prefix. Remove one trailing slash. Keep other text unchanged. Preserve the function name."
+
+[[milestones]]
+id = "catalog"
+title = "Implement HTML entity unescaping"
+task = "In the current directory, edit escapes/catalog.py to implement unescape_html(s: str) -> str while leaving the ENTITIES table unchanged. Replace ampersand name semicolon with the character for ENTITIES[name] only when name is an exact case-sensitive key. Decode numeric references ampersand hash decimal digits semicolon and ampersand hash x or X hexadecimal digits semicolon, accepting digits in either case. Leave any other text unchanged. Decode each reference only once, so ampersand hash 38 semicolon ampersand a m p semicolon becomes ampersand a m p semicolon. Preserve the function name."
+
+[[milestones]]
+id = "tests"
+title = "Run and pass the provided test suite"
+task = "In the current directory, run python -m pytest -q. Fix any failures in escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, or escapes/catalog.py while respecting REQUIREMENTS.md. Do not modify the ENTITIES table and do not import json in escapes/jsonstr.py."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "escapes/shell.py" },
+  { kind = "file_exists", path = "escapes/jsonstr.py" },
+  { kind = "file_exists", path = "escapes/winpath.py" },
+  { kind = "file_exists", path = "escapes/catalog.py" },
+]
+
+[[milestones]]
+id = "edge-review"
+title = "Review edge cases beyond the test suite"
+task = "In the current directory, manually verify behavior beyond the partial test suite: empty shell quoting, safe-character shell quoting, single-quote shell escaping, JSON round-trip, JSON invalid escape and surrogate errors, Windows drive paths, UNC paths, repeated slashes, trailing slash, HTML named entities, decimal and hexadecimal references, unknown entities, and double-reference decoding. Make any final fixes needed."

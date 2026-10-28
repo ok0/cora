@@ -1,0 +1,133 @@
+{
+ "blocked": [],
+ "files": [
+  "artifacts/cora-m20d-deepseek-deadline.toml",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/meta/launch.txt",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/meta/runrow.out",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/meta/start.txt",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/meta/time.txt",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/outcome.json",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/projects/20261028-130445-3c9b6f/checkpoint.json",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/projects/20261028-130445-3c9b6f/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/projects/20261028-130445-3c9b6f/plan.toml",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-130445-dd01af/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-130523-9c5875/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-130941-75c392/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-131131-cafbdf/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-131933-25c5e7/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-132154-6c1db6/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-132856-46d924/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/meta/launch.txt",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/meta/runrow.out",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/meta/start.txt",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/meta/time.txt",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/outcome.json",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/projects/20261028-133123-465016/checkpoint.json",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/projects/20261028-133123-465016/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/projects/20261028-133123-465016/plan.toml",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/sessions/20261028-133123-3e2ce8/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/sessions/20261028-140328-fbd881/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/sessions/20261028-140657-726376/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/sessions/20261028-141447-e3f803/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/sessions/20261028-141742-abfb6f/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_h03-r1/sessions/20261028-142410-95fc92/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/meta/runrow.out",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/meta/start.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/meta/time.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/outcome.json",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/projects/20261028-105829-e7026a/checkpoint.json",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/projects/20261028-105829-e7026a/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/projects/20261028-105829-e7026a/plan.toml",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-110743-ca3671/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-110812-9bf40b/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-111159-0bb2ef/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/meta/runrow.out",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/meta/start.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/meta/time.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/outcome.json",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/projects/20261028-112308-8044b9/checkpoint.json",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/projects/20261028-112308-8044b9/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/projects/20261028-112308-8044b9/plan.toml",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/sessions/20261028-112308-88b76b/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/sessions/20261028-113854-515a7c/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/sessions/20261028-114057-11e9bd/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/sessions/20261028-114607-9b2690/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r1/sessions/20261028-115337-ec58da/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/meta/guard.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/meta/runrow.out",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/meta/start.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/meta/time.txt",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/outcome.json",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/projects/20261028-120515-c7c46f/checkpoint.json",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/projects/20261028-120515-c7c46f/events.jsonl",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/projects/20261028-120515-c7c46f/plan.toml",
+  "artifacts/m20d-deepseek-v2/e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl",
+  "artifacts/m20d-rehearsal/e2e_h03-r0/meta/runrow.out",
+  "artifacts/m20d-rehearsal/e2e_h03-r0/meta/stderr.txt",
+  "artifacts/m20d-rehearsal/e2e_h03-r0/outcome.json",
+  "artifacts/m20d-rehearsal/e2e_n08-r0/meta/runrow.out",
+  "artifacts/m20d-rehearsal/e2e_n08-r0/meta/stderr.txt",
+  "artifacts/m20d-rehearsal/e2e_n08-r0/outcome.json",
+  "extract.jsonl",
+  "ledger.md",
+  "m17diff.txt",
+  "m20d_extract.py.txt",
+  "readiness.txt",
+  "rehearsal.jsonl",
+  "runs.jsonl"
+ ],
+ "not_copied": [
+  {
+   "path": "runs/*/ws (task files, .cora/memory, .cora/home)",
+   "reason": "task workspace; rebuilt by prepare; memory not evidence for M20e"
+  },
+  {
+   "path": "runs/*/ws/.cora/sessions/*/session.json",
+   "reason": "session state snapshot; events.jsonl kept"
+  },
+  {
+   "path": "rehearsal/*/ws, rehearsal/*/records, rehearsal/*.ws",
+   "reason": "task workspace / empty record dir (records 0) / path note"
+  },
+  {
+   "path": "scratch-*.sh, results-*.md, amend.md, *.txt logs",
+   "reason": "operator scratch; results already in .docs/bench-results.md"
+  }
+ ],
+ "partial_tmp": [
+  {
+   "file": "artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-105829-975b19/events.jsonl",
+   "line": 60
+  },
+  {
+   "file": "artifacts/m20d-deepseek-v2/e2e_h03-r0/outcome.json",
+   "line": 78
+  },
+  {
+   "file": "artifacts/m20d-deepseek-v2/e2e_h03-r0/projects/20261028-130445-3c9b6f/checkpoint.json",
+   "line": 327
+  },
+  {
+   "file": "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-131131-cafbdf/events.jsonl",
+   "line": 11
+  },
+  {
+   "file": "artifacts/m20d-deepseek-v2/e2e_h03-r0/sessions/20261028-131131-cafbdf/events.jsonl",
+   "line": 12
+  },
+  {
+   "file": "artifacts/m20d-deepseek-v2/e2e_h03-r0/meta/time.txt",
+   "line": 99
+  }
+ ],
+ "placeholders": {
+  "<HOME>": "home directory",
+  "<M20D>": "M20d working dir",
+  "<TMP-PARTIAL>": "truncated temp-path fragment",
+  "<TMP>": "system temp directory"
+ },
+ "redactions": [],
+ "source": "$TMPDIR/cora-m20d (via backup if used)"
+}

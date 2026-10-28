@@ -1,0 +1,55 @@
+goal = "Build the contacts package in the current directory according to REQUIREMENTS.md, implementing normalize_email, normalize_phone, dedupe, and the CLI."
+
+[[milestones]]
+id = "m1"
+title = "Create package skeleton and tests"
+task = "Create the package and test skeleton inside the current directory only. Add contacts/__init__.py, contacts/normalize.py, contacts/merge.py, and contacts/cli.py. Put stub functions normalize_email, normalize_phone, dedupe, and main in the corresponding files so imports succeed; stubs may raise NotImplementedError. Add tests/__init__.py, tests/test_normalize.py, tests/test_merge.py, and tests/test_cli.py with unittest tests that cover the REQUIREMENTS.md examples: email normalization, phone normalization, the worked dedupe example, CLI success with the six-row example, missing email column, and unreadable input. CLI tests must call main with argument lists and use temporary files created under the current directory and cleaned up, without network access."
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "contacts/cli.py" },
+  { kind = "file_exists", path = "tests/__init__.py" },
+  { kind = "file_exists", path = "tests/test_normalize.py" },
+  { kind = "file_exists", path = "tests/test_merge.py" },
+  { kind = "file_exists", path = "tests/test_cli.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement normalization"
+task = "Implement contacts/normalize.py. normalize_email must strip surrounding whitespace, lowercase the whole value, return the value unchanged after lowercasing if there is no @, and for gmail.com or googlemail.com remove every dot from the local part, drop a + suffix, and return local@gmail.com. For other domains, keep the local part as-is after lowercasing. normalize_phone must strip input, extract digits, return plus followed by digits after leading 00 when the stripped input starts with 00, return plus 1 followed by the digits when there are exactly 10 digits, return plus followed by all digits when there is at least one digit, and return an empty string when there are no digits. Ensure tests/test_normalize.py passes."
+check = "python3 -m unittest tests.test_normalize"
+conditions = [
+  { kind = "file_exists", path = "contacts/normalize.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement dedupe"
+task = "Implement contacts/merge.py. dedupe must use normalize_email to compute keys. Two rows are duplicates when normalized emails are equal, but a row with an empty normalized email is never merged. The first row of each key keeps its position and raw values. Each later duplicate fills only fields that are empty in the kept row; non-empty fields are never changed, and when several duplicates supply the same empty field, the earliest non-empty value wins. Return kept rows and removed_count. Ensure the worked example from REQUIREMENTS.md passes."
+check = "python3 -m unittest tests.test_merge"
+conditions = [
+  { kind = "file_exists", path = "contacts/merge.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Implement CLI"
+task = "Implement contacts/cli.py. main(argv=None) must treat argv as arguments after the program name, and when argv is None use sys.argv[1:]. It expects IN and OUT. If IN cannot be read, print exactly 'error: cannot read IN' to stderr, return 1, and do not create OUT. If the header has no column named email, print exactly 'error: no email column' to stderr, return 2, and do not create OUT. Otherwise read the CSV with csv.DictReader, run dedupe on the rows, normalize the email column of every kept row with normalize_email, and normalize the phone column with normalize_phone if the header has phone. Write OUT with the same header and column order as IN using the csv module. Print kept K, removed R to stdout and return 0. Add an if __name__ == '__main__' block that calls main(sys.argv[1:]) and exits with its return code. Ensure tests/test_cli.py passes."
+check = "python3 -m unittest tests.test_cli"
+conditions = [
+  { kind = "file_exists", path = "contacts/cli.py" },
+]
+
+[[milestones]]
+id = "m5"
+title = "Run full verification"
+task = "Run the complete unittest suite from the workspace root and fix any remaining failures only inside the current directory. Confirm that contacts/__init__.py, contacts/normalize.py, contacts/merge.py, and contacts/cli.py exist, that the CLI example output matches REQUIREMENTS.md, and that no files outside the directory are left behind."
+check = "python3 -m unittest tests.test_normalize tests.test_merge tests.test_cli"
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "contacts/cli.py" },
+]

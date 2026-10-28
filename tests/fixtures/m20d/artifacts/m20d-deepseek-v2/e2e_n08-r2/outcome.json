@@ -1,0 +1,143 @@
+{
+  "ok": false,
+  "stop_reason": "policy_blocked",
+  "final_answer": null,
+  "session_id": "20261028-120515-8eca84",
+  "iterations": 3,
+  "cost_usd": 0.00622947028,
+  "tokens": {
+    "in": 13752,
+    "out": 8728
+  },
+  "wall_s": 217.604,
+  "models": [
+    "deepseek/deepseek-v3.2"
+  ],
+  "tools": {
+    "list_files": 2,
+    "search": 2,
+    "read_file": 4,
+    "todo_write": 1,
+    "edit_file": 1,
+    "run_shell": 5
+  },
+  "policy": {
+    "mode": "policy",
+    "source": "builtin",
+    "allow": 10,
+    "ask": 0,
+    "deny": 5,
+    "ask_resolved_deny": 0,
+    "decisions_dropped": 0,
+    "decisions": [
+      {
+        "ts": "2026-10-28T03:08:33.105058+00:00",
+        "tool": "run_shell",
+        "args": "cd contacts && python normalize.py",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T03:08:33.105550+00:00",
+        "tool": "run_shell",
+        "args": "cd contacts && python -c \"import normalize; print(normalize.normalize_email('test.user+foo@gmail.com'))\"",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T03:08:33.105806+00:00",
+        "tool": "run_shell",
+        "args": "cd contacts && python -c \"import normalize; print(normalize.normalize_email('test.user+foo@googlemail.com'))\"",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T03:08:33.106031+00:00",
+        "tool": "run_shell",
+        "args": "cd contacts && python -c \"import normalize; print(normalize.normalize_email('  notanemail  '))\"",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T03:08:33.106254+00:00",
+        "tool": "run_shell",
+        "args": "cd contacts && python -c \"import normalize; print(repr(normalize.normalize_email('')))\"",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      }
+    ]
+  },
+  "budget": {
+    "limits": {
+      "cost_usd": 0.3,
+      "iterations": 200,
+      "wall_s": 8000.0,
+      "tool_calls": 200
+    },
+    "used": {
+      "cost_usd": 0.00622947028,
+      "iterations": 3,
+      "wall_s": 217.592,
+      "tool_calls": 15
+    },
+    "tripped": null,
+    "warned": false
+  },
+  "warnings": [],
+  "errors": [],
+  "exit_code": 5,
+  "run_id": "20261028-120515-c7c46f",
+  "milestones": [
+    {
+      "id": "normalize_email",
+      "status": "failed",
+      "session_id": "20261028-120515-8eca84",
+      "cost_usd": 0.00550575028,
+      "gate": {
+        "attempts": 0,
+        "passed": false,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "normalize_phone",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0,
+      "gate": null
+    },
+    {
+      "id": "dedupe",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0,
+      "gate": null
+    },
+    {
+      "id": "cli",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0,
+      "gate": null
+    },
+    {
+      "id": "integration",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0,
+      "gate": null
+    },
+    {
+      "id": "lint",
+      "status": "pending",
+      "session_id": null,
+      "cost_usd": 0.0
+    }
+  ],
+  "ungated_milestones": []
+}

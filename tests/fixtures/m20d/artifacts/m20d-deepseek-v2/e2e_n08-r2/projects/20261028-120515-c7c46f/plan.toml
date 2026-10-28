@@ -1,0 +1,56 @@
+goal = "Build the Python package 'contacts/' with email/phone normalization, de-duplication, and CLI as described in REQUIREMENTS.md"
+
+[[milestones]]
+id = "normalize_email"
+title = "Implement email normalization"
+task = "Create contacts/normalize.py with normalize_email() function that follows the specification, including handling of gmail.com/googlemail.com domains, stripping whitespace, lowercasing, removing dots and + suffixes for those domains."
+check = "python -m pytest -v tests/test_normalize_email.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "tests/test_normalize_email.py" },
+]
+
+[[milestones]]
+id = "normalize_phone"
+title = "Implement phone normalization"
+task = "Add normalize_phone() function to contacts/normalize.py following the digit extraction rules: handle 00 prefix, 10-digit US numbers, and other digit patterns."
+check = "python -m pytest -v tests/test_normalize_phone.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/normalize.py" },
+  { kind = "file_exists", path = "tests/test_normalize_phone.py" },
+]
+
+[[milestones]]
+id = "dedupe"
+title = "Implement de-duplication logic"
+task = "Create contacts/merge.py with dedupe() function that merges rows based on normalized email equality, fills empty fields from duplicates, and returns (kept_rows, removed_count)."
+check = "python -m pytest -v tests/test_dedupe.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/merge.py" },
+  { kind = "file_exists", path = "tests/test_dedupe.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Build command-line interface"
+task = "Create contacts/cli.py with main() function that reads CSV, validates email column, calls dedupe, normalizes email/phone columns, writes output CSV, and prints 'kept K, removed R'."
+check = "python -m pytest -v tests/test_cli.py"
+conditions = [
+  { kind = "file_exists", path = "contacts/cli.py" },
+  { kind = "file_exists", path = "tests/test_cli.py" },
+]
+
+[[milestones]]
+id = "integration"
+title = "Run integration tests"
+task = "Create integration tests that verify the full pipeline with example CSV files, checking output format and correctness."
+check = "python -m pytest -v tests/test_integration.py"
+conditions = [
+  { kind = "file_exists", path = "tests/test_integration.py" },
+]
+
+[[milestones]]
+id = "lint"
+title = "Check code quality"
+task = "Run ruff linter to ensure code follows Python best practices and style guidelines."
+check = "ruff check contacts/ tests/"

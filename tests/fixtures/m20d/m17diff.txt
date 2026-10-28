@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0
+rootdir: <M20D>/pin
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collected 1 item
+
+tests/test_m17_off_identity.py F                                         [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_off_prompts_match_baseline ________________________
+
+tmp_path = PosixPath('<TMP>/pytest-of-yoonjonghun/pytest-1821/test_off_prompts_match_baselin0')
+
+    def test_off_prompts_match_baseline(tmp_path):
+>       assert capture(tmp_path) == json.loads(FIXTURE.read_text("utf-8"))
+E       assert [[{'role': 's...e}, ...], ...] == [[{'role': 's...e}, ...], ...]
+E         
+E         At index 5 diff: [{'role': 'system', 'content': 'You are CORA, a cost-efficient coding and research agent working inside the directory: <WS>.\nSolve the task by interleaving short reasoning with tool use.\n\nAvailable tools:\n- list_files: List files recursively (relative paths). Args: {"path": str = "."}\n- read_file: Read a text file with line numbers. Args: {"path": str, "start_line": int = 1, "end_line": int | None}\n- search: Search file contents with a regex; returns path:line: text. Args: {"pattern": str (regex), "path": str = ".", "max_results": int = 100}\n- ed...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/test_m17_off_identity.py:91: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_m17_off_identity.py::test_off_prompts_match_baseline - asse...
+============================== 1 failed in 0.96s ===============================

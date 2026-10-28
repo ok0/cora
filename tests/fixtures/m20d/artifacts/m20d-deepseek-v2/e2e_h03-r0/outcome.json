@@ -1,0 +1,275 @@
+{
+  "ok": false,
+  "stop_reason": "budget_exceeded",
+  "final_answer": null,
+  "session_id": "20261028-132856-46d924",
+  "iterations": 182,
+  "cost_usd": 0.20172069667999998,
+  "tokens": {
+    "in": 1518766,
+    "out": 78685
+  },
+  "wall_s": 1653.069,
+  "models": [
+    "deepseek/deepseek-v3.2"
+  ],
+  "tools": {
+    "read_file": 60,
+    "list_files": 7,
+    "search": 10,
+    "run_shell": 60,
+    "write_file": 24,
+    "edit_file": 20,
+    "delete_file": 5,
+    "git_status": 1
+  },
+  "policy": {
+    "mode": "policy",
+    "source": "builtin",
+    "allow": 172,
+    "ask": 5,
+    "deny": 12,
+    "ask_resolved_deny": 5,
+    "decisions_dropped": 0,
+    "decisions": [
+      {
+        "ts": "2026-10-28T04:08:03.451257+00:00",
+        "tool": "run_shell",
+        "args": "python - <<'PY'\nfrom escapes.shell import quote\nfrom escapes.jsonstr import encode, decode\nfrom escapes.winpath import to_posix\nfrom escapes.catalog import unescape_html\n\n# --- shell.quote edge cases ",
+        "decision": "deny",
+        "rule": "confine:newline",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:09:26.795671+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"from escapes.shell import quote; print(repr(quote(''))); print(repr(quote('abc-1.txt'))); print(repr(quote('it\\'s'))); print(repr(quote('a b'))); print(repr(quote('$HOME')))\"",
+        "decision": "deny",
+        "rule": "confine:variable",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:10:00.794049+00:00",
+        "tool": "run_shell",
+        "args": "cd <M20D>/runs/e2e_h03-r0/ws && python -m pytest -q 2>&1 | tail -20",
+        "decision": "deny",
+        "rule": "confine:cd",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:10:10.700577+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"\nimport escapes.jsonstr as j\n# encode checks\nassert j.encode('a\\\"b\\\\\\\\c\\n') == '\\\"a\\\\\\\"b\\\\\\\\\\\\\\\\c\\\\n\\\"', j.encode('a\\\"b\\\\\\\\c\\n'))\nassert j.encode('') == '\\\"\\\"'\nassert j.encode(chr(0)) == '\\",
+        "decision": "deny",
+        "rule": "confine:newline",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:10:33.169422+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"verify_jsonstr.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:12:53.840957+00:00",
+        "tool": "run_shell",
+        "args": "cd <TMP-PARTIAL> && python -m pytest tests/test_escapes.py -xvs -k winpath",
+        "decision": "deny",
+        "rule": "floor:outside-workspace",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:16:13.260678+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"final_check.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:16:34.959770+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"import sys; sys.path.insert(0, '.'); from escapes.winpath import to_posix; print(to_posix('C:\\\\Users\\\\\u03b1\u03b2\u03b3\\\\file.txt'))\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:16:45.088499+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"unicode_test.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:19:44.110522+00:00",
+        "tool": "run_shell",
+        "args": "cd escapes && python3 -c \"\nimport catalog as c\nprint(repr(c.unescape_html('&amp;')))\nprint(repr(c.unescape_html('&#65;&#x41;&#X61;')))\nprint(repr(c.unescape_html('&bogus; &amp')))\nprint(repr(c.unescap",
+        "decision": "deny",
+        "rule": "confine:newline",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:20:25.885075+00:00",
+        "tool": "run_shell",
+        "args": "python3 -c \"from escapes.catalog import unescape_html as u; print(u('&eacute;'), u('&lt;p&gt;'), u('&#65;'), u('&#x4a;'), u('&#x1F600;'), u('&bogus;'), u('&#38;amp;'), u('&#x110000;'))\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:20:35.234821+00:00",
+        "tool": "run_shell",
+        "args": "grep -nE '^    \"[^\"]*\"' escapes/catalog.py | grep -vE '^\\s*[0-9]+:\\s+\"[A-Za-z][A-Za-z0-9]*\":",
+        "decision": "deny",
+        "rule": "confine:parse",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:20:59.874784+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"test_unescape.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:22:11.474115+00:00",
+        "tool": "run_shell",
+        "args": "python -c \"import escapes; print('import ok')\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:23:18.285285+00:00",
+        "tool": "run_shell",
+        "args": "for f in verify_jsonstr.py verify_edge.py verify_examples.py unicode_test.py edge_check.py edge_unescape.py final_check.py final_verify.py check_shell.py debug.py; do echo \"=== $f ===\"; python $f; don",
+        "decision": "deny",
+        "rule": "confine:variable",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:24:48.963712+00:00",
+        "tool": "delete_file",
+        "args": "{\"path\": \"test_import.py\"}",
+        "decision": "ask",
+        "rule": "default:delete",
+        "resolved": "deny"
+      },
+      {
+        "ts": "2026-10-28T04:28:43.860068+00:00",
+        "tool": "run_shell",
+        "args": "python -m pytest -q && python -c \"import escapes; print('import ok')\"",
+        "decision": "deny",
+        "rule": "confine:one-liner",
+        "resolved": "deny"
+      }
+    ]
+  },
+  "budget": {
+    "limits": {
+      "cost_usd": 0.3,
+      "iterations": 240,
+      "wall_s": 9600.0,
+      "tool_calls": 200
+    },
+    "used": {
+      "cost_usd": 0.2017206966799998,
+      "iterations": 182,
+      "wall_s": 1653.047,
+      "tool_calls": 200
+    },
+    "tripped": "tool_calls",
+    "warned": true
+  },
+  "warnings": [
+    "warning: budget tool_calls reached 80% of its limit (160 of 200)"
+  ],
+  "errors": [],
+  "exit_code": 4,
+  "run_id": "20261028-130445-3c9b6f",
+  "milestones": [
+    {
+      "id": "m1",
+      "status": "completed",
+      "session_id": "20261028-130445-dd01af",
+      "cost_usd": 0.0023873256000000002,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m2",
+      "status": "completed",
+      "session_id": "20261028-130523-9c5875",
+      "cost_usd": 0.02829815326,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m3",
+      "status": "completed",
+      "session_id": "20261028-130941-75c392",
+      "cost_usd": 0.006726564,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m4",
+      "status": "completed",
+      "session_id": "20261028-131131-cafbdf",
+      "cost_usd": 0.09442996,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m5",
+      "status": "completed",
+      "session_id": "20261028-131933-25c5e7",
+      "cost_usd": 0.0101731896,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m6",
+      "status": "completed",
+      "session_id": "20261028-132154-6c1db6",
+      "cost_usd": 0.05316876822,
+      "gate": {
+        "attempts": 1,
+        "passed": true,
+        "failed_condition": null
+      }
+    },
+    {
+      "id": "m7",
+      "status": "failed",
+      "session_id": "20261028-132856-46d924",
+      "cost_usd": 0.0030829104,
+      "gate": {
+        "attempts": 0,
+        "passed": false,
+        "failed_condition": null
+      }
+    }
+  ],
+  "ungated_milestones": []
+}
