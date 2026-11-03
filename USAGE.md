@@ -1634,9 +1634,9 @@ command = "curl https://api.example.com/*"
 - `[headless]`: `cora run --headless`와 `--json` 실행의 벽시계 시간(`max_wall_s`, 기본 900)과 도구 호출 수(`max_tool_calls`, 기본 200) 상한입니다. 비용과 반복 횟수는 `[agent]`를 따릅니다.
 - `[policy]`: 자율 승인 정책입니다. 자세한 내용은 자율 승인 정책 섹션을 보세요. `.cora/policy.toml`이 있으면 이 섹션 대신 그 파일을 씁니다.
 - `[memory]`: 대화 컨텍스트의 예산과 보존 기준을 설정합니다.
-  - `ledger`(기본값 `false`): true면 고정된 작업 상태 원장(ledger)을 씁니다. 원장은 편집한 파일(경로, 편집 횟수, 마지막 반복), 실행한 검사(명령, 통과/실패, 반복, 결과 끝부분 짧게), 결정(게이트, 반성, 에스컬레이션, `tests_modified`, 잘림/파싱 거부)을 기록합니다. 모델 호출은 하지 않으며 축출되지 않습니다. 보호 경로는 `<protected>`로, 비밀 값은 `<redacted>`로 표시됩니다.
+  - `ledger`(기본값 `false`): true면 고정된 작업 상태 원장(ledger)을 씁니다. 원장은 편집한 파일(경로, 편집 횟수, 마지막 반복), 실행한 검사(명령, 통과/실패, 반복, 결과 끝부분 짧게), 결정(게이트, 반성, 에스컬레이션, `tests_modified`, 잘림/파싱 거부)을 기록합니다. 모델 호출은 하지 않으며 축출되지 않습니다. 보호 경로는 `<protected>`로, 비밀 값은 `<redacted>`로 표시됩니다. M21 측정(무료 Gemini, 비-G1, free-tier directional, 공통 과제 5개): 해결 OFF 14/15 → ON 15/15, 평균 입력 토큰 235525 → 210310(−10.7%), 판정 `not measured (공통 과제 5 < 6)`, 현재 기본값은 꺼짐입니다.
   - `ledger_max_chars`(기본값 1500, 범위 200-20000): 원장의 글자 수 상한입니다. 오래된 통과 검사와 편집 횟수부터 압축하며, 가장 최근 검사와 편집한 파일 경로는 남깁니다.
-  - `summarize`: `"off"` 또는 `"llm"`, 기본값 `"off"`. `"llm"`이면 메시지가 축출될 때만 저비용 모델을 부르며, 축출 한 번당 최대 한 번입니다. 입력은 상한이 있고 파일 내용은 제외합니다. 이 호출은 계측되고 예산 상한의 통제를 받으며, 실패하면 결정론적 원장으로 대체합니다. `ledger = false`여도 허용되며, 이때는 요약 한 줄만 남깁니다. 요약 모델은 실행에 고정한 모델이 아니라 `[[models]]`의 첫 번째 cheap 티어 항목입니다(기본 카탈로그에서는 유료 OpenRouter 모델).
+  - `summarize`: `"off"` 또는 `"llm"`, 기본값 `"off"`. `"llm"`이면 메시지가 축출될 때만 저비용 모델을 부르며, 축출 한 번당 최대 한 번입니다. 입력은 상한이 있고 파일 내용은 제외합니다. 이 호출은 계측되고 예산 상한의 통제를 받으며, 실패하면 결정론적 원장으로 대체합니다. `ledger = false`여도 허용되며, 이때는 요약 한 줄만 남깁니다. 요약 모델은 실행에 고정한 모델이 아니라 `[[models]]`의 첫 번째 cheap 티어 항목입니다(기본 카탈로그에서는 유료 OpenRouter 모델). M21 측정(무료 Gemini, 비-G1, free-tier directional, 공통 과제 5개): 해결 OFF 14/15 → ON 11/15, 평균 입력 토큰 235525 → 214186(−9.1%), 판정 `not measured (공통 과제 5 < 6)`, 현재 기본값은 `"off"`입니다.
   - 잘못된 값이거나 `[memory]`에 알 수 없는 키가 있으면 종료 코드 2입니다.
   - 이벤트: `ledger_update`, `ledger_evict_note`, `summary_call`.
 - `[context]`: 저장소 규모 컨텍스트(저장소 맵, 중복 읽기 제거)를 설정합니다. 모두 기본값 꺼짐(false)입니다.
@@ -1672,7 +1672,7 @@ command = "curl https://api.example.com/*"
 
 캐시는 `.cora/index/repomap.json`에 저장합니다. 캐시 항목은 경로, mtime, 크기를 키로 삼으며, 바뀌었거나 새로 생긴 파일만 다시 구문 분석합니다. 삭제된 파일은 캐시에서도 빠집니다. 캐시 파일을 읽거나 해석하지 못하거나 버전이 다르면 빈 캐시로 시작합니다. `.cora/`는 `.gitignore`에 들어 있습니다.
 
-하위 에이전트(위임)와 이어하기한 세션도 같은 `[context]` 설정을 따릅니다. 토큰 절감 효과는 오프라인에서만 측정했습니다. `tests/test_context_agent.py`가 `tests/repo_fixture.py`로 만든 저장소에서 OFF, 맵, 중복 제거, 둘 다 켠 경우의 요청 토큰 합을 비교하며, 네 경우 모두 최종 답은 같습니다. 실제 모델 호출로는 검증하지 않았으며, 기본값은 꺼짐으로 둡니다.
+하위 에이전트(위임)와 이어하기한 세션도 같은 `[context]` 설정을 따릅니다. 토큰 절감 효과는 오프라인에서만 측정했습니다. `tests/test_context_agent.py`가 `tests/repo_fixture.py`로 만든 저장소에서 OFF, 맵, 중복 제거, 둘 다 켠 경우의 요청 토큰 합을 비교하며, 네 경우 모두 최종 답은 같습니다. M21에서 실제 무료 Gemini 호출로도 측정했습니다(비-G1, free-tier directional, 공통 과제 5개). `repo_map`(M): 해결 OFF 14/15 → ON 14/15, 평균 입력 토큰 −0.3%. `dedupe_reads`(D): 해결 OFF 14/15 → ON 12/15, 평균 입력 토큰 235525 → 179495(−23.8%)이지만 e2e_n03이 0/3입니다. 판정은 둘 다 `not measured (공통 과제 5 < 6)`이므로 현재 기본값은 꺼짐입니다.
 
 ### 프롬프트 비용 스위치 (`[cache]`)
 
@@ -1680,7 +1680,7 @@ command = "curl https://api.example.com/*"
 
 - `prompt_cache`(기본값 false): 시스템 프롬프트에 캐시 표시를 붙입니다. `cache = true`인 모델에만 적용됩니다.
 - `tool_descriptions`(`"full"`/`"terse"`, 기본값 `"full"`): `terse`이면 내장 도구 설명을 60자 이하의 짧은 문장으로 바꿉니다. 네이티브 도구 스키마의 설명은 이 짧은 문장만 담고, react 프롬프트는 짧은 문장 뒤에 인자 설명(`Args:`)을 붙입니다.
-- `compress_observations`(기본값 false): `[memory].keep_last_messages`보다 오래된 관찰을 앞뒤만 남기고 줄입니다. 새로 줄인 관찰 수를 `observation_compress` 이벤트(`compressed`, `iteration`)로 남깁니다. 축출 때만이 아니라 컨텍스트를 구성할 때마다 적용됩니다.
+- `compress_observations`(기본값 false): `[memory].keep_last_messages`보다 오래된 관찰을 앞뒤만 남기고 줄입니다. 새로 줄인 관찰 수를 `observation_compress` 이벤트(`compressed`, `iteration`)로 남깁니다. 축출 때만이 아니라 컨텍스트를 구성할 때마다 적용됩니다. M21 측정(무료 Gemini, 비-G1, free-tier directional, 공통 과제 5개): 해결 OFF 14/15 → ON 12/15, 평균 입력 토큰 235525 → 209778(−10.9%), 판정 `not measured (공통 과제 5 < 6)`, 현재 기본값은 꺼짐입니다.
 - `compress_chars`(기본값 800, 0보다 큰 정수): 줄인 관찰마다 앞뒤로 남기는 글자 수입니다.
 
 모델별 키는 `[[models]]` 항목에 씁니다.
