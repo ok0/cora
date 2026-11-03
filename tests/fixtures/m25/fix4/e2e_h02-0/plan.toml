@@ -1,0 +1,29 @@
+goal = "Build the ledger package according to REQUIREMENTS.md, implementing book.py, report.py, importer.py, and ensuring tests/test_ledger.py passes."
+
+[[milestones]]
+id = "m1"
+title = "Implement Book balance and balances in ledger/book.py"
+task = "Implement balance(account) and balances() in ledger/book.py as specified in REQUIREMENTS.md. Do not modify models.py, Book.add, or Book.entries."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "ledger/book.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement format_cents and monthly_summary in ledger/report.py"
+task = "Implement format_cents(n) and monthly_summary(book, account) in ledger/report.py according to the requirements."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "ledger/report.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement load_lines in ledger/importer.py and verify all tests"
+task = "Implement load_lines(lines) in ledger/importer.py to parse entries correctly and build a Book, raising ValueError with the expected format on malformed lines. Ensure all tests in tests/test_ledger.py pass."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "ledger/importer.py" },
+  { kind = "file_exists", path = "tests/test_ledger.py" },
+]

@@ -1,0 +1,11 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: tracker/models.py, tracker/storage.py, tracker/service.py, tracker/cli.py, tracker/formatting.py. Work only inside this directory."
+
+[[milestones]]
+id = "test"
+title = "Run pytest"
+task = "Run pytest to verify current test failures or baseline."
+check = "pytest -q"
+conditions = [
+  { kind = "file_exists", path = "REQUIREMENTS.md" },
+  { kind = "file_exists", path = "tests/test_tracker.py" },
+]

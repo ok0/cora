@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "key": "041ef48aaff40fa7ffc5602110b61c457c1d1b78bf28fb2dce3b940cbc7d5cdf",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-11-03T13:02:07+00:00",
+  "request": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content": "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\n- Every \"path\" of a file_exists condition and every file path a \"check\" or \"command\" names must be named in the goal or listed under \"Files already in the workspace\". Do not check files that only your own plan introduces. A test selector in a \"check\" or \"command\" must match a test that already exists in the workspace or that the goal names.\nShell policy for \"check\" and \"command\" conditions:\nAllowed commands (glob patterns; * matches any text): pytest, pytest *, python -m pytest, python -m pytest *, python3 -m pytest, python3 -m pytest *, python -m unittest, python -m unittest *, python3 -m unittest, python3 -m unittest *, uv run pytest, uv run pytest *, uv run ruff *, ruff, ruff *, python -m ruff *, python3 -m ruff *, git status, git status *, git diff, git diff *, git log, git log *, git show, git show *, git branch, git branch -a, git branch -v, git branch -vv, git branch --list, git branch --list *, git branch --show-current, ls, ls *, cat *, grep *, head *, tail *, wc *, pwd, echo, echo *, python *.py, python *.py *, python3 *.py, python3 *.py *\nAlso denied, whatever the pattern:\n- One plain command only: no substitution, variables, braces, subshells, heredocs, newlines or '&'.\n- Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.\n- Only the plain options of allowed programs are accepted; unusual or recursive options are denied.\n- Commands run in the workspace root; changing directory is not allowed.\n- Paths must stay inside the workspace and avoid home, protected and credential files.\n- Network access is denied.\n- Running commands as another user is denied.\nA command that needs approval is denied, because this run never prompts.",
+        "extra_content": null,
+        "role": "system",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Goal:\nBuild the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: ledger/book.py, ledger/report.py, ledger/importer.py, tests/test_ledger.py. Work only inside this directory.\n\n--- REQUIREMENTS.md ---\n# Ledger balances and reports\n\nFinish the `ledger` package in this directory. Some functions are stubs that raise\n`NotImplementedError`; implement them. `tests/test_ledger.py` is the specification; do not modify it.\nKeep `ledger/models.py`, `Book.add` and `Book.entries` as they are.\n\n`python -m pytest -q` runs a partial test suite; passing it is necessary but not sufficient.\n\n## Amounts\n\n`parse_amount(s)` (already implemented in `ledger/models.py`) turns text into cents. Accepted forms:\nan optional `-`, one or more digits, and optionally `.` followed by exactly two digits.\nAnything else raises `ValueError(f\"bad amount: {s!r}\")`. Examples: `\"12.30\"` is 1230, `\"-0.05\"` is -5,\n`\"7\"` is 700.\n\n## Book (`ledger/book.py`)\n\n- `balance(account) -> int`: the sum of `amount_cents` of the entries of that account; 0 if the\n  account has no entries.\n- `balances() -> dict[str, int]`: one key per account that has at least one entry, mapped to its\n  balance. The keys are in sorted order. An empty book gives `{}`.\n\n## Reports (`ledger/report.py`)\n\n- `format_cents(n: int) -> str`: a minus sign for negative values, the absolute value with\n  thousands separators `,` in the integer part, and exactly two decimals. Examples: `-1230` gives\n  `\"-12.30\"`, `5` gives `\"0.05\"`, `123456` gives `\"1,234.56\"`, `0` gives `\"0.00\"`.\n- `monthly_summary(book, account) -> list[tuple[str, int]]`: one `(month, total)` tuple per month in\n  which the account has entries, where `month` is the first 7 characters of the entry date\n  (`\"YYYY-MM\"`) and `total` is the sum of that account's `amount_cents` in that month. Only that\n  account's entries count. The list is sorted by month. Months without entries are not listed.\n\n## Import (`ledger/importer.py`)\n\n`load_lines(lines: list[str]) -> Book` builds a `Book` from text lines:\n\n- Each line is stripped of surrounding whitespace first.\n- An empty line, or a line starting with `#`, is skipped.\n- Any other line has the form `YYYY-MM-DD;account;amount;memo`. Split it on `;`; it must give exactly\n  4 fields. The memo may be empty. The amount is converted with `parse_amount`; its `ValueError`\n  is not caught.\n- A line with another number of fields raises `ValueError(\"line N: expected 4 fields\")`, where N is\n  the 1-based position of the line in `lines` (skipped lines are counted).\n- Entries are added to the book in input order.\n\n\nFiles already in the workspace:\nREQUIREMENTS.md\nledger/__init__.py\nledger/book.py\nledger/importer.py\nledger/models.py\nledger/report.py\ntests/test_ledger.py",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      }
+    ],
+    "model": "gemini-3.5-flash-lite",
+    "stop": null,
+    "temperature": 0.0,
+    "tools": null
+  },
+  "response": {
+    "cached_input_tokens": 0,
+    "cost_usd": null,
+    "extra_content": {
+      "google": {
+        "thought_signature": "EmAKXgFpFH0TMZ0YqNH2N4qWw3LuHvaCFtA3U0RJx0mtEvAMjk8qJZbZRln7EgaxQysiY3frUOdu+isRmkSvNgp663NqQWfaaIPAmO9fLJRqK7AngJU298oXRTKOcTzruHU="
+      }
+    },
+    "finish_reason": "stop",
+    "input_tokens": 1468,
+    "model": "gemini-3.5-flash-lite",
+    "output_tokens": 362,
+    "text": "{\"goal\": \"Build the ledger package according to REQUIREMENTS.md, implementing book.py, report.py, importer.py, and ensuring tests/test_ledger.py passes.\", \"milestones\": [{\"id\": \"m1\", \"title\": \"Implement Book balance and balances in ledger/book.py\", \"task\": \"Implement balance(account) and balances() in ledger/book.py as specified in REQUIREMENTS.md. Do not modify models.py, Book.add, or Book.entries.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"ledger/book.py\"}]}, {\"id\": \"m2\", \"title\": \"Implement format_cents and monthly_summary in ledger/report.py\", \"task\": \"Implement format_cents(n) and monthly_summary(book, account) in ledger/report.py according to the requirements.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"ledger/report.py\"}]}, {\"id\": \"m3\", \"title\": \"Implement load_lines in ledger/importer.py and verify all tests\", \"task\": \"Implement load_lines(lines) in ledger/importer.py to parse entries correctly and build a Book, raising ValueError with the expected format on malformed lines. Ensure all tests in tests/test_ledger.py pass.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"ledger/importer.py\"}, {\"kind\": \"file_exists\", \"path\": \"tests/test_ledger.py\"}]}]}",
+    "tool_calls": []
+  },
+  "stream": false
+}

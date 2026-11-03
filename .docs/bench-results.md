@@ -4238,3 +4238,96 @@ R9 열을 가진 추출 표 (`/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/c
 5. 원문이 없는 파싱 실패 (1건: v2 e2e_n08-r2, `Expecting value (line 1, column 1)`) → 일반 수정: `scan_objects` 복구 + `plan_reply_rejected` 관측 (R8) + `[project] plan_repair_hint` (R6–R8). 원인은 원문 미보존으로 확정할 수 없다.
 6. 명령 구성 결함 (1행: v2 e2e_h01 m5 `pytest -q --collect-only \| grep -q 'test session starts'`, 종료 1, 출력 없음) → 일반 수정 없음. 근거: `-q`는 배너를 찍지 않으므로 grep이 맞을 수 없다 (명령 텍스트에서 추론, 재실행하지 않음). 사용자 확인 필요 (Revision 1): 계획 시점에는 이 행을, 작업 전에 실패해야 하는 정상 조건과 구분할 신호가 없다.
 
+
+### (f) 재생 표 (L0, $0): `tests/fixtures/m25/replay.jsonl`
+
+- 명령: `uv run python tests/m25_diag.py replay --out tests/fixtures/m25/replay.jsonl`. 계획 28개 (p1 5, p1b 5, p1c 5, v2 8, m20d 5). 플래그는 저장된 계획에 대한 읽기 전용 모의 실행이다 (정책 `validate_plan_policy`, 경로 `goal_paths`, 선택자 `plan:underived-selector`).
+- 합계: 실패 행 164 = 플래그된 실패 163 + 플래그되지 않은 실패 1. `flagged_passing` 0 (통과 행은 하나도 플래그되지 않음). `policy_flagged` 114, `path_flagged` 35, `selector_flagged` 14. pass-on-reference는 drop 전후 모두 203이다 (drop으로 잃은 통과 행 0).
+- 플래그되지 않은 실패 1건: v2 e2e_h01-r0 m5 `conditions[0]` (`pytest -q --collect-only ... grep -q 'test session starts'`, R5 6번 명령 구성 결함). 2026-11-03 사용자 판단: 'no generic plan-time fix' (R5). 일반 수정 없이 실패 행으로 남긴다.
+
+| 계획 · 과제 | 실패 행 | 정책 차단 | 경로 | 선택자 | 플래그·통과 | 미플래그 실패 | pass-ref 전→후 |
+|---|---|---|---|---|---|---|---|
+| p1 · e2e_h01 | 11 | 11 | 0 | 0 | 0 | 0 | 7→7 |
+| p1 · e2e_h02 | 6 | 6 | 0 | 0 | 0 | 0 | 9→9 |
+| p1 · e2e_h03 | 7 | 7 | 0 | 0 | 0 | 0 | 5→5 |
+| p1 · e2e_h05 | 8 | 8 | 0 | 0 | 0 | 0 | 6→6 |
+| p1 · e2e_h06 | 9 | 9 | 0 | 0 | 0 | 0 | 5→5 |
+| p1b · e2e_h01 | 5 | 5 | 0 | 0 | 0 | 0 | 4→4 |
+| p1b · e2e_h02 | 3 | 3 | 0 | 0 | 0 | 0 | 5→5 |
+| p1b · e2e_h03 | 7 | 7 | 0 | 0 | 0 | 0 | 10→10 |
+| p1b · e2e_h05 | 6 | 6 | 0 | 0 | 0 | 0 | 6→6 |
+| p1b · e2e_h06 | 4 | 4 | 0 | 0 | 0 | 0 | 5→5 |
+| p1c · e2e_h01 | 2 | 0 | 0 | 2 | 0 | 0 | 5→5 |
+| p1c · e2e_h02 | 4 | 4 | 0 | 0 | 0 | 0 | 7→7 |
+| p1c · e2e_h03 | 13 | 7 | 6 | 0 | 0 | 0 | 5→5 |
+| p1c · e2e_h05 | 6 | 6 | 0 | 0 | 0 | 0 | 7→7 |
+| p1c · e2e_h06 | 4 | 4 | 0 | 0 | 0 | 0 | 5→5 |
+| v2 · e2e_h01-r0 | 5 | 1 | 0 | 3 | 0 | 1 | 6→6 |
+| v2 · e2e_h01-r1 | 4 | 0 | 0 | 4 | 0 | 0 | 6→6 |
+| v2 · e2e_h01-r2 | 4 | 1 | 0 | 3 | 0 | 0 | 6→6 |
+| v2 · e2e_h03-r0 | 2 | 0 | 0 | 2 | 0 | 0 | 7→7 |
+| v2 · e2e_h03-r1 | 7 | 7 | 0 | 0 | 0 | 0 | 10→10 |
+| v2 · e2e_h03-r2 | 6 | 6 | 0 | 0 | 0 | 0 | 14→14 |
+| v2 · e2e_n08-r0 | 6 | 6 | 0 | 0 | 0 | 0 | 4→4 |
+| v2 · e2e_n08-r1 | 6 | 6 | 0 | 0 | 0 | 0 | 4→4 |
+| m20d · e2e_h03-r0 | 0 | 0 | 0 | 0 | 0 | 0 | 20→20 |
+| m20d · e2e_h03-r1 | 0 | 0 | 0 | 0 | 0 | 0 | 9→9 |
+| m20d · e2e_n08-r0 | 8 | 0 | 8 | 0 | 0 | 0 | 11→11 |
+| m20d · e2e_n08-r1 | 10 | 0 | 10 | 0 | 0 | 0 | 11→11 |
+| m20d · e2e_n08-r2 | 11 | 0 | 11 | 0 | 0 | 0 | 4→4 |
+| 합계 (28 계획) | 164 | 114 | 35 | 14 | 0 | 1 | 203→203 |
+
+### (f-2) D8 무료 재표본 (L2, R2)
+
+- 설정: 기본값 config (`--on` 없음), `e2e_n08`, label `gemini-resample-d8`, 10회 (`tests/fixtures/m25/resample.jsonl`, 원본은 `tests/fixtures/m25/resample/`). 모델 `gemini-3.5-flash-lite`, 무료 계층, non-G1, 비용 0.
+- 결과: 10회 시도, `ok` 10/10, `stop_reason` `final_answer` 10/10, `error` 없음, `first_try` 10/10.
+- `plan_reply_rejected` 이벤트: 0건. `grep -rc plan_reply_rejected tests/fixtures/m25/resample tests/fixtures/m25/resample.jsonl` 합계 0. 분류할 원인이 없어 R11 수정 라운드는 열리지 않았다. 증거: "10 attempts, 0 rejected".
+- 주의: 10회에서 재현 0건은 발생률 추정에 쓰기에 표본이 작다. D8 원인 (원문 미보존, (b))은 여전히 미확정이다.
+- L1 첫 시도 기록: 첫 L1 시도는 work root가 저장소 밖일 때 `m25_diag._rel`에서 중단되었다. 근본 원인은 refcheck 라벨 계산이며 f6d331a (`fix: M25 refcheck labels for work roots outside the repo`)에서 고쳤다. 그 시도의 부분 산출물은 삭제한 뒤 다시 실행했다.
+
+### (g) fix4 표 (L1 무료 리허설 + L3 집계, gemini 무료 계층, non-G1)
+
+- L1 실행: `config fix4.toml --on goal_paths,plan_repair_hint` 후 e2e_h01, h02, h03, h05, h06 (label `gemini-rehearsal-fix4`, `--attempts 5`). OFF 리허설은 `fix4-off.toml` (`--on` 없음)으로 e2e_h01, h05 (label `gemini-rehearsal-fix4-off`). 과제당 행 1개 (n=1), 모든 행 `cost_source = free_tier`, non-G1, 실행 2026-11-03/04.
+- 집계 명령: `uv run python tests/m20_trial.py summary --planq tests/fixtures/m25/planq.jsonl --runs /dev/null`. 비교용으로 `tests/fixtures/m20a/planq.jsonl`의 `gemini-rehearsal-fix3` 블록을 같은 명령으로 집계해 옆에 둔다 (deepseek-fix3는 (h)).
+
+#### label: gemini-rehearsal-fix4 (free-tier, non-G1)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ | policy issues/repaired/dropped | ungated milestones |
+|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 3 | 3/3 | 3/3 | 3/3 | 0.0000 | 0/0/0 | none |
+| e2e_h02 | first_try | yes | 3 | 4/4 | 4/4 | 3/3 | 0.0000 | 0/0/0 | none |
+| e2e_h03 | first_try | yes | 4 | 0/0 | 0/0 | 4/4 | 0.0000 | 0/0/0 | none |
+| e2e_h05 | after_repair | no | 1 | 2/2 | 2/2 | 1/1 | 0.0000 | 0/0/0 | none |
+| e2e_h06 | after_repair | no | 3 | 3/3 | 3/3 | 3/3 | 0.0000 | 0/0/0 | none |
+#### label: gemini-rehearsal-fix4-off (free-tier, non-G1)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ | policy issues/repaired/dropped | ungated milestones |
+|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | after_repair | no | 4 | 4/4 | 4/4 | 4/4 | 0.0000 | 0/0/0 | none |
+| e2e_h05 | first_try | yes | 5 | 5/5 | 5/5 | 1/1 | 0.0000 | 0/0/0 | none |
+
+#### label: gemini-rehearsal-fix3 (free-tier, non-G1)
+| task | quality | first reply strict | milestones | conditions executable | pass on reference | check runnable | planner $ | policy issues/repaired/dropped | ungated milestones |
+|---|---|---|---|---|---|---|---|---|---|
+| e2e_h01 | first_try | yes | 3 | 4/4 | 4/4 | 3/3 | 0.0000 | 0/0/0 | none |
+| e2e_h02 | first_try | yes | 4 | 4/4 | 4/4 | 4/4 | 0.0000 | 0/0/0 | none |
+| e2e_h03 | first_try | yes | 4 | 4/4 | 4/4 | 4/4 | 0.0000 | 0/0/0 | none |
+| e2e_h05 | first_try | yes | 5 | 5/5 | 5/5 | 5/5 | 0.0000 | 0/0/0 | none |
+| e2e_h06 | first_try | yes | 3 | 3/3 | 3/3 | 3/3 | 0.0000 | 0/0/0 | none |
+
+- schema (first-try / after-repair / failed): fix4 ON은 3 / 2 / 0 (after-repair: h05, h06). fix4-off는 1 / 1 / 0 (first-try h05, after-repair h01). fix3 (gemini)는 5 / 0 / 0. n=1이므로 표본 크기 1의 결과이며 비율이 아니다.
+- conditions executable: 모든 fix4 행이 total을 채운다. 단 fix4 ON e2e_h03은 `0/0`이다 (이 계획에는 condition이 없다; fix3 h03은 4/4). 해당 과제는 조건 기준으로 비교할 수 없다.
+- pass-on-reference: fix4 ON 3/3, 4/4, 0/0, 2/2, 3/3, fix4-off 4/4, 5/5. 모든 값이 실행 가능 수와 같고 total보다 낮은 값이 없다. 따라서 `fix4/<T>-1/refcheck` 원인 단계는 트리거되지 않았다.
+- dropped / ungated: 모든 fix4 행 policy issues/repaired/dropped 0/0/0, ungated none.
+
+### (h) R11 비교 (gemini-rehearsal-fix3, deepseek-fix3, L0 참조)
+
+- pass-on-reference 비교 (분수는 total):
+
+| 과제 | gemini-rehearsal-fix3 | gemini-rehearsal-fix4 (ON) | gemini-rehearsal-fix4-off | deepseek-fix3 |
+|---|---|---|---|---|
+| e2e_h01 | 4/4 | 3/3 | 4/4 | 5/8 |
+| e2e_h05 | 5/5 | 2/2 (after_repair) | 5/5 | 6/13 |
+
+- 모델 차이: `gemini-rehearsal-*`는 `gemini-3.5-flash-lite` (무료 계층, non-G1)이고, `deepseek-fix3`는 `deepseek/deepseek-v3.2` (유료 계층)다. 따라서 deepseek-fix3의 5/8, 6/13은 gemini 값과 직접 비교하지 않는다. 같은 모델의 비교 (deepseek fix4 대 fix3)는 (p)에서만 가능하다.
+- 계획 구성 차이: fix4 ON e2e_h01은 조건 3개, fix3 h01은 조건 4개다. 이 차이의 원인은 여기서 판정하지 않는다.
+- R11 판정: fix4 ON과 fix4-off의 어떤 pass-on-reference 값도 total보다 낮지 않다. OFF 값은 이미 total이라 개선 여지가 없고, ON 값도 total이다. 원인 단계를 트리거할 값이 없어 수정 라운드는 0회 사용 (상한 2). deepseek-fix3의 5/8, 6/13은 fix3 refcheck 행이 복구되지 않아 (항목 (c), blocked) 원인을 판정할 자료가 없다.
+- (p) 유료 deepseek-fix4 (R16, like-for-like): pending user approval and OPENROUTER_API_KEY. 아직 실행하지 않았다. 유료 호출 0.

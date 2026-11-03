@@ -1,0 +1,3 @@
+{"condition": "file_exists `contacts/normalize.py`", "executable": true, "field": "conditions[0]", "kind": "file_exists", "milestone": "m1", "output_head": "", "pass_ref": true, "plan": "e2e_n08-8/plan.toml", "task": "e2e_n08"}
+{"condition": "file_exists `contacts/merge.py`", "executable": true, "field": "conditions[0]", "kind": "file_exists", "milestone": "m2", "output_head": "", "pass_ref": true, "plan": "e2e_n08-8/plan.toml", "task": "e2e_n08"}
+{"condition": "file_exists `contacts/cli.py`", "executable": true, "field": "conditions[0]", "kind": "file_exists", "milestone": "m3", "output_head": "", "pass_ref": true, "plan": "e2e_n08-8/plan.toml", "task": "e2e_n08"}

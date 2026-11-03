@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "key": "00c19c77594b6006d53a276d0e770b3279e6216ffebf9d76a0749cf797737bbc",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-11-03T13:03:49+00:00",
+  "request": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content": "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\nShell policy for \"check\" and \"command\" conditions:\nAllowed commands (glob patterns; * matches any text): pytest, pytest *, python -m pytest, python -m pytest *, python3 -m pytest, python3 -m pytest *, python -m unittest, python -m unittest *, python3 -m unittest, python3 -m unittest *, uv run pytest, uv run pytest *, uv run ruff *, ruff, ruff *, python -m ruff *, python3 -m ruff *, git status, git status *, git diff, git diff *, git log, git log *, git show, git show *, git branch, git branch -a, git branch -v, git branch -vv, git branch --list, git branch --list *, git branch --show-current, ls, ls *, cat *, grep *, head *, tail *, wc *, pwd, echo, echo *, python *.py, python *.py *, python3 *.py, python3 *.py *\nAlso denied, whatever the pattern:\n- One plain command only: no substitution, variables, braces, subshells, heredocs, newlines or '&'.\n- Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.\n- Only the plain options of allowed programs are accepted; unusual or recursive options are denied.\n- Commands run in the workspace root; changing directory is not allowed.\n- Paths must stay inside the workspace and avoid home, protected and credential files.\n- Network access is denied.\n- Running commands as another user is denied.\nA command that needs approval is denied, because this run never prompts.",
+        "extra_content": null,
+        "role": "system",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Goal:\nBuild the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: tracker/models.py, tracker/storage.py, tracker/service.py, tracker/cli.py, tracker/formatting.py. Work only inside this directory.\n\n--- REQUIREMENTS.md ---\n# Add task priority across the tracker\n\nThe `tracker` package (standard library only) keeps tasks in a JSON-lines file. Tasks have an\nid, a title and a done flag. Add a priority to every task and expose it through the service\nlayer and the command line. Behaviour not mentioned here stays as it is.\n\n## Model (`tracker.models`)\n- `Task(id, title, done=False, priority=\"normal\")` is a dataclass; `priority` is its last field.\n- Allowed priorities are `low`, `normal` and `high`. Any other value raises\n  `ValueError(\"invalid priority: X\")`, where `X` is the value given.\n\n## Storage (`tracker.storage`)\n- `load(path)` returns the list of tasks. A missing file gives `[]`.\n- `save(path, tasks)` writes one JSON object per line with the keys `id`, `title`, `done`\n  and `priority`.\n- A line without a `priority` key loads with priority `\"normal\"`.\n\n## Service (`tracker.service`)\n- `Tracker(path)`. `add(title, priority=\"normal\")` stores a task and returns it. Ids are\n  1 + the largest existing id, and 1 for an empty file. An invalid priority raises the\n  `ValueError` above and nothing is saved.\n- `complete(id)` marks the task done. An unknown id raises `KeyError`.\n- `list(sort=\"id\")` returns the tasks. `sort=\"id\"` orders by id. `sort=\"priority\"` orders\n  `high` first, then `normal`, then `low`, and ties by id ascending. Any other `sort` value\n  raises `ValueError`.\n\n## Formatting (`tracker.formatting`)\n- `render(tasks)` returns one line per task joined by `\\n`; an empty list gives `\"\"`.\n- Each line is `f\"{t.id:>3} [{marker}] [{'x' if t.done else ' '}] {t.title}\"`, where the\n  marker is `H` for high, `N` for normal and `L` for low.\n- Example: id 1, title `a`, priority normal, not done gives `  1 [N] [ ] a`.\n\n## Command line (`python -m tracker`)\n- The global option `--db PATH` is required and comes before the subcommand.\n- `add TITLE [--priority {low,normal,high}]` (default `normal`) stores the task and prints\n  `added N`, where `N` is the new id. An invalid priority is an argparse error with exit status 2.\n- `list [--sort {id,priority}]` (default `id`) prints the output of `render`.\n- `done ID` marks the task done and prints `done N`. For an unknown id it prints\n  `error: no task N` to stderr and exits with status 1.\n\n`python -m pytest -q` runs a partial test suite; passing it is necessary but not sufficient.\n",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      }
+    ],
+    "model": "gemini-3.5-flash-lite",
+    "stop": null,
+    "temperature": 0.0,
+    "tools": null
+  },
+  "response": {
+    "cached_input_tokens": 0,
+    "cost_usd": null,
+    "extra_content": {
+      "google": {
+        "thought_signature": "EmAKXgFpFH0TvSIPRKjvsRK5AdIx0DbhKtrG/NJ30ADHbxjGquD2NOeWANbq6Xa/jtTyNiv6RXGo1dyCo44pqEPWpKVt/yITcvk2G4X25FE7A/gcdzcnE4nDlFqrYiFdsO4="
+      }
+    },
+    "finish_reason": "stop",
+    "input_tokens": 1306,
+    "model": "gemini-3.5-flash-lite",
+    "output_tokens": 390,
+    "text": "{\"goal\": \"Build the project described in REQUIREMENTS.md with priority support across models, storage, service, formatting, and CLI.\", \"milestones\": [{\"id\": \"m1\", \"title\": \"Implement models module\", \"task\": \"Create tracker/models.py defining the Task dataclass with id, title, done, and priority fields, including validation for allowed priorities (low, normal, high) raising ValueError.\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"tracker/models.py\"}]}, {\"id\": \"m2\", \"title\": \"Implement storage module\", \"task\": \"Create tracker/storage.py with load(path) and save(path, tasks) to handle JSON-lines persistence of tasks including priority, defaulting missing priority to normal.\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"tracker/storage.py\"}]}, {\"id\": \"m3\", \"title\": \"Implement service module\", \"task\": \"Create tracker/service.py with Tracker class supporting add with priority validation, complete, and list with sorting by id and priority.\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"tracker/service.py\"}]}, {\"id\": \"m4\", \"title\": \"Implement formatting and CLI modules\", \"task\": \"Create tracker/formatting.py with render(tasks) and tracker/cli.py providing the command line interface with --db, add, list, and done subcommands.\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"tracker/formatting.py\"}, {\"kind\": \"file_exists\", \"path\": \"tracker/cli.py\"}]}, {\"id\": \"m5\", \"title\": \"Run tests and verify\", \"task\": \"Run pytest to ensure all requirements and tests pass.\", \"check\": \"python -m pytest -q\"}]}",
+    "tool_calls": []
+  },
+  "stream": false
+}

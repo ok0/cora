@@ -1,0 +1,60 @@
+{
+  "format": 1,
+  "key": "056a6fb8ae7d35c5af06c4d0c00494d68463f0cf48390b246555872c0efe3660",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-11-03T13:03:20+00:00",
+  "request": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content": "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\n- Every \"path\" of a file_exists condition and every file path a \"check\" or \"command\" names must be named in the goal or listed under \"Files already in the workspace\". Do not check files that only your own plan introduces. A test selector in a \"check\" or \"command\" must match a test that already exists in the workspace or that the goal names.\nShell policy for \"check\" and \"command\" conditions:\nAllowed commands (glob patterns; * matches any text): pytest, pytest *, python -m pytest, python -m pytest *, python3 -m pytest, python3 -m pytest *, python -m unittest, python -m unittest *, python3 -m unittest, python3 -m unittest *, uv run pytest, uv run pytest *, uv run ruff *, ruff, ruff *, python -m ruff *, python3 -m ruff *, git status, git status *, git diff, git diff *, git log, git log *, git show, git show *, git branch, git branch -a, git branch -v, git branch -vv, git branch --list, git branch --list *, git branch --show-current, ls, ls *, cat *, grep *, head *, tail *, wc *, pwd, echo, echo *, python *.py, python *.py *, python3 *.py, python3 *.py *\nAlso denied, whatever the pattern:\n- One plain command only: no substitution, variables, braces, subshells, heredocs, newlines or '&'.\n- Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.\n- Only the plain options of allowed programs are accepted; unusual or recursive options are denied.\n- Commands run in the workspace root; changing directory is not allowed.\n- Paths must stay inside the workspace and avoid home, protected and credential files.\n- Network access is denied.\n- Running commands as another user is denied.\nA command that needs approval is denied, because this run never prompts.",
+        "extra_content": null,
+        "role": "system",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Goal:\nBuild the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: booking/timeparse.py, booking/intervals.py, booking/rooms.py. Work only inside this directory.\n\n--- REQUIREMENTS.md ---\n# Room booking windows\n\nFinish the `booking` package. Times are minutes since midnight, intervals are half-open, and\nroom bookings may wrap past midnight. The package already has `format_hhmm` in the\n`booking.timeparse` module and the `booking` package exports `parse_hhmm`, `Interval`,\n`overlaps`, `merge` and `Schedule`. Keep those names.\n\n## Time parsing (`booking.timeparse`)\n- `parse_hhmm(s, *, end=False) -> int` returns minutes since midnight for exactly `HH:MM`\n  (two digits each), with hours 00-23 and minutes 00-59.\n- With `end=True`, `\"24:00\"` is also accepted and returns 1440.\n- Anything else raises `ValueError(f\"bad time: {s!r}\")`, for example `\"24:00\"` without\n  `end=True`, `\"9:30\"`, `\"12:60\"`, `\"12:30 \"`, or `\"24:01\"` with `end=True`.\n- `format_hhmm(m)` (already implemented) formats minutes as `HH:MM`; 1440 gives `\"24:00\"`.\n\n## Intervals (`booking.intervals`)\n- `Interval(start, end)` is a frozen dataclass in minutes; it is the half-open range `[start, end)`.\n  If `end <= start`, construction raises `ValueError(\"empty interval\")`.\n- `overlaps(a, b) -> bool` is True when the two intervals share at least one minute.\n  Touching intervals (one ends exactly where the other starts) do not overlap.\n- `merge(items) -> list[Interval]` sorts by start and merges intervals that overlap or touch\n  into one. An empty input gives `[]`.\n\n## Rooms (`booking.rooms`)\n- `Schedule()` takes no arguments and keeps bookings per room name.\n- `book(room, start, end) -> bool`: `start` is parsed with `end=False` and `end` with `end=True`.\n  If `end` is later than `start`, the booking is `[start, end)`.\n  If `end` is earlier than `start`, the booking wraps midnight and is stored as `[start, 1440)`\n  plus `[0, end)`; when `end` is `\"00:00\"` only `[start, 1440)` is stored.\n  If any stored part overlaps an existing booking of the same room, return `False` and store\n  nothing. Otherwise store the booking and return `True`. Bookings in different rooms never conflict.\n- `free_slots(room, day_start, day_end, min_len) -> list[tuple[str, str]]`: `day_start` is an\n  `HH:MM` string, `day_end` an `HH:MM` string (`\"24:00\"` allowed) and `min_len` a number of minutes.\n  Return the free gaps inside `[day_start, day_end)` that are at least `min_len` minutes long\n  (a gap of exactly `min_len` is kept), in time order, as `(\"HH:MM\", \"HH:MM\")` pairs formatted\n  with `format_hhmm`. Bookings are clipped to the day. A room with no bookings, or an unknown\n  room, has the whole day free.\n\n`python -m pytest -q` runs a partial test suite; passing it is necessary but not sufficient.\n\n\nFiles already in the workspace:\nREQUIREMENTS.md\nbooking/__init__.py\nbooking/intervals.py\nbooking/rooms.py\nbooking/timeparse.py\ntests/test_booking.py",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "{\"goal\": \"Build the project described in REQUIREMENTS.md in the current directory, completing booking/timeparse.py, booking/intervals.py, and booking/rooms.py, and passing all tests in tests/test_booking.py.\", \"milestones\": [{\"id\": \"timeparse\", \"task\": \"Implement parse_hhmm in booking/timeparse.py according to requirements.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"booking/timeparse.py\"}]}, {\"id\": \"intervals\", \"task\": \"Implement Interval, overlaps, and merge in booking/intervals.py according to requirements.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"booking/intervals.py\"}]}, {\"id\": \"rooms\", \"task\": \"Implement Schedule, book, and free_slots in booking/rooms.py and ensure the package exports are correct in booking/__init__.py.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"booking/rooms.py\"}]}]}",
+        "extra_content": null,
+        "role": "assistant",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Your reply was invalid: invalid plan from model reply: milestone 1 ('timeparse'): missing 'title'\nReply again with only the corrected JSON object.",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      }
+    ],
+    "model": "gemini-3.5-flash-lite",
+    "stop": null,
+    "temperature": 0.0,
+    "tools": null
+  },
+  "response": {
+    "cached_input_tokens": 0,
+    "cost_usd": null,
+    "extra_content": {
+      "google": {
+        "thought_signature": "EmAKXgFpFH0TPD8AEW9DoJ7y3wJ2QRB1AyJEnk4j645YvUQVAU72uzwB27oQHJhaQONCt6aEYAvGgSX90P0MCc0S65t/rH/7vWOPSao18K/kRiyaCcPVgM5h6Ue4M3GOlYw="
+      }
+    },
+    "finish_reason": "stop",
+    "input_tokens": 1842,
+    "model": "gemini-3.5-flash-lite",
+    "output_tokens": 272,
+    "text": "{\"goal\": \"Build the project described in REQUIREMENTS.md in the current directory, completing booking/timeparse.py, booking/intervals.py, and booking/rooms.py, and passing all tests in tests/test_booking.py.\", \"milestones\": [{\"id\": \"timeparse\", \"title\": \"Implement time parsing\", \"task\": \"Implement parse_hhmm in booking/timeparse.py according to requirements.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"booking/timeparse.py\"}]}, {\"id\": \"intervals\", \"title\": \"Implement intervals\", \"task\": \"Implement Interval, overlaps, and merge in booking/intervals.py according to requirements.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"booking/intervals.py\"}]}, {\"id\": \"rooms\", \"title\": \"Implement rooms schedule\", \"task\": \"Implement Schedule, book, and free_slots in booking/rooms.py and ensure the package exports are correct in booking/__init__.py.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"booking/rooms.py\"}]}]}",
+    "tool_calls": []
+  },
+  "stream": false
+}

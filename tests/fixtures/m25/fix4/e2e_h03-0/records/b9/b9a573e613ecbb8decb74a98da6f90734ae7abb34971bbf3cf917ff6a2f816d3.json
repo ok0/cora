@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "key": "b9a573e613ecbb8decb74a98da6f90734ae7abb34971bbf3cf917ff6a2f816d3",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-11-03T13:02:28+00:00",
+  "request": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content": "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\n- Every \"path\" of a file_exists condition and every file path a \"check\" or \"command\" names must be named in the goal or listed under \"Files already in the workspace\". Do not check files that only your own plan introduces. A test selector in a \"check\" or \"command\" must match a test that already exists in the workspace or that the goal names.\nShell policy for \"check\" and \"command\" conditions:\nAllowed commands (glob patterns; * matches any text): pytest, pytest *, python -m pytest, python -m pytest *, python3 -m pytest, python3 -m pytest *, python -m unittest, python -m unittest *, python3 -m unittest, python3 -m unittest *, uv run pytest, uv run pytest *, uv run ruff *, ruff, ruff *, python -m ruff *, python3 -m ruff *, git status, git status *, git diff, git diff *, git log, git log *, git show, git show *, git branch, git branch -a, git branch -v, git branch -vv, git branch --list, git branch --list *, git branch --show-current, ls, ls *, cat *, grep *, head *, tail *, wc *, pwd, echo, echo *, python *.py, python *.py *, python3 *.py, python3 *.py *\nAlso denied, whatever the pattern:\n- One plain command only: no substitution, variables, braces, subshells, heredocs, newlines or '&'.\n- Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.\n- Only the plain options of allowed programs are accepted; unusual or recursive options are denied.\n- Commands run in the workspace root; changing directory is not allowed.\n- Paths must stay inside the workspace and avoid home, protected and credential files.\n- Network access is denied.\n- Running commands as another user is denied.\nA command that needs approval is denied, because this run never prompts.",
+        "extra_content": null,
+        "role": "system",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Goal:\nBuild the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, escapes/catalog.py. Work only inside this directory.\n\n--- REQUIREMENTS.md ---\n# Escaping helpers\n\nImplement the `escapes` package in this directory. Some functions are stubs that raise\n`NotImplementedError`; implement them. Keep the module names and function names.\nDo not change the `ENTITIES` table in `escapes/catalog.py`.\n\n`python -m pytest -q` runs a partial test suite; passing it is necessary but not sufficient.\n\n## Shell quoting: `escapes.shell.quote(arg: str) -> str`\n\n- An empty string gives `''`.\n- A string made only of the characters `A-Z a-z 0-9 _ @ % + = : , . / -` is returned unchanged.\n- Any other string is wrapped in single quotes, and each `'` inside it is written as `'\"'\"'`.\n  Examples: `it's` gives `'it'\"'\"'s'`, `a b` gives `'a b'`, `$HOME` gives `'$HOME'`.\n\n## JSON strings: `escapes.jsonstr` (must not import `json`)\n\n- `encode(s: str) -> str` returns a JSON string literal, with surrounding `\"`.\n  `\"` is written `\\\"`, `\\` is written `\\\\`, and `\\b \\f \\n \\r \\t` are written with those short\n  forms. Any other character below 0x20 is written `\\u00xx` with lowercase hex digits.\n  All other characters are written as they are (`/` is not escaped; non-ASCII is not escaped).\n  Example: the string `a\"b\\c` + newline gives the literal `\"a\\\"b\\\\c\\n\"`.\n- `decode(lit: str) -> str` is the inverse for JSON string literals. It accepts `\\\"`, `\\\\`, `\\/`,\n  `\\b`, `\\f`, `\\n`, `\\r`, `\\t`, and `\\uXXXX` (hex digits in either case). A surrogate pair such as\n  `\\ud83d\\ude00` decodes to one character (U+1F600).\n- `decode` raises `ValueError` when:\n  - `lit` does not start and end with `\"` (a text of length 1 included);\n  - a backslash is followed by any other character (for example `\\q`), or ends the text;\n  - a `\\u` is not followed by exactly four hex digits;\n  - a high surrogate `\\uD800`-`\\uDBFF` is not immediately followed by a `\\uDC00`-`\\uDFFF` escape, or\n    a low surrogate `\\uDC00`-`\\uDFFF` appears without a preceding high surrogate.\n- `decode(encode(s)) == s` for every string `s`.\n\n## Windows paths: `escapes.winpath.to_posix(path: str) -> str`\n\n- Every `\\` is treated as `/`.\n- A drive letter `X:` at the start followed by `/` or the end of the text becomes `/x` (letter\n  lowercased). Examples: `C:\\Users\\a b\\x.txt` gives `/c/Users/a b/x.txt`; `C:\\` gives `/c`.\n- A leading `//` (UNC prefix, from `\\\\server\\share`) is kept as `//`. Example:\n  `\\\\server\\share\\f.txt` gives `//server/share/f.txt`.\n- Repeated `/` are collapsed to one, except in the leading UNC prefix.\n- One trailing `/` is removed. Example: `C:\\tmp\\` gives `/c/tmp`.\n- Other text is kept as it is. Example: `dir\\file.txt` gives `dir/file.txt`.\n\n## HTML entities: `escapes.catalog.unescape_html(s: str) -> str`\n\n- `ENTITIES` maps HTML entity names to code points. It must stay unchanged.\n- `&name;` is replaced by the character of `ENTITIES[name]` when `name` is in `ENTITIES`\n  (case-sensitive). Example: `&eacute;` gives `é`, `&lt;p&gt;` gives `<p>`.\n- Numeric references are also decoded: `&#NNN;` (decimal) and `&#xHH;` or `&#XHH;` (hex, digits in\n  either case). Examples: `&#65;` gives `A`, `&#x4a;` gives `J`, `&#x1F600;` gives `😀`.\n- Any other text is kept unchanged. Example: `&bogus;` stays `&bogus;`.\n- Each reference is decoded once: `&#38;amp;` gives `&amp;`.\n\n\nFiles already in the workspace:\nREQUIREMENTS.md\nescapes/__init__.py\nescapes/catalog.py\nescapes/jsonstr.py\nescapes/shell.py\nescapes/winpath.py\ntests/test_escapes.py",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      }
+    ],
+    "model": "gemini-3.5-flash-lite",
+    "stop": null,
+    "temperature": 0.0,
+    "tools": null
+  },
+  "response": {
+    "cached_input_tokens": 0,
+    "cost_usd": null,
+    "extra_content": {
+      "google": {
+        "thought_signature": "EmAKXgFpFH0T6y6BmAPT7KpE3qYO4KtDPnTc0M4jm75+atlbAHHs/6U5V9EVxg4mNk8EkOHhkbiqkkosa6cjRrNhmmgcG/t1C9EghC1MgUz+x5dZC52SqJDaENdD7MiLW1E="
+      }
+    },
+    "finish_reason": "stop",
+    "input_tokens": 1840,
+    "model": "gemini-3.5-flash-lite",
+    "output_tokens": 273,
+    "text": "{\"goal\": \"Build the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: escapes/shell.py, escapes/jsonstr.py, escapes/winpath.py, escapes/catalog.py. Work only inside this directory.\", \"milestones\": [{\"id\": \"m1\", \"title\": \"Implement shell quoting\", \"task\": \"Implement escapes/shell.py according to the REQUIREMENTS.md specification for shell quoting.\", \"check\": \"python -m pytest -q\"}, {\"id\": \"m2\", \"title\": \"Implement JSON strings encoder and decoder\", \"task\": \"Implement escapes/jsonstr.py according to the REQUIREMENTS.md specification for encode and decode without importing json.\", \"check\": \"python -m pytest -q\"}, {\"id\": \"m3\", \"title\": \"Implement Windows path conversion\", \"task\": \"Implement escapes/winpath.py according to the REQUIREMENTS.md specification for to_posix.\", \"check\": \"python -m pytest -q\"}, {\"id\": \"m4\", \"title\": \"Implement HTML entity unescaping\", \"task\": \"Implement unescape_html in escapes/catalog.py according to the REQUIREMENTS.md specification without changing the ENTITIES table.\", \"check\": \"python -m pytest -q\"}]}",
+    "tool_calls": []
+  },
+  "stream": false
+}

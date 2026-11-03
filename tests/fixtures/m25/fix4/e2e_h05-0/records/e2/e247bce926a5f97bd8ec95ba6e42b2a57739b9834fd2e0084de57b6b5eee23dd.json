@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "key": "e247bce926a5f97bd8ec95ba6e42b2a57739b9834fd2e0084de57b6b5eee23dd",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-11-03T13:02:40+00:00",
+  "request": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content": "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\n- Every \"path\" of a file_exists condition and every file path a \"check\" or \"command\" names must be named in the goal or listed under \"Files already in the workspace\". Do not check files that only your own plan introduces. A test selector in a \"check\" or \"command\" must match a test that already exists in the workspace or that the goal names.\nShell policy for \"check\" and \"command\" conditions:\nAllowed commands (glob patterns; * matches any text): pytest, pytest *, python -m pytest, python -m pytest *, python3 -m pytest, python3 -m pytest *, python -m unittest, python -m unittest *, python3 -m unittest, python3 -m unittest *, uv run pytest, uv run pytest *, uv run ruff *, ruff, ruff *, python -m ruff *, python3 -m ruff *, git status, git status *, git diff, git diff *, git log, git log *, git show, git show *, git branch, git branch -a, git branch -v, git branch -vv, git branch --list, git branch --list *, git branch --show-current, ls, ls *, cat *, grep *, head *, tail *, wc *, pwd, echo, echo *, python *.py, python *.py *, python3 *.py, python3 *.py *\nAlso denied, whatever the pattern:\n- One plain command only: no substitution, variables, braces, subshells, heredocs, newlines or '&'.\n- Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.\n- Only the plain options of allowed programs are accepted; unusual or recursive options are denied.\n- Commands run in the workspace root; changing directory is not allowed.\n- Paths must stay inside the workspace and avoid home, protected and credential files.\n- Network access is denied.\n- Running commands as another user is denied.\nA command that needs approval is denied, because this run never prompts.",
+        "extra_content": null,
+        "role": "system",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Goal:\nBuild the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: tracker/models.py, tracker/storage.py, tracker/service.py, tracker/cli.py, tracker/formatting.py. Work only inside this directory.\n\n--- REQUIREMENTS.md ---\n# Add task priority across the tracker\n\nThe `tracker` package (standard library only) keeps tasks in a JSON-lines file. Tasks have an\nid, a title and a done flag. Add a priority to every task and expose it through the service\nlayer and the command line. Behaviour not mentioned here stays as it is.\n\n## Model (`tracker.models`)\n- `Task(id, title, done=False, priority=\"normal\")` is a dataclass; `priority` is its last field.\n- Allowed priorities are `low`, `normal` and `high`. Any other value raises\n  `ValueError(\"invalid priority: X\")`, where `X` is the value given.\n\n## Storage (`tracker.storage`)\n- `load(path)` returns the list of tasks. A missing file gives `[]`.\n- `save(path, tasks)` writes one JSON object per line with the keys `id`, `title`, `done`\n  and `priority`.\n- A line without a `priority` key loads with priority `\"normal\"`.\n\n## Service (`tracker.service`)\n- `Tracker(path)`. `add(title, priority=\"normal\")` stores a task and returns it. Ids are\n  1 + the largest existing id, and 1 for an empty file. An invalid priority raises the\n  `ValueError` above and nothing is saved.\n- `complete(id)` marks the task done. An unknown id raises `KeyError`.\n- `list(sort=\"id\")` returns the tasks. `sort=\"id\"` orders by id. `sort=\"priority\"` orders\n  `high` first, then `normal`, then `low`, and ties by id ascending. Any other `sort` value\n  raises `ValueError`.\n\n## Formatting (`tracker.formatting`)\n- `render(tasks)` returns one line per task joined by `\\n`; an empty list gives `\"\"`.\n- Each line is `f\"{t.id:>3} [{marker}] [{'x' if t.done else ' '}] {t.title}\"`, where the\n  marker is `H` for high, `N` for normal and `L` for low.\n- Example: id 1, title `a`, priority normal, not done gives `  1 [N] [ ] a`.\n\n## Command line (`python -m tracker`)\n- The global option `--db PATH` is required and comes before the subcommand.\n- `add TITLE [--priority {low,normal,high}]` (default `normal`) stores the task and prints\n  `added N`, where `N` is the new id. An invalid priority is an argparse error with exit status 2.\n- `list [--sort {id,priority}]` (default `id`) prints the output of `render`.\n- `done ID` marks the task done and prints `done N`. For an unknown id it prints\n  `error: no task N` to stderr and exits with status 1.\n\n`python -m pytest -q` runs a partial test suite; passing it is necessary but not sufficient.\n\n\nFiles already in the workspace:\nREQUIREMENTS.md\ntests/test_tracker.py\ntracker/__init__.py\ntracker/__main__.py\ntracker/cli.py\ntracker/formatting.py\ntracker/models.py\ntracker/service.py\ntracker/storage.py",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      }
+    ],
+    "model": "gemini-3.5-flash-lite",
+    "stop": null,
+    "temperature": 0.0,
+    "tools": null
+  },
+  "response": {
+    "cached_input_tokens": 0,
+    "cost_usd": null,
+    "extra_content": {
+      "google": {
+        "thought_signature": "EmAKXgFpFH0T9Sc+PUw7Awbj1EvnU23U9oiNVjAD4dcxxX5sOz62FLDQGAnonLKi8AjJ5TWk96XK+0gOTysfsIHdXDWYWm1uoDCtDAJEv7r2m1+ULdza49B2IkzUTfVvUEk="
+      }
+    },
+    "finish_reason": "stop",
+    "input_tokens": 1447,
+    "model": "gemini-3.5-flash-lite",
+    "output_tokens": 136,
+    "text": "{\"goal\": \"Build the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: tracker/models.py, tracker/storage.py, tracker/service.py, tracker/cli.py, tracker/formatting.py. Work only inside this directory.\", \"milestones\": [{\"id\": \"test\", \"task\": \"Run pytest to verify current test failures or baseline.\", \"check\": \"pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"REQUIREMENTS.md\"}, {\"kind\": \"file_exists\", \"path\": \"tests/test_tracker.py\"}]}]}",
+    "tool_calls": []
+  },
+  "stream": false
+}

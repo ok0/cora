@@ -1,0 +1,26 @@
+goal = "Build the contacts de-duplication package and CLI tool according to REQUIREMENTS.md"
+
+[[milestones]]
+id = "normalize"
+title = "Implement contact normalization functions"
+task = "Create contacts/normalize.py implementing normalize_email and normalize_phone as specified in REQUIREMENTS.md, ensuring contacts/__init__.py exists."
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+]
+
+[[milestones]]
+id = "merge"
+title = "Implement de-duplication logic"
+task = "Create contacts/merge.py implementing dedupe(rows) using contacts/normalize.py for email comparison."
+conditions = [
+  { kind = "file_exists", path = "contacts/merge.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement CLI and test complete workflow"
+task = "Create contacts/cli.py implementing main(argv=None) and handling the CSV processing, error checks, stdout/stderr output, and normalization of output columns."
+conditions = [
+  { kind = "file_exists", path = "contacts/cli.py" },
+]

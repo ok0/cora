@@ -1,0 +1,28 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory, completing booking/timeparse.py, booking/intervals.py, and booking/rooms.py, and passing all tests in tests/test_booking.py."
+
+[[milestones]]
+id = "timeparse"
+title = "Implement time parsing"
+task = "Implement parse_hhmm in booking/timeparse.py according to requirements."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "booking/timeparse.py" },
+]
+
+[[milestones]]
+id = "intervals"
+title = "Implement intervals"
+task = "Implement Interval, overlaps, and merge in booking/intervals.py according to requirements."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "booking/intervals.py" },
+]
+
+[[milestones]]
+id = "rooms"
+title = "Implement rooms schedule"
+task = "Implement Schedule, book, and free_slots in booking/rooms.py and ensure the package exports are correct in booking/__init__.py."
+check = "python -m pytest -q"
+conditions = [
+  { kind = "file_exists", path = "booking/rooms.py" },
+]

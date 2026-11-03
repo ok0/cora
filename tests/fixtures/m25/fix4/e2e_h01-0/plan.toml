@@ -1,0 +1,28 @@
+goal = "Build the project described in REQUIREMENTS.md in the current directory"
+
+[[milestones]]
+id = "parser"
+title = "Implement CSV parser"
+task = "Implement parse_csv in csvreport/parser.py according to the requirements."
+check = "python -m pytest -q tests/test_csvreport.py"
+conditions = [
+  { kind = "file_exists", path = "csvreport/parser.py" },
+]
+
+[[milestones]]
+id = "stats"
+title = "Implement column statistics"
+task = "Implement column_stats in csvreport/stats.py according to the requirements."
+check = "python -m pytest -q tests/test_csvreport.py"
+conditions = [
+  { kind = "file_exists", path = "csvreport/stats.py" },
+]
+
+[[milestones]]
+id = "cli"
+title = "Implement command line interface and exports"
+task = "Implement main in csvreport/cli.py and ensure csvreport/__init__.py exports the required functions."
+check = "python -m pytest -q tests/test_csvreport.py"
+conditions = [
+  { kind = "file_exists", path = "csvreport/cli.py" },
+]

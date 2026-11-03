@@ -1,0 +1,34 @@
+goal = "Build the contacts package implementing normalization, merging, and CLI according to REQUIREMENTS.md"
+
+[[milestones]]
+id = "m1"
+title = "Create package structure and normalize module"
+task = "Create the contacts/ directory, contacts/__init__.py, and contacts/normalize.py implementing normalize_email and normalize_phone as specified in REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "contacts/__init__.py" },
+  { kind = "file_exists", path = "contacts/normalize.py" },
+]
+
+[[milestones]]
+id = "m2"
+title = "Implement merge module"
+task = "Create contacts/merge.py implementing dedupe(rows) according to the specifications and worked example in REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "contacts/merge.py" },
+]
+
+[[milestones]]
+id = "m3"
+title = "Implement CLI module"
+task = "Create contacts/cli.py defining main(argv=None) -> int and supporting the command line interface as specified in REQUIREMENTS.md."
+conditions = [
+  { kind = "file_exists", path = "contacts/cli.py" },
+]
+
+[[milestones]]
+id = "m4"
+title = "Verify implementation with tests"
+task = "Run tests or verify python -m contacts.cli functionality to ensure all requirements are correctly implemented."
+conditions = [
+  { kind = "file_exists", path = "contacts/cli.py" },
+]

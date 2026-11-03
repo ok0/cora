@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "key": "9b4c51715b4f010c79d5bcc0dcbb8eeff3d33b141c6650c79858a5d64bd7028b",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-11-03T13:03:32+00:00",
+  "request": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content": "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\nShell policy for \"check\" and \"command\" conditions:\nAllowed commands (glob patterns; * matches any text): pytest, pytest *, python -m pytest, python -m pytest *, python3 -m pytest, python3 -m pytest *, python -m unittest, python -m unittest *, python3 -m unittest, python3 -m unittest *, uv run pytest, uv run pytest *, uv run ruff *, ruff, ruff *, python -m ruff *, python3 -m ruff *, git status, git status *, git diff, git diff *, git log, git log *, git show, git show *, git branch, git branch -a, git branch -v, git branch -vv, git branch --list, git branch --list *, git branch --show-current, ls, ls *, cat *, grep *, head *, tail *, wc *, pwd, echo, echo *, python *.py, python *.py *, python3 *.py, python3 *.py *\nAlso denied, whatever the pattern:\n- One plain command only: no substitution, variables, braces, subshells, heredocs, newlines or '&'.\n- Code given inline, on standard input, or run through eval, a wrapper or xargs is not run.\n- Only the plain options of allowed programs are accepted; unusual or recursive options are denied.\n- Commands run in the workspace root; changing directory is not allowed.\n- Paths must stay inside the workspace and avoid home, protected and credential files.\n- Network access is denied.\n- Running commands as another user is denied.\nA command that needs approval is denied, because this run never prompts.",
+        "extra_content": null,
+        "role": "system",
+        "tool_call_id": null,
+        "tool_calls": []
+      },
+      {
+        "content": "Goal:\nBuild the project described in REQUIREMENTS.md in the current directory (its full text is below). Required files: csvreport/parser.py, csvreport/stats.py, csvreport/cli.py. Work only inside this directory.\n\n--- REQUIREMENTS.md ---\n# CSV column report\n\nImplement the package `csvreport` in this directory. The template contains stub functions\nthat raise `NotImplementedError`; replace them. Keep the module layout and the names below.\n\n`python -m pytest -q` runs a partial test suite; passing it is necessary but not sufficient.\n\n## Parsing: `csvreport.parser.parse_csv(text: str) -> list[list[str]]`\n\n- The separator is `,`. Fields are not stripped: spaces are kept. An empty field is `\"\"`\n  (`\"a,,c\\n\"` gives `[[\"a\", \"\", \"c\"]]`).\n- A field that starts with `\"` is quoted. Inside quotes, `,` and line breaks are ordinary\n  characters, `\"\"` stands for one `\"`, and the field ends at the closing `\"`. Characters inside\n  quotes are kept exactly as written. `\"\"` alone is a field with an empty value.\n- A row ends at `\\n` or `\\r\\n`. A trailing line break adds no row. A line with no characters at\n  all is skipped.\n- `parse_csv(\"\")` returns `[]`.\n- If a quoted field is still open at the end of the text, raise\n  `ValueError(\"unterminated quote at line N\")`, where N is the 1-based number of the line on\n  which that quote was opened.\n\n## Statistics: `csvreport.stats.column_stats(rows: list[list[str]], column: str) -> dict`\n\n- `rows[0]` is the header and `rows[1:]` are the data rows.\n- If `column` is not in the header, raise `KeyError(column)`.\n- Data cells that are the empty string are ignored. Every other cell is converted with `float()`.\n  If the conversion fails, raise `ValueError(f\"non-numeric value {v!r} in column {column!r}\")`,\n  where `v` is the cell text. Cells are checked in row order; the first failure is raised.\n- Otherwise return `{\"count\": n, \"min\": min, \"max\": max, \"mean\": mean}` over the converted\n  values, where `count` is the number of values, `min` and `max` are floats, and `mean` is\n  `round(sum / n, 2)`.\n- If no values remain, return `{\"count\": 0, \"min\": None, \"max\": None, \"mean\": None}`.\n\n## Command line: `python -m csvreport FILE COLUMN`\n\n- `csvreport/__init__.py` exports `parse_csv`, `column_stats` and `main`.\n- `main(argv: list[str]) -> int` reads FILE as UTF-8, computes the statistics of COLUMN, prints\n  one line `count=N min=MIN max=MAX mean=MEAN` and returns 0. Each value is printed with `str()`;\n  a `None` value is printed as `-`.\n  Example: a column with the values 1, 3, 5 prints `count=3 min=1.0 max=5.0 mean=3.0`.\n  A column with no values prints `count=0 min=- max=- mean=-`.\n- If `argv` does not have exactly two items, print `usage: python -m csvreport FILE COLUMN`\n  to stderr and return 2.\n- If FILE does not exist, print `error: file not found: FILE` to stderr (FILE as given) and\n  return 2.\n- If COLUMN is not in the header, print `error: unknown column: COLUMN` to stderr and return 2.\n- `csvreport/__main__.py` calls `main(sys.argv[1:])` and exits with its return value. Keep it.\n",
+        "extra_content": null,
+        "role": "user",
+        "tool_call_id": null,
+        "tool_calls": []
+      }
+    ],
+    "model": "gemini-3.5-flash-lite",
+    "stop": null,
+    "temperature": 0.0,
+    "tools": null
+  },
+  "response": {
+    "cached_input_tokens": 0,
+    "cost_usd": null,
+    "extra_content": {
+      "google": {
+        "thought_signature": "EmAKXgFpFH0TEUSf8gWur1707hh2Gp5LLvFfDwUMzRlTNHIwn3z10H4vdr3+UCE2yi4yl7r4rk3dN1oY7Rhweey4TIM6gDiGCg26HGgV/lcV7FcfImtOT1MfasRu63CqMo0="
+      }
+    },
+    "finish_reason": "stop",
+    "input_tokens": 1475,
+    "model": "gemini-3.5-flash-lite",
+    "output_tokens": 307,
+    "text": "{\"goal\": \"Build the csvreport package implementing parsing, statistics, and CLI as described in REQUIREMENTS.md\", \"milestones\": [{\"id\": \"implement_parser\", \"task\": \"Implement csvreport/parser.py to correctly parse CSV text into a list of lists of strings according to the specification.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"csvreport/parser.py\"}]}, {\"id\": \"implement_stats\", \"task\": \"Implement csvreport/stats.py to compute column statistics (count, min, max, mean) handling headers, missing values, and float conversion errors.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"csvreport/stats.py\"}]}, {\"id\": \"implement_cli\", \"task\": \"Implement csvreport/cli.py and update csvreport/__init__.py to provide the main entry point and proper error handling as specified.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"csvreport/cli.py\"}]}, {\"id\": \"verify_all\", \"task\": \"Run the full test suite and ensure all tests pass successfully.\", \"check\": \"python -m pytest -q\", \"conditions\": [{\"kind\": \"file_exists\", \"path\": \"csvreport/__init__.py\"}]}]}",
+    "tool_calls": []
+  },
+  "stream": false
+}
