@@ -1,0 +1,154 @@
+{
+ "blocked": [
+  {
+   "affected": "R2/R6",
+   "item": "D8 raw planner reply + events",
+   "reason": "the raw planner reply behind the n08 r2 final error (Expecting value, line 1 column 1) was not saved: the outside sources hold only outcome.json for e2e_n08-r2 (the committed events are the m20d copies), and no searched dir holds a planner reply record. Searched: repo-cora-m20/**/e2e_n08-r2: 1 dirs, 1 regular files; repo-cora-m20/**/records: 0 dirs, 0 regular files; repo-cora-m20/**/fix3p: 0 dirs, 0 regular files; tmp-cora-m20/**/e2e_n08-r2: 1 dirs, 0 regular files; tmp-cora-m20/**/records: 40 dirs, 0 regular files; tmp-cora-m20/**/fix3p: 1 dirs, 0 regular files",
+   "searched": [
+    {
+     "dir": "repo-cora-m20/**/e2e_n08-r2",
+     "dirs": 1,
+     "regular_files": 1
+    },
+    {
+     "dir": "repo-cora-m20/**/records",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "repo-cora-m20/**/fix3p",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/e2e_n08-r2",
+     "dirs": 1,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/records",
+     "dirs": 40,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/fix3p",
+     "dirs": 1,
+     "regular_files": 0
+    }
+   ]
+  },
+  {
+   "affected": "R3 h01/h05",
+   "item": "deepseek-fix3 plan.toml x5 + per-condition reference details",
+   "reason": "no deepseek-fix3 plan.toml and no per-condition reference details exist in any searched dir. Searched: repo-cora-m20/**/fix3: 0 dirs, 0 regular files; repo-cora-m20/**/fix3p: 0 dirs, 0 regular files; repo-cora-m20/**/records: 0 dirs, 0 regular files; tmp-cora-m20/**/fix3: 1 dirs, 0 regular files; tmp-cora-m20/**/fix3p: 1 dirs, 0 regular files; tmp-cora-m20/**/records: 40 dirs, 0 regular files",
+   "searched": [
+    {
+     "dir": "repo-cora-m20/**/fix3",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "repo-cora-m20/**/fix3p",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "repo-cora-m20/**/records",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/fix3",
+     "dirs": 1,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/fix3p",
+     "dirs": 1,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/records",
+     "dirs": 40,
+     "regular_files": 0
+    }
+   ]
+  },
+  {
+   "affected": "R3, R11",
+   "item": "gemini-rehearsal-fix3 plan.toml x5",
+   "reason": "no gemini-rehearsal-fix3 plan.toml exists in any searched dir. Searched: repo-cora-m20/**/fix3: 0 dirs, 0 regular files; repo-cora-m20/**/fix3p: 0 dirs, 0 regular files; repo-cora-m20/**/records: 0 dirs, 0 regular files; tmp-cora-m20/**/fix3: 1 dirs, 0 regular files; tmp-cora-m20/**/fix3p: 1 dirs, 0 regular files; tmp-cora-m20/**/records: 40 dirs, 0 regular files",
+   "searched": [
+    {
+     "dir": "repo-cora-m20/**/fix3",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "repo-cora-m20/**/fix3p",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "repo-cora-m20/**/records",
+     "dirs": 0,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/fix3",
+     "dirs": 1,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/fix3p",
+     "dirs": 1,
+     "regular_files": 0
+    },
+    {
+     "dir": "tmp-cora-m20/**/records",
+     "dirs": 40,
+     "regular_files": 0
+    }
+   ]
+  }
+ ],
+ "derived": [
+  {
+   "command": "TERM=xterm-256color uv run python tests/m25_diag.py refcheck --config tests/fixtures/m20/artifacts/cora-m20-deepseek.toml --out tests/fixtures/m25/refcheck.jsonl",
+   "file": "refcheck.jsonl"
+  },
+  {
+   "command": "uv run python tests/m25_diag.py tripcheck --out tests/fixtures/m25/tripcheck.jsonl",
+   "file": "tripcheck.jsonl"
+  },
+  {
+   "command": "uv run python tests/m25_diag.py denials --out tests/fixtures/m25/denials.jsonl",
+   "file": "denials.jsonl"
+  },
+  {
+   "command": "uv run python tests/m25_diag.py golden --out tests/fixtures/m25/planner_prompts_off.json",
+   "file": "planner_prompts_off.json"
+  },
+  {
+   "command": "hand-written classification of refcheck.jsonl rows with pass_ref false",
+   "file": "refcheck_classes.jsonl"
+  }
+ ],
+ "files": [
+  "outside/repo-cora-m20/deepseek-v2/e2e_n08-r2/outcome.json"
+ ],
+ "key_scan": {
+  "files": 1,
+  "matches": 0
+ },
+ "not_copied": [],
+ "partial_tmp": [],
+ "placeholders": {
+  "<HOME>": "home directory",
+  "<REPO>": "repository root",
+  "<TMP-PARTIAL>": "truncated fragment of a system temp path cut off by the recorder",
+  "<TMP>": "system temp directory"
+ },
+ "redactions": [],
+ "source": "outside-repo, read-only: <REPO>/.cora/m20 (repo-cora-m20) and <TMP>/cora-m20 (tmp-cora-m20); copied through m20a_artifacts._sanitize"
+}

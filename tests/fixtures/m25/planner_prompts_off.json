@@ -1,0 +1,100 @@
+{
+ "plan": [
+  [
+   "system",
+   "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys."
+  ],
+  [
+   "user",
+   "Goal:\nBuild a CSV report tool."
+  ]
+ ],
+ "plan_rules": [
+  [
+   "system",
+   "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\nShell policy for \"check\" and \"command\" conditions:\n- rule A\n- rule B"
+  ],
+  [
+   "user",
+   "Goal:\nBuild a CSV report tool."
+  ]
+ ],
+ "policy_repair": [
+  [
+   "system",
+   "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\nShell policy for \"check\" and \"command\" conditions:\n- rule A\n- rule B"
+  ],
+  [
+   "user",
+   "Goal:\nBuild a CSV report tool."
+  ],
+  [
+   "assistant",
+   "{\"goal\":\"g\"}"
+  ],
+  [
+   "user",
+   "Some commands in your plan are denied by this run's shell policy and would never run:\n- milestone m1 check: cd x && ls (rule confine:cd: use paths)\nReply again with the corrected full plan as one JSON object. Replace each denied command with one the policy allows, or remove it."
+  ]
+ ],
+ "repair": [
+  [
+   "system",
+   "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys.\nShell policy for \"check\" and \"command\" conditions:\n- rule A\n- rule B"
+  ],
+  [
+   "user",
+   "Goal:\nBuild a CSV report tool."
+  ],
+  [
+   "assistant",
+   "not json"
+  ],
+  [
+   "user",
+   "Your reply was invalid: model reply is not valid JSON: Expecting value (line 1, column 1)\nReply again with only the corrected JSON object."
+  ]
+ ],
+ "run_repair": [
+  [
+   [
+    "system",
+    "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys."
+   ],
+   [
+    "user",
+    "Goal:\nBuild a CSV report tool."
+   ]
+  ],
+  [
+   [
+    "system",
+    "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys."
+   ],
+   [
+    "user",
+    "Goal:\nBuild a CSV report tool."
+   ],
+   [
+    "assistant",
+    "not json"
+   ],
+   [
+    "user",
+    "Your reply was invalid: model reply is not valid JSON: Expecting value (line 1, column 1)\nReply again with only the corrected JSON object."
+   ]
+  ]
+ ],
+ "run_valid": [
+  [
+   [
+    "system",
+    "You are a project planner. Break the user's goal into an ordered list of milestones.\nReply with ONE JSON object and nothing else, of this shape:\n{\"goal\": str, \"milestones\": [{\"id\": str, \"title\": str, \"task\": str, \"check\": str, \"conditions\": [{\"kind\": \"command\", \"cmd\": str}, {\"kind\": \"file_exists\", \"path\": str}]}]}\n\"check\" and \"conditions\" are optional.\nRules:\n- Use 1 to 8 milestones, listed in execution order.\n- Every id is unique and non-empty.\n- Every task is non-empty and self-contained, because each milestone runs in a fresh session.\n- Prefer conditions that are cheap, deterministic and side-effect free.\n- \"check\" is a single runnable shell command that exits 0 when the milestone is done; omit it if no such command exists, and use \"conditions\" for deterministic checks.\n- A \"path\" is relative to the workspace: no absolute paths and no \"..\".\n- Use no other keys."
+   ],
+   [
+    "user",
+    "Goal:\nBuild a CSV report tool."
+   ]
+  ]
+ ]
+}

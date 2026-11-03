@@ -1,0 +1,7 @@
+{"count": 3, "events": "tests/fixtures/m20/artifacts/v2/e2e_h01-r1/sessions/20261025-220907-07c65a/events.jsonl", "line": 121, "responses": 3, "same_response": false, "tool": "run_shell"}
+{"count": 3, "events": "tests/fixtures/m20/artifacts/v2/e2e_h03-r0/sessions/20261025-224335-252598/events.jsonl", "line": 84, "responses": 1, "same_response": true, "tool": "delete_file"}
+{"count": 3, "events": "tests/fixtures/m20/artifacts/v2/e2e_h03-r1/sessions/20261025-224751-214c62/events.jsonl", "line": 73, "responses": 1, "same_response": true, "tool": "delete_file"}
+{"count": 3, "events": "tests/fixtures/m20/artifacts/v2/e2e_h03-r2/sessions/20261025-225114-f43922/events.jsonl", "line": 57, "responses": 3, "same_response": false, "tool": "edit_file"}
+{"count": 3, "events": "tests/fixtures/m20d/artifacts/m20d-deepseek-v2/e2e_n08-r0/sessions/20261028-111902-651232/events.jsonl", "line": 76, "responses": 1, "same_response": true, "tool": "delete_file"}
+{"count": 3, "events": "tests/fixtures/m20d/artifacts/m20d-deepseek-v2/e2e_n08-r1/sessions/20261028-115337-ec58da/events.jsonl", "line": 60, "responses": 3, "same_response": false, "tool": "run_shell"}
+{"count": 3, "events": "tests/fixtures/m20d/artifacts/m20d-deepseek-v2/e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl", "line": 37, "responses": 1, "same_response": true, "tool": "run_shell"}
