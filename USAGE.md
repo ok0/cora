@@ -590,6 +590,7 @@ TUI는 대화형 터미널에서 `cora`를 실행하면 시작하는 전체 화�
 - `/check <명령>`으로 검사 명령을 정하면, 모델이 최종 답을 내기 전에 그 명령을 실행합니다. 검사가 실패하면 실패 출력의 끝부분을 모델에게 돌려주고 고쳐서 다시 답하게 합니다.
 - 재검사는 `[agent] sensor_max_retries`(기본값 3)회까지 합니다. 그 안에 통과하지 못하면 결과를 그대로 전달합니다.
 - `/check off`로 끕니다.
+- `[agent] tripwire_per_response = true`(기본값 `false`)이면 한 모델 응답 안에서 같은 실패가 여러 번 나와도 tripwire 횟수에는 한 번으로 셉니다. 기록된 효과가 생기기 전까지 꺼져 있습니다.
 - tripwire는 같은 오류가 3번 반복되면 멈추거나 한 번 에스컬레이션합니다. `/check`를 설정하면 tripwire는 항상 켜집니다. `/check`를 쓰지 않을 때는 `[agent] tripwire = true`로 켤 수 있습니다(기본값은 `false`).
 - `cora run --check "<명령>"`으로 한 번의 실행에 같은 검사를 걸 수 있습니다.
 
@@ -1296,14 +1297,20 @@ conditions = [ { kind = "command", cmd = "uv run pytest -q" }, { kind = "file_ex
 - 모델 응답은 JSON 객체 하나여야 합니다. `{"goal": "...", "milestones": [{"id", "title", "task", "check"?, "conditions"?}]}` 형식이며, ```` ```json ```` 울타리로 감싼 응답도 받습니다.
 - 마일스톤은 1개 이상이고 `[project] max_milestones`(기본 8)를 넘을 수 없습니다.
 - 응답이 형식에 맞지 않으면 오류 내용을 담아 한 번만 다시 요청합니다. 그래도 맞지 않으면 종료 코드 2입니다.
-- 엄격 파싱이 실패하면 계획 JSON은 먼저 복구 단계 `strip_fences`, `extract_object`, `trailing_commas`, `single_quotes`를 시도합니다. 이 복구는 `[agent] lenient_parse = true`(기본값)일 때만 실행됩니다. 모델 복구 호출은 이 단계들이 모두 실패한 경우에만 일어납니다. 그래도 형식이 맞지 않는 응답은 종료 코드 2로 끝납니다.
+- 엄격 파싱이 실패하면 계획 JSON은 먼저 복구 단계 `strip_fences`, `extract_object`, `trailing_commas`, `single_quotes`를 시도합니다. 이 복구는 `[agent] lenient_parse = true`(기본값)일 때만 실행됩니다.
+- 위 복구 단계가 모두 실패하면 `scan_objects`를 시도합니다. 응답 안에서 `milestones` 키를 가진 JSON 객체를 찾아 씁니다. 이 복구도 `[agent] lenient_parse = true`(기본값)일 때만 실행되며, 쓰인 경우 복구 기록에 `scan_objects`로 남습니다.
+- 모델 복구 호출은 이 복구 단계와 `scan_objects`가 모두 실패한 경우에만 일어납니다. 그래도 형식이 맞지 않는 응답은 종료 코드 2로 끝납니다.
+- 계획 응답이 계획으로 읽히지 않을 때마다(첫 응답, 형식 재요청, 정책 수정 요청 단계) `plan_reply_rejected` 이벤트를 남깁니다. 기록 위치는 `<workdir>/.cora/planner/events.jsonl`이고, `cora project run --goal`에서는 실행의 `events.jsonl`에도 같은 이벤트가 들어갑니다. 응답 본문은 비밀값을 `<redacted>`로 바꾸고 최대 20000자까지 남깁니다.
 - 계획 호출 비용은 결과의 `cost_usd`와 `budget.used`에 포함되며, 호출 전에 비용 상한을 확인합니다.
 - `cora project run --goal GOAL`은 계획을 만든 뒤 `<workdir>/.cora/projects/<run_id>/plan.toml`에 저장하고 바로 실행합니다. `-o`를 주면 같은 계획을 그 파일에도 씁니다.
 - 계획 프롬프트에는 이 실행의 셸 정책 규칙(`render_policy_rules`)이 들어갑니다. 모델이 정책으로 거부될 검사 명령(`check`)이나 `command` 조건을 쓰지 않도록 알려 주기 위해서입니다.
 - 정책으로 거부된 `check`/`command` 조건은 `policy_repairs` 횟수만큼 수정 요청을 받습니다. 그래도 거부되는 항목은 버리고 기록합니다(계획 문서의 `plan_policy`, 그리고 `policy_dropped` 목록).
 - 검사가 모두 버려진 마일스톤은 `ungated = true`로 표시됩니다. 경고를 출력하고 결과의 `ungated_milestones`에 나옵니다. 이것은 오류가 아니며 종료 코드를 바꾸지 않습니다.
 - `cora project plan --approval`이 있습니다. 헤드리스 실행에 쓸 계획은 `--approval policy`로 만들어야 합니다.
-- `policy_repairs`(0–3, 기본값 1)는 `[project]` 설정입니다. 배포되는 `cora.toml`에는 이 키가 적혀 있지 않습니다. 기본값은 코드에서 오므로 M20 사전 등록이 해시로 고정한 파일이 그대로 남습니다. 바꾸려면 `[project]` 아래에 `policy_repairs = N`을 직접 씁니다. 0이면 모델을 다시 부르지 않고 거부된 검사를 바로 버립니다.
+- `policy_repairs`(0–3, 기본값 1)는 `[project]` 설정입니다. 배포되는 `cora.toml`에 `policy_repairs = 1`로 적혀 있습니다. 바꾸려면 `[project]` 아래에 `policy_repairs = N`을 직접 씁니다. 0이면 모델을 다시 부르지 않고 거부된 검사를 바로 버립니다.
+- `goal_paths`(기본값 `false`)를 켜면 계획 프롬프트에 작업 공간의 파일 목록이 들어가고, 조건과 검사가 가리키는 파일이나 테스트 선택자 중 목표에도 작업 공간에도 없는 것을 찾습니다. 파일 이름이 슬래시 없이 나오는 경우, 점으로 이어진 모듈 이름, `path::name`의 경로 부분, `-k` 테스트 선택자도 검사합니다. 선택자(`plan:underived-selector`)는 작업 공간에 있거나 목표가 이름을 준 테스트와 맞아야 합니다. 이렇게 찾은 항목은 `policy_repairs` 횟수만큼 수정을 요청받고, 그래도 남으면 버립니다. 파일 경로 규칙의 규칙 id는 `plan:underived-path`입니다.
+- `plan_repair_hint`(기본값 `false`)를 켜면 계획 형식을 다시 요청할 때 응답의 결함(빈 응답, 잘림, JSON 객체 없음, 객체 바깥의 글)을 요청 문장에 적습니다.
+- `goal_paths`와 `plan_repair_hint`는 기록된 효과가 생기기 전까지 꺼져 있습니다.
 
 ### 체크포인트와 재개
 
@@ -1356,7 +1363,9 @@ conditions = [ { kind = "command", cmd = "uv run pytest -q" }, { kind = "file_ex
 | `max_milestones` | 8 | 계획 생성이 만들 수 있는 마일스톤 수의 상한입니다. |
 | `condition_timeout_s` | 60 | 조건 명령 하나의 시간 제한(초)입니다. |
 | `condition_output_chars` | 2000 | 실패한 조건 출력의 끝부분 중 재시도 피드백으로 남기는 글자 수입니다. |
-| `policy_repairs` | 1 | 계획의 `check`/`command` 조건이 정책으로 거부되었을 때 수정을 요청하는 횟수입니다(0–3). 배포되는 `cora.toml`에는 적혀 있지 않으며 코드 기본값을 씁니다. 바꾸려면 `[project]` 아래에 `policy_repairs = N`을 씁니다. |
+| `policy_repairs` | 1 | 계획의 `check`/`command` 조건이 정책으로 거부되었을 때 수정을 요청하는 횟수입니다(0–3). 배포되는 `cora.toml`에 `policy_repairs = 1`로 적혀 있습니다. 바꾸려면 `[project]` 아래에 `policy_repairs = N`을 씁니다. |
+| `goal_paths` | false | 켜면 계획 프롬프트에 작업 공간 파일 목록을 넣고, 목표에도 작업 공간에도 없는 파일이나 테스트 선택자를 가리키는 조건·검사를 수정 요청 뒤 버립니다. 선택자 규칙은 `plan:underived-selector`입니다. |
+| `plan_repair_hint` | false | 켜면 계획 형식 재요청에 응답의 결함(빈 응답, 잘림, JSON 객체 없음, 객체 바깥의 글)을 적습니다. |
 
 ## MCP 서버로 실행 (`cora mcp serve`)
 
@@ -1624,7 +1633,7 @@ command = "curl https://api.example.com/*"
     - simple과 medium은 cheap, complex는 strong으로 갑니다. 기본 경로는 cheap입니다.
     - 파일 하나를 고치는 보통 작업(ordinary)은 cheap으로 갑니다.
     - 라벨이 붙은 프롬프트 집합은 `tests/data/router_prompts.toml`이고, 이전과 새 점수의 표는 `.docs/bench-results.md`에 있습니다.
-- `[agent]`: `approval`(`ask`, `auto`, `deny`, `policy`), `max_iterations`, `max_cost_usd`, `max_wall_s`, `max_tool_calls`, `budget_warn_fraction`, `tool_protocol`(`react`, `native`, `auto`), `sensor_max_retries`, `tripwire`, `lenient_parse`, `auto_check`, `tamper_guard`, `selftest`, `ladder`를 설정합니다. 예산 상한의 뜻은 예산 상한 섹션을 보세요.
+- `[agent]`: `approval`(`ask`, `auto`, `deny`, `policy`), `max_iterations`, `max_cost_usd`, `max_wall_s`, `max_tool_calls`, `budget_warn_fraction`, `tool_protocol`(`react`, `native`, `auto`), `sensor_max_retries`, `tripwire`, `tripwire_per_response`, `lenient_parse`, `auto_check`, `tamper_guard`, `selftest`, `ladder`를 설정합니다. 예산 상한의 뜻은 예산 상한 섹션을 보세요.
   - `lenient_parse`(기본값 `true`): 엄격한 ReAct 파싱이 실패했을 때만 복구를 시도합니다. 엄격 파싱이 성공한 응답은 바뀌지 않습니다. 복구 순서는 코드 펜스 제거(`strip_fences`), 산문 제거(`strip_prose`), 작은따옴표를 큰따옴표로(`single_quotes`), 끝 쉼표 제거(`trailing_commas`), 문자열 입력을 첫 인자로 감싸기(`wrap_string_input`), 중괄호 블록 추출(`extract_braces`)입니다. `wrap_string_input`의 인자 이름은 도구의 첫 필수 인자이며, 필수 인자가 없으면 첫 속성입니다. 속성이 없는 도구는 건너뜁니다. 계획 생성(`cora project plan`, `project run --goal`)의 JSON에도 적용됩니다.
   - 복구가 일어나면 `parse_repaired` 이벤트(`repairs` 목록 포함)가, 복구도 실패하면 `parse_error` 이벤트가 남습니다.
   - `repeat_breaker`가 켜져 있으면 반복을 감지할 때 `repeat_detected` 이벤트(`iteration`, `kind`, `count`)가 남습니다.

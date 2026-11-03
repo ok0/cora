@@ -6,6 +6,7 @@ Usage (repo root):
     uv run python tests/m25_diag.py tripcheck --out tests/fixtures/m25/tripcheck.jsonl
     uv run python tests/m25_diag.py denials --out tests/fixtures/m25/denials.jsonl
     uv run python tests/m25_diag.py golden --out tests/fixtures/m25/planner_prompts_off.json
+    uv run python tests/m25_diag.py replay --out tests/fixtures/m25/replay.jsonl
 """
 
 from __future__ import annotations
@@ -31,12 +32,17 @@ from cora.core.agent import Agent  # noqa: E402
 from cora.core.config import load_config  # noqa: E402
 from cora.core.milestones import Condition, load_plan, run_condition  # noqa: E402
 from cora.core.planner import (  # noqa: E402
+    SELECTOR_RULE,
+    UNDERIVED_RULE,
     PolicyIssue,
     plan_messages,
     plan_project,
     policy_repair_messages,
     repair_messages,
+    validate_plan_paths,
     validate_plan_policy,
+    workspace_listing,
+    workspace_test_names,
 )
 from cora.core.policy import approval_mode_of, planning_policy  # noqa: E402
 from cora.core.tools import ApprovalPolicy  # noqa: E402
@@ -190,6 +196,78 @@ def refcheck(config_path: Path, out: Path) -> int:
         rows.extend(refcheck_details(task, plan, config_path))
     rows.sort(key=lambda r: (r["plan"], r["milestone"], r["field"]))
     _write_jsonl(out, rows)
+    return 0
+
+
+def _replay_row(
+    plan_rel: str,
+    prows: list[dict],
+    goal: str,
+    files: list[str],
+    names: list[str],
+    policy: Any,
+) -> dict:
+    if policy is None:
+        raise SystemExit(2)
+    plan = load_plan(ROOT / plan_rel)
+    issues: dict[tuple[str, str], PolicyIssue] = {}
+    found = [*validate_plan_policy(plan, policy), *validate_plan_paths(plan, goal, files, names)]
+    for issue in found:
+        issues.setdefault((issue.milestone_id, issue.field), issue)
+    flagged = [r for r in prows if (r["milestone"], r["field"]) in issues]
+    unflagged = [r for r in prows if (r["milestone"], r["field"]) not in issues]
+    failing = [r for r in prows if not r["pass_ref"]]
+    failing_unflagged = [r for r in failing if (r["milestone"], r["field"]) not in issues]
+    rules = [issues[(r["milestone"], r["field"])].rule for r in flagged]
+    return {
+        "plan": plan_rel,
+        "task": prows[0]["task"],
+        "flagged": [[r["milestone"], r["field"], rule] for r, rule in zip(flagged, rules, strict=True)],
+        "failing": [[r["milestone"], r["field"]] for r in failing],
+        "policy_flagged": sum(1 for rule in rules if rule not in (UNDERIVED_RULE, SELECTOR_RULE)),
+        "path_flagged": sum(1 for rule in rules if rule == UNDERIVED_RULE),
+        "selector_flagged": sum(1 for rule in rules if rule == SELECTOR_RULE),
+        "flagged_failing": sum(1 for r in flagged if not r["pass_ref"]),
+        "flagged_passing": sum(1 for r in flagged if r["pass_ref"]),
+        "failing_unflagged": len(failing_unflagged),
+        "pass_ref_before": sum(1 for r in prows if r["pass_ref"]),
+        "pass_ref_after_drop": sum(1 for r in unflagged if r["pass_ref"]),
+    }
+
+
+def replay(out: Path) -> int:
+    cfg = load_config(CONFIG)
+    rows: list[dict] = []
+    for line in (FIX_DIR / "refcheck.jsonl").read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            rows.append(json.loads(line))
+    by_plan: dict[str, list[dict]] = {}
+    for r in rows:
+        by_plan.setdefault(r["plan"], []).append(r)
+    inputs: dict[str, tuple[str, list[str], list[str], Any]] = {}
+    tmps: list[Path] = []
+    out_rows: list[dict] = []
+    try:
+        for plan_rel, prows in by_plan.items():
+            task = prows[0]["task"]
+            if task not in inputs:
+                tmp, ws = _prepared(task)
+                tmps.append(tmp)
+                files = workspace_listing(ws)
+                policy = planning_policy(cfg.policy, ws, "policy")
+                inputs[task] = (
+                    m20_trial.goal_text(task),
+                    files,
+                    workspace_test_names(ws, files),
+                    policy,
+                )
+            goal, files, names, policy = inputs[task]
+            out_rows.append(_replay_row(plan_rel, prows, goal, files, names, policy))
+    finally:
+        for tmp in tmps:
+            shutil.rmtree(tmp, ignore_errors=True)
+    out_rows.sort(key=lambda r: r["plan"])
+    _write_jsonl(out, out_rows)
     return 0
 
 
@@ -562,6 +640,8 @@ def _build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out", required=True)
     s = sub.add_parser("golden")
     s.add_argument("--out", required=True)
+    s = sub.add_parser("replay")
+    s.add_argument("--out", required=True)
     return parser
 
 
@@ -577,6 +657,8 @@ def main(argv: list[str] | None = None) -> int:
         return denials(Path(args.out).resolve())
     if args.cmd == "golden":
         return golden(Path(args.out).resolve())
+    if args.cmd == "replay":
+        return replay(Path(args.out).resolve())
     return 2
 
 

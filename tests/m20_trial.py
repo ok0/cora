@@ -33,7 +33,9 @@ from m20a_artifacts import _sanitize  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 OUT_ROOT = ROOT / ".cora" / "m20"
 PLAN_MAX_MILESTONES = 8
-PLAN_ERROR_RE = re.compile(r"503|UNAVAILABLE|overloaded", re.IGNORECASE)
+PLAN_ERROR_RE = re.compile(
+    r"503|UNAVAILABLE|overloaded|429|RESOURCE_EXHAUSTED|rate.?limit", re.IGNORECASE
+)
 TIMEOUT_MARKER = "timeout after"
 SKIP_DIRS = frozenset({".git", ".venv", "__pycache__", "node_modules"})
 PRE_REGISTERED_TASKS = ("e2e_h01", "e2e_h03", "e2e_n08")
