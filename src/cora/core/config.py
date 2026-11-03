@@ -97,6 +97,7 @@ class AgentSettings:
     sensor_max_retries: int = 3
     sensor_feedback_chars: int = 2000
     tripwire: bool = False
+    tripwire_per_response: bool = False
     max_wall_s: float = 0
     max_tool_calls: int = 0
     budget_warn_fraction: float = 0.8
@@ -140,6 +141,8 @@ class ProjectSettings:
     condition_timeout_s: int = 60
     condition_output_chars: int = 2000
     policy_repairs: int = 1
+    goal_paths: bool = False
+    plan_repair_hint: bool = False
 
 
 @dataclass(frozen=True)
@@ -660,7 +663,8 @@ def parse_config(data: dict[str, Any]) -> CoraConfig:
             "(seconds per model call)"
         )
     for key in (
-        "auto_check", "tamper_guard", "selftest", "ladder", *GATE_KEYS, *FIX_KEYS, *WRITE_KEYS
+        "auto_check", "tamper_guard", "selftest", "ladder", "tripwire_per_response",
+        *GATE_KEYS, *FIX_KEYS, *WRITE_KEYS
     ):
         if not isinstance(getattr(agent, key), bool):
             raise ConfigError(f"invalid [agent].{key}: must be true or false")
@@ -690,6 +694,9 @@ def parse_config(data: dict[str, Any]) -> CoraConfig:
             "invalid [project].policy_repairs: must be an integer 0-3 "
             "(0 = drop denied checks without a model call)"
         )
+    for key in ("goal_paths", "plan_repair_hint"):
+        if not isinstance(getattr(project, key), bool):
+            raise ConfigError(f"invalid [project].{key}: must be true or false")
     if "context" in data and not isinstance(data["context"], dict):
         raise ConfigError("invalid [context] section: must be a table")
     try:

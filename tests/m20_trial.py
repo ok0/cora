@@ -38,6 +38,7 @@ TIMEOUT_MARKER = "timeout after"
 SKIP_DIRS = frozenset({".git", ".venv", "__pycache__", "node_modules"})
 PRE_REGISTERED_TASKS = ("e2e_h01", "e2e_h03", "e2e_n08")
 DEADLINE_TOML = ROOT / "tests/fixtures/m19/arms/deadline.toml"
+M20_BASE = ROOT / "tests/fixtures/m20/cora-m20-base.toml"
 VARIANTS = ("base", "deadline")
 DEADLINE_LINES = ("timeout_s = 300", "request_deadline_s = 300", "call_timeout_s = 960")
 PRE_FIX_LABELS = ("gemini-rehearsal", "deepseek")
@@ -92,10 +93,7 @@ M20B_POLICY_BLOCK = (
 
 
 def m20_base_text() -> str:
-    text = (ROOT / "cora.toml").read_text(encoding="utf-8")
-    if not text.endswith(M20B_POLICY_BLOCK):
-        raise SystemExit(2)
-    return text[: -len(M20B_POLICY_BLOCK)]
+    return M20_BASE.read_text(encoding="utf-8")
 
 
 def _variant_lines(variant: str) -> list[str]:

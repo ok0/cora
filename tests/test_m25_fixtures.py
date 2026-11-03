@@ -75,3 +75,12 @@ def test_tripcheck_n08_r2_same_response():
     assert len(rows) == 1
     assert rows[0]["same_response"] is True
     assert rows[0]["count"] == 3
+
+
+def test_d5_evidence_lines():
+    rows = [r for r in _jsonl("denials.jsonl") if r["id"] == "D5"]
+    assert len(rows) == 1
+    evidence = rows[0]["evidence"]
+    assert ":24-28" in evidence
+    assert "failed tool_calls :32-36" in evidence
+    assert "tripwire counted :34-36" in evidence

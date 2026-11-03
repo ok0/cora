@@ -41,6 +41,14 @@ def test_m25_section_rows():
         assert row["cite"] in section
 
 
+def test_m25_revision1_corrections():
+    section = _section()
+    assert "plan:underived-selector" in section
+    assert "p1c는 29행" in section
+    assert "tests.test_normalize" in section
+    assert "p1c 21행은" not in section
+
+
 @pytest.mark.skipif(not PLANQ.exists(), reason="fix4 planq rows not recorded yet")
 def test_fix4_lines():
     rows = _jsonl(PLANQ)

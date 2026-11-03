@@ -333,6 +333,16 @@ def denials(out: Path) -> int:
         raise SystemExit(2)
     d5 = stop_hits[0]
     sel_lines = [n for n, _ in d5["_selected"]]
+    d5_evs = _load_events(stop_path)
+    d5_resp = _response_of(d5_evs, sel_lines[0])
+    d5_failed = [
+        n
+        for n, e in d5_evs
+        if d5_resp < n < M20D_STOP[1]
+        and e.get("type") == "tool_call"
+        and e.get("tool") == "run_shell"
+        and e.get("ok") is False
+    ]
     rows.append(
         _denial(
             "D5",
@@ -342,8 +352,10 @@ def denials(out: Path) -> int:
             str(_event_line(stop_path, sel_lines[0])["target"]),
             VERDICT_TRIPWIRE,
             f"tripwire count={d5['count']} responses={d5['responses']}; one model response "
-            f"llm_call :{_response_of(_load_events(stop_path), sel_lines[0])}; "
-            f"5 parallel run_shell policy denials :24-28; tool_call failures :{sel_lines[0]}-{sel_lines[-1]}",
+            f"llm_call :{d5_resp}; "
+            f"5 parallel run_shell policy denials :24-28; "
+            f"failed tool_calls :{d5_failed[0]}-{d5_failed[-1]}; "
+            f"tripwire counted :{sel_lines[0]}-{sel_lines[-1]}",
         )
     )
     next_id = 6

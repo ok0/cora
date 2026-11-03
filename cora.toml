@@ -125,6 +125,7 @@ tool_protocol = "react"   # react | native | auto (per-model override: tool_prot
 sensor_max_retries = 3     # /check, bench --sensor: re-checks after a failed check (max checks = 1 + this)
 sensor_feedback_chars = 2000  # tail of failed check output fed back to the model
 tripwire = false           # stop or escalate once when the same error repeats 3 times (always on with /check)
+tripwire_per_response = false  # true: identical failures inside one model response count once toward the tripwire (M25; OFF until a recorded gain)
 max_wall_s = 0             # wall-clock cap per run in seconds (0 = unlimited); checked between calls
 max_tool_calls = 0         # tool calls per run incl. sub-agents (0 = unlimited)
 budget_warn_fraction = 0.8 # one budget_warning per cap when usage first reaches this fraction
@@ -161,6 +162,9 @@ gate_retries = 1         # extra fresh-session attempts of a milestone whose con
 max_milestones = 8       # upper bound on milestones the planner may produce
 condition_timeout_s = 60 # per command condition
 condition_output_chars = 2000  # tail of a failed condition's output kept as retry feedback
+policy_repairs = 1       # repair rounds for plan checks/conditions the policy denies (or, with goal_paths, that name underived files); 0-3, 0 = drop without a model call
+goal_paths = false       # true: the planner sees the workspace file list; conditions/checks naming files or test selectors neither in the goal nor in the workspace are repaired, then dropped (M25; OFF until a recorded gain)
+plan_repair_hint = false # true: the planner's schema-repair request names the reply defect (empty, cut off, no JSON object, text around it) (M25; OFF until a recorded gain)
 
 [mcp]                  # cora mcp serve (MCP stdio server): per-call ceilings; a request can only lower them (0 or absent = ceiling)
 max_cost_usd = 0.50      # USD per run_task / resume_session call (cumulative on resume)

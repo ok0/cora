@@ -28,7 +28,7 @@ def test_usage_documents_policy_repairs() -> None:
     text = USAGE.read_text(encoding="utf-8")
     for needle in ("policy_repairs", "ungated", "plan_policy"):
         assert needle in text, f"missing plan policy topic: {needle!r}"
-    assert "policy_repairs" not in (ROOT / "cora.toml").read_text(encoding="utf-8")
+    assert "policy_repairs = 1" in (ROOT / "cora.toml").read_text(encoding="utf-8")
 
 
 def test_architecture_documents_plan_policy() -> None:

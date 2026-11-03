@@ -338,7 +338,7 @@ def test_make_config_deadline_variant(tmp_path):
     assert cfg.providers["openrouter"]["timeout_s"] == 300
     assert cfg.agent.call_timeout_s == 960
     assert HeuristicRouter(cfg).model_for("cheap").id == DEEPSEEK
-    base = (ROOT / "cora.toml").read_text(encoding="utf-8").splitlines()
+    base = (m20_trial.m20_base_text() + m20_trial.M20B_POLICY_BLOCK).splitlines()
     gen = out.read_text(encoding="utf-8").splitlines()
     added = set(gen) - set(base)
     assert len(added) == 4
