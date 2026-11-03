@@ -44,6 +44,7 @@ from cora.core.milestones import (
     project_error_outcome,
     project_outcome,
 )
+from cora.core.observability import EventLog
 from cora.core.outcome import metered_totals
 from cora.core.planner import (
     UNGATED_WARNING,
@@ -58,6 +59,20 @@ from cora.core.tools import ApprovalPolicy, ApprovalRequest
 from cora.core.tools.mcp import McpManager
 
 _clock = time.monotonic
+
+
+def _planner_log(workdir: Path) -> tuple[Callable[[str, dict], None], list[tuple[str, dict]]]:
+    buffer: list[tuple[str, dict]] = []
+    log: EventLog | None = None
+
+    def emit(event_type: str, data: dict) -> None:
+        nonlocal log
+        buffer.append((event_type, data))
+        if log is None:
+            log = EventLog(Path(workdir) / ".cora" / "planner" / "events.jsonl")
+        log.emit(event_type, **data)
+
+    return emit, buffer
 
 
 @dataclass(frozen=True)
@@ -204,13 +219,17 @@ def run_project(
             project_cost=True,
         )
         planning = None
+        planner_events: list[tuple[str, dict]] = []
         if plan is None:
             meter = plan_meter = CostMeter()
             plan_pol = planning_policy(cfg.policy, Path(opts.workdir), cfg.agent.approval)
+            plan_emit, planner_events = _planner_log(Path(opts.workdir))
             plan, planning = asyncio.run(generate_plan(
                 opts.goal, cfg, governor, meter=meter,
                 max_milestones=cfg.project.max_milestones,
                 policy=plan_pol,
+                on_event=plan_emit,
+                workspace=Path(opts.workdir),
             ))
             governor.commit()
             if opts.output is not None:
@@ -267,6 +286,8 @@ def run_project(
             condition_timeout_s=cfg.project.condition_timeout_s,
             condition_output_chars=cfg.project.condition_output_chars,
         )
+        for event_type, data in planner_events:
+            runner.log.emit(event_type, **data)
         if planning is not None and planning.get("policy") is not None:
             runner.log.emit("plan_policy", **planning["policy"])
         running = True
@@ -415,10 +436,13 @@ def run_plan(opts: PlanOptions) -> int:
             project_cost=True,
         )
         pol = planning_policy(cfg.policy, Path(opts.workdir), cfg.agent.approval)
+        plan_emit, _ = _planner_log(Path(opts.workdir))
         plan, info = asyncio.run(generate_plan(
             opts.goal, cfg, governor, meter=meter,
             max_milestones=cfg.project.max_milestones,
             policy=pol,
+            on_event=plan_emit,
+            workspace=Path(opts.workdir),
         ))
         pp = info["policy"]
         if pp:

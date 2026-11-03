@@ -509,7 +509,7 @@ class Agent:
             return check_model(projected if gov.project_cost else 0.0, iterations=False) is None
 
         trip_on = session.sensor or self.config.agent.tripwire
-        trip = Tripwire()
+        trip = Tripwire(per_response=self.config.agent.tripwire_per_response)
         esc = self.config.escalation
         policy = EscalationPolicy(esc)
         cheap_first = self.config.router.mode == "cheap_first"
@@ -1170,7 +1170,7 @@ class Agent:
                 if not r.ok:
                     step_failures.append(r.output)
                 if trip_on and not r.ok:
-                    trip.observe("tool", c.name, r.output)
+                    trip.observe("tool", c.name, r.output, turn=session.total_iterations)
                 out = r.output if len(r.output) <= per else r.output[:per] + "\n...[truncated]"
                 memory.add(
                     Message("tool", out, tool_call_id=c.id),
@@ -1826,7 +1826,9 @@ class Agent:
                             if not res.ok:
                                 step_failures.append(res.output)
                             if trip_on and not res.ok:
-                                trip.observe("tool", c.name, res.output)
+                                trip.observe(
+                                    "tool", c.name, res.output, turn=session.total_iterations
+                                )
                             observation = f"Observation: {res.output}"
                             read_path = read_path_of(
                                 self.ctx.workspace.root, c.name, c.args, res.ok
@@ -1840,7 +1842,9 @@ class Agent:
                                 if not r.ok:
                                     step_failures.append(r.output)
                                 if trip_on and not r.ok:
-                                    trip.observe("tool", c.name, r.output)
+                                    trip.observe(
+                                        "tool", c.name, r.output, turn=session.total_iterations
+                                    )
                             observation = _multi_observation(
                                 [c.name for c in turn.calls],
                                 results,

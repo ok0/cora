@@ -29,15 +29,20 @@ class Tripwire:
     streak: int = 0
     tripped: tuple[str, str, str] | None = None
     head: str = ""
+    per_response: bool = False
+    last_turn: int | None = None
 
-    def observe(self, kind: str, name: str, output: str) -> bool:
+    def observe(self, kind: str, name: str, output: str, *, turn: int | None = None) -> bool:
         if self.tripped:
             return True
         key = (kind, name, normalize_error(output))
+        if key == self.last and self.per_response and turn is not None and turn == self.last_turn:
+            return False
         if key == self.last:
             self.streak += 1
         else:
             self.last, self.streak = key, 1
+        self.last_turn = turn
         if self.streak >= self.threshold:
             self.tripped = key
             self.head = output[:300]
@@ -49,3 +54,4 @@ class Tripwire:
         self.streak = 0
         self.tripped = None
         self.head = ""
+        self.last_turn = None
