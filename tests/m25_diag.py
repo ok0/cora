@@ -71,7 +71,11 @@ CAUSE_ERROR = "model reply is not valid JSON: Expecting value (line 1, column 1)
 
 
 def _rel(p: Path) -> str:
-    return p.resolve().relative_to(ROOT.resolve()).as_posix()
+    resolved = p.resolve()
+    try:
+        return resolved.relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return "/".join(resolved.parts[-2:])
 
 
 def _task_of(run_name: str) -> str:

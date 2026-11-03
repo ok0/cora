@@ -387,3 +387,39 @@ def test_replay_rows(tmp_path):
     assert sum(r["flagged_passing"] for r in rows) == 0
     assert sum(r["policy_flagged"] for r in rows) >= 114
     assert rows == _rows(FIX / "replay.jsonl")
+
+
+OUTSIDE_PLAN = (
+    'goal = "g"\n\n[[milestones]]\nid = "m1"\ntitle = "t"\ntask = "do it"\n'
+    'conditions = [\n  { kind = "file_exists", path = "nope.txt" },\n]\n'
+)
+
+
+def test_refcheck_details_plan_outside_root(tmp_path):
+    plan = tmp_path / "e2e_h01-0" / "plan.toml"
+    plan.parent.mkdir()
+    plan.write_text(OUTSIDE_PLAN, encoding="utf-8")
+    rows = m25_diag.refcheck_details("e2e_h01", plan, m25_diag.CONFIG)
+    assert rows
+    assert {r["plan"] for r in rows} == {"e2e_h01-0/plan.toml"}
+    assert str(tmp_path) not in json.dumps(rows)
+
+
+def test_run_outside_root_refcheck_rows_sanitized(tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", FAKE_KEY)
+    free = _config(tmp_path, "free.toml")
+
+    def write_plan(argv, env):
+        out = Path(argv[argv.index("-o") + 1])
+        out.write_text(OUTSIDE_PLAN, encoding="utf-8")
+        return {"ok": True, "exit_code": 0, "errors": []}
+
+    rc = m25_planq.main(_run_args(tmp_path, free), runner=write_plan, sleep=lambda s: None)
+    assert rc == 0
+    dest = tmp_path / "fx" / "e2e_h01-0"
+    text = (dest / "refcheck.jsonl").read_text(encoding="utf-8")
+    rows = _rows(dest / "refcheck.jsonl")
+    assert rows
+    assert {r["plan"] for r in rows} == {"e2e_h01-0/plan.toml"}
+    assert str(tmp_path) not in text
+    assert "/var/folders/" not in text and "/private/var/" not in text
