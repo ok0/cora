@@ -1696,7 +1696,7 @@ command = "curl https://api.example.com/*"
 
 압축 표시: 줄인 관찰에는 `[compressed: N chars omitted]` 표시가 들어갑니다. 다음 메시지는 줄이지 않습니다: 가장 최근 관찰, 같은 파일의 가장 최근 읽기, 관찰이 아닌 메시지(사용자 작업, 시스템 프롬프트 등).
 
-범위: 하위 에이전트(위임)와 이어하기한 세션도 같은 `[cache]` 설정을 따릅니다. 효과는 오프라인에서만 측정했습니다(`tests/test_cache_agent.py`, `tests/test_cache_terse.py`). 실제 모델 호출로는 검증하지 않았으며, 기본값은 꺼짐으로 둡니다.
+범위: 하위 에이전트(위임)와 이어하기한 세션도 같은 `[cache]` 설정을 따릅니다. 효과는 오프라인에서만 측정했습니다(`tests/test_cache_agent.py`, `tests/test_cache_terse.py`). 실제 모델 호출은 M21 무료 Gemini 방향성 A/B(비-G1, 공통 과제 5개)에서만 측정했고 판정은 내리지 않았으며, 기본값은 꺼짐으로 둡니다.
 
 ## 개발
 
