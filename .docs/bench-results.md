@@ -4331,3 +4331,27 @@ R9 열을 가진 추출 표 (`/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/c
 - 계획 구성 차이: fix4 ON e2e_h01은 조건 3개, fix3 h01은 조건 4개다. 이 차이의 원인은 여기서 판정하지 않는다.
 - R11 판정: fix4 ON과 fix4-off의 어떤 pass-on-reference 값도 total보다 낮지 않다. OFF 값은 이미 total이라 개선 여지가 없고, ON 값도 total이다. 원인 단계를 트리거할 값이 없어 수정 라운드는 0회 사용 (상한 2). deepseek-fix3의 5/8, 6/13은 fix3 refcheck 행이 복구되지 않아 (항목 (c), blocked) 원인을 판정할 자료가 없다.
 - (p) 유료 deepseek-fix4 (R16, like-for-like): pending user approval and OPENROUTER_API_KEY. 아직 실행하지 않았다. 유료 호출 0.
+
+### (p) 유료 deepseek-fix4 (R16, like-for-like): not run
+
+- 결과: **not run**. 유료 호출 0건. 세그먼트 P1·P2 모두 실행하지 않았다. 계정 판독: not read (no key). `tests/fixtures/m25/paid/`는 만들지 않았다 (`segments.json`, `estimate.jsonl`, `account.jsonl`, `approvals.jsonl` 모두 없음). `ds-off.toml` / `ds-on.toml`도 만들지 않았으므로 sha256 기록도 없다.
+- 이유:
+  - 사용자가 2026-11-04에 이 결정을 위임했다 ('알아서 결정하세요').
+  - 세션 셸에 `OPENROUTER_API_KEY`가 export되어 있지 않다 (실행 시점 확인: 값 없음). 키는 어떤 파일에도, argv에도 쓰지 않았다.
+  - 프로젝트 규칙은 유료 호출마다 세그먼트별 사용자 명시 승인을 요구한다. P1·P2에 대한 승인은 받지 않았다.
+  - 무료 fix4 행 (g)에서 ON·OFF 모두 pass-on-reference가 실행 가능 수와 같다 (ON 3/3, 4/4, 0/0, 2/2, 3/3; OFF 4/4, 5/5). 따라서 원인 단계가 열려 있지 않다.
+  - deepseek-fix3 h01 5/8과 h05 6/13은 원본 계획이 유실되어 `blocked`로 남는다 (항목 (c)).
+- 보류 조건: 사용자가 `OPENROUTER_API_KEY`를 셸에 export한 뒤 P1 (OFF: e2e_h01·e2e_h05, label `deepseek-fix4-off`, 세그먼트 cap $0.05)을 승인하고, 이어서 P2 (ON: `deepseek-fix4-on`, 세그먼트 cap $0.05)를 승인하면 실행할 수 있다. 합계 cap $0.10. 실행 전 paid 누계는 약 $8.07이다 (총 한도 $10).
+- 판독 기록: before/after 모두 not read (no key). 비용 0.
+
+### (i) 선택 무료 재확인 prompt_rules OFF/ON (R12, L4): not measured
+
+- 결과: **not measured**. 유효한 측정 행 0건. 유료 호출 0건. 실행은 무료 Gemini 계층의 HTTP 429로 중단됐다.
+- 증거 (`/private/tmp/claude-501/-Users-yoonjonghun-workspace-ok0-cora-public/20bfff68-a279-47e5-9233-0ef6b4ee32b9/scratchpad/cora-m25-l4/status.log`):
+  - OFF e2e_h03 r0, r1: runrow rc=0. **무효 행.** 드라이버가 `cd "$ws" && uv run --directory "$R" cora ...`로 실행했고, `uv run --directory`는 작업 디렉터리를 저장소 루트로 바꾼다. 따라서 에이전트가 `$ws`가 아니라 저장소 루트에서 작업했다. 08:07–09:12 사이 저장소 루트와 `tests/`에 미추적 임시 파일 9개가 생겼고 오케스트레이터가 삭제했다 (추적 파일 변경 없음, git status는 docs만 표시). 이 두 행은 측정으로 보고하지 않는다. `.../cora-m25-l4/off/e2e_h03-r0/row.json`은 발생한 일의 증거로만 인용한다 (exit_code 5, policy_blocked, iterations 140, milestones 2/4).
+  - ON e2e_h03 r0: attempt 1 HTTP 429, 60초 대기 후 attempt 2 HTTP 429 (`openai_compat rate limited: HTTP 429 after 4 retries`, `.../cora-m25-l4/on/e2e_h03-r0/outcome.json`). 09:42 `STOP_429`.
+  - 미시작 5건: ON e2e_h03 r1, OFF/ON e2e_n08 r0·r1.
+- 원인: 무료 계층 할당량 (429). M20b ON 팔도 같은 원인으로 차단됐다 (M20b 요약, 3200행 부근).
+- 재실행 전 절차 수정 (필수): `uv run --project "$R"` 또는 venv의 cora 바이너리를 쓰고 `cd "$ws"`로 실행한다. 실행 뒤 `git status --short`로 저장소가 깨끗한지 확인한다 (미추적 파일 0건).
+- 판정: R12는 선택 항목이며 non-G1이다. 기본값은 바꾸지 않는다 (`prompt_rules`는 false 유지). 재실행에는 무료 할당량 회복과 수 시간이 필요하다.
+- 판독 기록: 유효 행 0, 비용 0.
