@@ -151,7 +151,10 @@ def _test_literals() -> tuple[dict[str, list[str]], int]:
     keywords = ("shellguard", "PolicyEngine", "PolicyGate", "run_shell")
     found: dict[str, list[str]] = {}
     skipped_dynamic = 0
-    for path in sorted((ROOT / "tests").glob("test_*.py")):
+    # Golden predates M22 tests; M22 test files are not corpus sources.
+    for path in sorted(
+        p for p in (ROOT / "tests").glob("test_*.py") if not p.name.startswith("test_m22_")
+    ):
         text = path.read_text(encoding="utf-8")
         if not any(k in text for k in keywords):
             continue
