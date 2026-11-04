@@ -2,7 +2,8 @@
 
 Usage (repo root):
     uv run python tests/m25_diag.py inventory --dst tests/fixtures/m25
-    uv run python tests/m25_diag.py refcheck --config tests/fixtures/m20/artifacts/cora-m20-deepseek.toml --out tests/fixtures/m25/refcheck.jsonl
+    uv run python tests/m25_diag.py refcheck --config CONFIG --out tests/fixtures/m25/refcheck.jsonl
+    (CONFIG = tests/fixtures/m20/artifacts/cora-m20-deepseek.toml)
     uv run python tests/m25_diag.py tripcheck --out tests/fixtures/m25/tripcheck.jsonl
     uv run python tests/m25_diag.py denials --out tests/fixtures/m25/denials.jsonl
     uv run python tests/m25_diag.py golden --out tests/fixtures/m25/planner_prompts_off.json
@@ -26,7 +27,6 @@ TESTS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TESTS))
 
 import m20_trial  # noqa: E402
-from m20a_artifacts import _sanitize  # noqa: E402
 from cora.bench import e2e  # noqa: E402
 from cora.core.agent import Agent  # noqa: E402
 from cora.core.config import load_config  # noqa: E402
@@ -46,6 +46,7 @@ from cora.core.planner import (  # noqa: E402
 )
 from cora.core.policy import approval_mode_of, planning_policy  # noqa: E402
 from cora.core.tools import ApprovalPolicy  # noqa: E402
+from m20a_artifacts import _sanitize  # noqa: E402
 
 ROOT = m20_trial.ROOT
 FIX_DIR = ROOT / "tests/fixtures/m25"
@@ -61,11 +62,11 @@ VERDICT_FIXED_M20A = (
     "fixed (M20a validate_plan_policy; M25 regression test test_m20_planner_checks_flagged)"
 )
 VERDICT_FIXED_HERE_PLANNER = "fixed here (planner validation gap)"
-VERDICT_TRIPWIRE = "fixed here (tripwire counts once per response; [agent] tripwire_per_response, default OFF)"
-GOLDEN_GOAL = "Build a CSV report tool."
-VALID_REPLY = json.dumps(
-    {"goal": "g", "milestones": [{"id": "m1", "title": "t", "task": "do it"}]}
+VERDICT_TRIPWIRE = (
+    "fixed here (tripwire counts once per response; [agent] tripwire_per_response, default OFF)"
 )
+GOLDEN_GOAL = "Build a CSV report tool."
+VALID_REPLY = json.dumps({"goal": "g", "milestones": [{"id": "m1", "title": "t", "task": "do it"}]})
 INVALID_REPLY = "not json"
 CAUSE_ERROR = "model reply is not valid JSON: Expecting value (line 1, column 1)"
 
@@ -121,7 +122,9 @@ def _cmd_output(command: str, agent: Agent) -> tuple[bool, bool, str]:
     if verdict is not None and verdict.blocked:
         return False, False, verdict.message
     ok, out = asyncio.run(
-        run_condition(Condition(kind="command", cmd=command), agent.ctx, timeout_s=60, max_chars=2000)
+        run_condition(
+            Condition(kind="command", cmd=command), agent.ctx, timeout_s=60, max_chars=2000
+        )
     )
     executable = (
         not out.startswith(("denied:", "invalid command:", "error:"))
@@ -145,9 +148,7 @@ def refcheck_details(task_id: str, plan_path: Path, config_path: Path) -> list[d
                 if c.kind == "command":
                     ok, executable, out = _cmd_output(c.cmd or "", agent)
                 else:
-                    ok, out = asyncio.run(
-                        run_condition(c, agent.ctx, timeout_s=60, max_chars=2000)
-                    )
+                    ok, out = asyncio.run(run_condition(c, agent.ctx, timeout_s=60, max_chars=2000))
                     executable = True
                 rows.append(
                     {
@@ -226,7 +227,9 @@ def _replay_row(
     return {
         "plan": plan_rel,
         "task": prows[0]["task"],
-        "flagged": [[r["milestone"], r["field"], rule] for r, rule in zip(flagged, rules, strict=True)],
+        "flagged": [
+            [r["milestone"], r["field"], rule] for r, rule in zip(flagged, rules, strict=True)
+        ],
         "failing": [[r["milestone"], r["field"]] for r in failing],
         "policy_flagged": sum(1 for rule in rules if rule not in (UNDERIVED_RULE, SELECTOR_RULE)),
         "path_flagged": sum(1 for rule in rules if rule == UNDERIVED_RULE),
@@ -310,7 +313,9 @@ def tripwire_hits() -> list[dict]:
             fails = [
                 (n2, e2)
                 for n2, e2 in evs[:pos]
-                if e2.get("type") == "tool_call" and e2.get("ok") is False and e2.get("tool") == tool
+                if e2.get("type") == "tool_call"
+                and e2.get("ok") is False
+                and e2.get("tool") == tool
             ]
             selected = fails[-count:]
             responses = {_response_of(evs, n2) for n2, _ in selected}
@@ -354,7 +359,15 @@ def _policy_flagged(task_id: str, plan: Path, cfg: Any, ws: Path, command: str) 
     return any(i.command == command for i in issues)
 
 
-def _denial(id_: str, cite: str, rule: str, source: str, command: str, verdict: str, evidence: str) -> dict:
+def _denial(
+    id_: str,
+    cite: str,
+    rule: str,
+    source: str,
+    command: str,
+    verdict: str,
+    evidence: str,
+) -> dict:
     return {
         "id": id_,
         "cite": cite,
@@ -367,12 +380,32 @@ def _denial(id_: str, cite: str, rule: str, source: str, command: str, verdict: 
 
 
 PLANNER_DENIALS = (
-    ("D1", "tests/fixtures/m20/artifacts/p2/e2e_h01-r0/sessions/20261023-212556-2e6756/events.jsonl", 30),
-    ("D2", "tests/fixtures/m20/artifacts/rr/e2e_h01-r2/sessions/20261025-204419-2e971a/events.jsonl", 27),
-    ("D3", "tests/fixtures/m20/artifacts/v2/e2e_n08-r0/sessions/20261025-225819-9e8303/events.jsonl", 24),
-    ("D4", "tests/fixtures/m20/artifacts/v2/e2e_n08-r1/sessions/20261025-225924-4737d9/events.jsonl", 40),
+    (
+        "D1",
+        "tests/fixtures/m20/artifacts/p2/e2e_h01-r0/sessions/20261023-212556-2e6756/events.jsonl",
+        30,
+    ),
+    (
+        "D2",
+        "tests/fixtures/m20/artifacts/rr/e2e_h01-r2/sessions/20261025-204419-2e971a/events.jsonl",
+        27,
+    ),
+    (
+        "D3",
+        "tests/fixtures/m20/artifacts/v2/e2e_n08-r0/sessions/20261025-225819-9e8303/events.jsonl",
+        24,
+    ),
+    (
+        "D4",
+        "tests/fixtures/m20/artifacts/v2/e2e_n08-r1/sessions/20261025-225924-4737d9/events.jsonl",
+        40,
+    ),
 )
-M20D_STOP = ("tests/fixtures/m20d/artifacts/m20d-deepseek-v2/e2e_n08-r2/sessions/20261028-120515-8eca84/events.jsonl", 37)
+M20D_STOP = (
+    "tests/fixtures/m20d/artifacts/m20d-deepseek-v2/e2e_n08-r2/"
+    "sessions/20261028-120515-8eca84/events.jsonl",
+    37,
+)
 
 
 def _event_line(path: Path, n: int) -> dict:
@@ -410,7 +443,9 @@ def denials(out: Path) -> int:
             )
         )
     stop_path = ROOT / M20D_STOP[0]
-    stop_hits = [h for h in tripwire_hits() if h["events"] == M20D_STOP[0] and h["line"] == M20D_STOP[1]]
+    stop_hits = [
+        h for h in tripwire_hits() if h["events"] == M20D_STOP[0] and h["line"] == M20D_STOP[1]
+    ]
     if len(stop_hits) != 1:
         raise SystemExit(2)
     d5 = stop_hits[0]
@@ -529,7 +564,9 @@ def _searched(names: tuple[str, ...]) -> list[dict]:
 
 
 def _search_text(entries: list[dict]) -> str:
-    return "; ".join(f"{e['dir']}: {e['dirs']} dirs, {e['regular_files']} regular files" for e in entries)
+    return "; ".join(
+        f"{e['dir']}: {e['dirs']} dirs, {e['regular_files']} regular files" for e in entries
+    )
 
 
 def _needed(parts: tuple[str, ...]) -> bool:
@@ -566,7 +603,10 @@ def inventory(dst: Path) -> int:
             raw = p.read_text(encoding="utf-8")
             text, part_lines = _sanitize(raw, _pairs())
             if _key_hit(str(rel), text):
-                print(f"key scan hit, file not written: outside/{label}/{rel.as_posix()}", file=sys.stderr)
+                print(
+                    f"key scan hit, file not written: outside/{label}/{rel.as_posix()}",
+                    file=sys.stderr,
+                )
                 return 6
             dest_rel = f"outside/{label}/{rel.as_posix()}"
             _write_text(dst / dest_rel, raw)
@@ -578,9 +618,11 @@ def inventory(dst: Path) -> int:
             "item": "D8 raw planner reply + events",
             "affected": "R2/R6",
             "reason": (
-                "the raw planner reply behind the n08 r2 final error (Expecting value, line 1 column 1) "
-                "was not saved: the outside sources hold only outcome.json for e2e_n08-r2 (the committed "
-                "events are the m20d copies), and no searched dir holds a planner reply record. Searched: " + _search_text(_searched(("e2e_n08-r2", "records", "fix3p")))
+                "the raw planner reply behind the n08 r2 final error "
+                "(Expecting value, line 1 column 1) was not saved: the outside sources hold only "
+                "outcome.json for e2e_n08-r2 (the committed events are the m20d copies), and no "
+                "searched dir holds a planner reply record. Searched: "
+                + _search_text(_searched(("e2e_n08-r2", "records", "fix3p")))
             ),
             "searched": _searched(("e2e_n08-r2", "records", "fix3p")),
         },
@@ -604,14 +646,43 @@ def inventory(dst: Path) -> int:
         },
     ]
     derived = [
-        {"file": "refcheck.jsonl", "command": "TERM=xterm-256color uv run python tests/m25_diag.py refcheck --config tests/fixtures/m20/artifacts/cora-m20-deepseek.toml --out tests/fixtures/m25/refcheck.jsonl"},
-        {"file": "tripcheck.jsonl", "command": "uv run python tests/m25_diag.py tripcheck --out tests/fixtures/m25/tripcheck.jsonl"},
-        {"file": "denials.jsonl", "command": "uv run python tests/m25_diag.py denials --out tests/fixtures/m25/denials.jsonl"},
-        {"file": "planner_prompts_off.json", "command": "uv run python tests/m25_diag.py golden --out tests/fixtures/m25/planner_prompts_off.json"},
-        {"file": "refcheck_classes.jsonl", "command": "hand-written classification of refcheck.jsonl rows with pass_ref false"},
+        {
+            "file": "refcheck.jsonl",
+            "command": (
+                "TERM=xterm-256color uv run python tests/m25_diag.py refcheck "
+                "--config tests/fixtures/m20/artifacts/cora-m20-deepseek.toml "
+                "--out tests/fixtures/m25/refcheck.jsonl"
+            ),
+        },
+        {
+            "file": "tripcheck.jsonl",
+            "command": (
+                "uv run python tests/m25_diag.py tripcheck --out tests/fixtures/m25/tripcheck.jsonl"
+            ),
+        },
+        {
+            "file": "denials.jsonl",
+            "command": (
+                "uv run python tests/m25_diag.py denials --out tests/fixtures/m25/denials.jsonl"
+            ),
+        },
+        {
+            "file": "planner_prompts_off.json",
+            "command": (
+                "uv run python tests/m25_diag.py golden "
+                "--out tests/fixtures/m25/planner_prompts_off.json"
+            ),
+        },
+        {
+            "file": "refcheck_classes.jsonl",
+            "command": ("hand-written classification of refcheck.jsonl rows with pass_ref false"),
+        },
     ]
     manifest = {
-        "source": "outside-repo, read-only: <REPO>/.cora/m20 (repo-cora-m20) and <TMP>/cora-m20 (tmp-cora-m20); copied through m20a_artifacts._sanitize",
+        "source": (
+            "outside-repo, read-only: <REPO>/.cora/m20 (repo-cora-m20) and <TMP>/cora-m20 "
+            "(tmp-cora-m20); copied through m20a_artifacts._sanitize"
+        ),
         "files": copied,
         "blocked": blocked,
         "derived": derived,
