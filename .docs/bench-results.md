@@ -4330,7 +4330,7 @@ R9 열을 가진 추출 표 (`/var/folders/8m/082k83px2dx92b237cpxq3zw0000gn/T/c
 - 모델 차이: `gemini-rehearsal-*`는 `gemini-3.5-flash-lite` (무료 계층, non-G1)이고, `deepseek-fix3`는 `deepseek/deepseek-v3.2` (유료 계층)다. 따라서 deepseek-fix3의 5/8, 6/13은 gemini 값과 직접 비교하지 않는다. 같은 모델의 비교 (deepseek fix4 대 fix3)는 (p)에서만 가능하다.
 - 계획 구성 차이: fix4 ON e2e_h01은 조건 3개, fix3 h01은 조건 4개다. 이 차이의 원인은 여기서 판정하지 않는다.
 - R11 판정: fix4 ON과 fix4-off의 어떤 pass-on-reference 값도 total보다 낮지 않다. OFF 값은 이미 total이라 개선 여지가 없고, ON 값도 total이다. 원인 단계를 트리거할 값이 없어 수정 라운드는 0회 사용 (상한 2). deepseek-fix3의 5/8, 6/13은 fix3 refcheck 행이 복구되지 않아 (항목 (c), blocked) 원인을 판정할 자료가 없다.
-- (p) 유료 deepseek-fix4 (R16, like-for-like): pending user approval and OPENROUTER_API_KEY. 아직 실행하지 않았다. 유료 호출 0.
+- (p) 유료 deepseek-fix4: not run, 아래 ### (p) 참조.
 
 ### (p) 유료 deepseek-fix4 (R16, like-for-like): not run
 
