@@ -13,6 +13,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
+import m22c_cases
 from cora.core import policy, shellguard
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -151,9 +152,9 @@ def _test_literals() -> tuple[dict[str, list[str]], int]:
     keywords = ("shellguard", "PolicyEngine", "PolicyGate", "run_shell")
     found: dict[str, list[str]] = {}
     skipped_dynamic = 0
-    # Golden predates M22 tests; M22 test files are not corpus sources.
+    # Golden predates M22 tests; M22, M22b and M22c test files are not corpus sources.
     for path in sorted(
-        p for p in (ROOT / "tests").glob("test_*.py") if not p.name.startswith("test_m22_")
+        p for p in (ROOT / "tests").glob("test_*.py") if not p.name.startswith("test_m22")
     ):
         text = path.read_text(encoding="utf-8")
         if not any(k in text for k in keywords):
@@ -590,6 +591,7 @@ def generated() -> list[tuple[str, str]]:
             '"   "',
         ],
     )
+    add("m22c", list(m22c_cases.ALL))
     return out
 
 

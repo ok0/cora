@@ -61,6 +61,9 @@ def test_golden_replays(tmp_path: Path) -> None:
 def test_baseline_diff_is_intended() -> None:
     old_header, old = b.load_jsonl(b.BASELINE)
     new_header, new = b.load_jsonl(b.GOLDEN)
+    old_cmds = {r["command"] for r in old}
+    assert [r["command"] for r in new][: len(old)] == [r["command"] for r in old]
+    new = [r for r in new if r["command"] in old_cmds]
     assert old_header["workspaces"] == new_header["workspaces"]
     assert old_header["modes"] == new_header["modes"]
     assert [r["command"] for r in old] == [r["command"] for r in new]
@@ -110,7 +113,8 @@ def test_inline_never_newly_allowed() -> None:
         for ws, modes in rec["ws"].items():
             for mode in PROFILES_DM:
                 if modes[mode][0] == "allow":
-                    assert old_by_cmd[rec["command"]]["ws"][ws][mode] == modes[mode], (
+                    prev = old_by_cmd.get(rec["command"])
+                    assert prev is not None and prev["ws"][ws][mode] == modes[mode], (
                         rec["command"], ws, mode)
     explicit = ("python -c 1", "node -e 1", "perl -e 1", "deno eval 1")
     for rec in new:
