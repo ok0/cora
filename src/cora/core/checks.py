@@ -10,16 +10,15 @@ from collections.abc import Iterator, Mapping
 from pathlib import Path
 
 from cora.core.shellguard import PathGuard, default_protected
+from cora.core.toolchains import PYTEST_COMMAND as PYTEST_COMMAND
+from cora.core.toolchains import TOOLCHAINS, Marker
 from cora.core.tools.base import IGNORED_DIRS
 
-PYTEST_COMMAND = "python -m pytest -q"
 SELFTEST_DIR = ".cora/selftest"
 SELFTEST_COMMAND = "python -m pytest -q .cora/selftest"
 TEST_NAME_PATTERNS = ("test_*.py", "*_test.py", "*_test.go", "*.test.*", "*.spec.*")
 MAX_SNAPSHOT_FILES = 5000
 MAX_READ_BYTES = 1_000_000
-PYTHON_MARKERS = ("pyproject.toml", "setup.py", "setup.cfg", "requirements.txt")
-_MAKE_TEST = re.compile(r"^test\s*:(?!=)", re.M)
 
 
 def _guard(root: Path) -> PathGuard:
@@ -67,27 +66,26 @@ def is_test_path(rel: str) -> bool:
     return any(fnmatch.fnmatchcase(parts[-1], pat) for pat in TEST_NAME_PATTERNS)
 
 
-def _has_pytest(root: Path, guard: PathGuard) -> bool:
-    tests = root / "tests"
-    if tests.is_dir() and not tests.is_symlink() and guard.check_real(
-            Path(os.path.realpath(tests)), write=False) is None:
-        return True
-    for rel in _walk(root, guard, max_depth=2):
-        name = rel.rsplit("/", 1)[-1]
-        if fnmatch.fnmatchcase(name, "test_*.py") or fnmatch.fnmatchcase(name, "*_test.py"):
-            return True
-    text = _read(root, guard, "pyproject.toml")
-    if text is not None:
-        try:
-            data = tomllib.loads(text)
-        except tomllib.TOMLDecodeError:
-            return False
-        return "pytest" in data.get("tool", {})
-    return False
+def _is_regular_root_file(root: Path, guard: PathGuard, name: str) -> bool:
+    path = root / name
+    if path.is_symlink() or not path.is_file():
+        return False
+    return guard.check_real(Path(os.path.realpath(path)), write=False) is None
 
 
-def _has_npm_test(root: Path, guard: PathGuard) -> bool:
-    text = _read(root, guard, "package.json")
+def _toml_has(root: Path, guard: PathGuard, name: str, key: str) -> bool:
+    text = _read(root, guard, name)
+    if text is None:
+        return False
+    try:
+        data = tomllib.loads(text)
+    except tomllib.TOMLDecodeError:
+        return False
+    return key in data.get("tool", {})
+
+
+def _json_script(root: Path, guard: PathGuard, name: str, script: str, placeholder: str) -> bool:
+    text = _read(root, guard, name)
     if text is None:
         return False
     try:
@@ -99,40 +97,57 @@ def _has_npm_test(root: Path, guard: PathGuard) -> bool:
     scripts = data.get("scripts")
     if not isinstance(scripts, dict):
         return False
-    test = scripts.get("test")
-    return isinstance(test, str) and bool(test) and "no test specified" not in test
+    value = scripts.get(script)
+    return isinstance(value, str) and bool(value) and placeholder not in value
 
 
-def _is_regular_root_file(root: Path, guard: PathGuard, name: str) -> bool:
-    path = root / name
-    if path.is_symlink() or not path.is_file():
-        return False
-    return guard.check_real(Path(os.path.realpath(path)), write=False) is None
+def _has_target(root: Path, guard: PathGuard, name: str, target: str) -> bool:
+    text = _read(root, guard, name)
+    return text is not None and re.search(
+        rf"^{re.escape(target)}\s*:(?!=)", text, re.M) is not None
+
+
+def _marker_present(root: Path, guard: PathGuard, marker: Marker) -> bool:
+    for d in marker.dirs:
+        path = root / d
+        if path.is_dir() and not path.is_symlink() and guard.check_real(
+                Path(os.path.realpath(path)), write=False) is None:
+            return True
+    if any(_is_regular_root_file(root, guard, f) for f in marker.files):
+        return True
+    if marker.names:
+        for rel in _walk(root, guard, max_depth=2):
+            name = rel.rsplit("/", 1)[-1]
+            if any(fnmatch.fnmatchcase(name, pat) for pat in marker.names):
+                return True
+    if marker.toml_key and _toml_has(root, guard, *marker.toml_key):
+        return True
+    if marker.json_script and _json_script(root, guard, *marker.json_script):
+        return True
+    return bool(marker.target_rule) and _has_target(root, guard, *marker.target_rule)
+
+
+def present_toolchains(workspace: Path) -> tuple[str, ...]:
+    root = Path(os.path.realpath(workspace))
+    guard = _guard(root)
+    return tuple(
+        tid for tid, tc in TOOLCHAINS.items()
+        if _marker_present(root, guard, tc.check) or _marker_present(root, guard, tc.also))
 
 
 def detect_check_command(workspace: Path) -> str | None:
     root = Path(os.path.realpath(workspace))
     guard = _guard(root)
-    if _has_pytest(root, guard):
-        return PYTEST_COMMAND
-    if _has_npm_test(root, guard):
-        return "npm test"
-    if _is_regular_root_file(root, guard, "Cargo.toml"):
-        return "cargo test"
-    if _is_regular_root_file(root, guard, "go.mod"):
-        return "go test ./..."
-    makefile = _read(root, guard, "Makefile")
-    if makefile is not None and _MAKE_TEST.search(makefile):
-        return "make test"
+    for tc in TOOLCHAINS.values():
+        if _marker_present(root, guard, tc.check):
+            return tc.check_command
     return None
 
 
 def is_python_workspace(workspace: Path) -> bool:
     root = Path(os.path.realpath(workspace))
     guard = _guard(root)
-    if any(_is_regular_root_file(root, guard, name) for name in PYTHON_MARKERS):
-        return True
-    return any(rel.endswith(".py") for rel in _walk(root, guard, max_depth=2))
+    return _marker_present(root, guard, TOOLCHAINS["python"].also)
 
 
 def snapshot_tests(workspace: Path) -> dict[str, str]:

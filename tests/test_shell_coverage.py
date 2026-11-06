@@ -9,12 +9,12 @@ import pytest
 from cora.core import shellguard
 from cora.core.policy import (
     SHELL_ALLOW,
-    STRICT_RULES,
     PolicyEngine,
     PolicySettings,
     Rule,
 )
 from cora.core.shellguard import PROGRAM_SPECS, PathGuard, default_protected
+from cora.core.toolchains import TOOLCHAINS
 from cora.core.tools import ApprovalPolicy, ToolContext
 from cora.core.tools.base import Workspace
 from cora.core.tools.builtin import SearchTool
@@ -286,12 +286,13 @@ def test_pipe_sink_respects_user_deny(box):
 UNTABLED_ALLOW = frozenset({
     "python -m unittest", "python -m unittest *", "python3 -m unittest",
     "python3 -m unittest *",
+    "npm test", "cargo test", "go test ./...", "make test",
 })
 
 
 def _patterns() -> list[str]:
-    strict = [c for r in STRICT_RULES for c in r.commands]
-    return sorted(set(SHELL_ALLOW) | set(strict))
+    toolchain = {p for tc in TOOLCHAINS.values() for p in (*tc.commands, *tc.file_runs)}
+    return sorted(set(SHELL_ALLOW) | toolchain)
 
 
 @pytest.mark.parametrize("pattern", _patterns())

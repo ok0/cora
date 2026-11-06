@@ -16,6 +16,7 @@ from typing import Any
 
 from cora.core import shellguard
 from cora.core.errors import ConfigError
+from cora.core.toolchains import TOOLCHAINS
 from cora.core.toolgroups import MCP_TOOL_PREFIX, group_of
 
 DECISIONS = ("allow", "ask", "deny")
@@ -132,8 +133,8 @@ class PolicyEngine:
     def confine(self, command: str) -> Verdict:
         return self._shell(command, full=False)
 
-    def _match(self, tool, group, segment) -> Verdict:
-        for layer in (self.user_rules, self.base_rules):
+    def _match(self, tool, group, segment, base: tuple[Rule, ...] | None = None) -> Verdict:
+        for layer in (self.user_rules, self.base_rules if base is None else base):
             hit = _resolve(layer, tool, group, segment)
             if hit is not None:
                 return hit
@@ -144,15 +145,18 @@ class PolicyEngine:
         if analysis.findings:
             f = analysis.findings[0]
             return Verdict("deny", f.rule, f.reason, hard=True)
+        base = (profile_rules(strict=self.strict, shell_allow=builtin_shell_allow(self.guard.root))
+                if full else None)
         worst: Verdict | None = None
         for seg in analysis.segments:
-            v = self._segment(seg, full=full)
+            v = self._segment(seg, full=full, base=base)
             if worst is None or (_SEVERITY[v.decision], v.hard) > (
                     _SEVERITY[worst.decision], worst.hard):
                 worst = v
         return worst or Verdict("deny", "confine:empty", "empty command", hard=True)
 
-    def _segment(self, seg: shellguard.Segment, *, full: bool) -> Verdict:
+    def _segment(self, seg: shellguard.Segment, *, full: bool,
+                 base: tuple[Rule, ...] | None = None) -> Verdict:
         for f in seg.findings:
             if f.severity == shellguard.HARD:
                 return Verdict("deny", f.rule, f.reason, hard=True)
@@ -164,7 +168,7 @@ class PolicyEngine:
         if not full:
             return Verdict("allow", "confine:ok", "passed shell confinement checks")
         text = f"{seg.text} -" if seg.piped and seg.text in PIPE_SINKS else seg.text
-        return self._match("run_shell", "core", text)
+        return self._match("run_shell", "core", text, base)
 
     def _unlocked(self, text: str) -> bool:
         return any(r.matches("run_shell", "core", text) and r.unlocks(text)
@@ -419,7 +423,8 @@ class PlanPolicy:
         return v if v is not None else GateVerdict("run_shell", "allow", "", "", False)
 
     def rules_text(self) -> str:
-        return render_policy_rules(self.gate.settings, approval_mode=self.approval_mode)
+        return render_policy_rules(self.gate.settings, approval_mode=self.approval_mode,
+                                   workspace=self.gate.guard.root)
 
 
 def planning_policy(base: PolicySettings, workspace: Path, approval_mode: str) -> PlanPolicy | None:
@@ -433,30 +438,43 @@ PIPE_SINKS = frozenset({"head", "tail", "wc"})
 READ_TOOLS = ("list_files", "read_file", "search", "git_status", "git_diff", "git_log",
               "todo_write", "submit_plan", "delegate")
 SHELL_ALLOW = (
-    "pytest", "pytest *", "python -m pytest", "python -m pytest *", "python3 -m pytest",
-    "python3 -m pytest *", "python -m unittest", "python -m unittest *", "python3 -m unittest",
-    "python3 -m unittest *", "uv run pytest", "uv run pytest *", "uv run ruff *", "ruff",
-    "ruff *", "python -m ruff *", "python3 -m ruff *", "git status", "git status *",
-    "git diff", "git diff *", "git log", "git log *", "git show", "git show *", "git branch",
-    "git branch -a", "git branch -v", "git branch -vv", "git branch --list",
-    "git branch --list *", "git branch --show-current", "ls", "ls *", "cat *", "grep *",
-    "head *", "tail *", "wc *", "pwd", "echo", "echo *", "python *.py", "python *.py *",
-    "python3 *.py", "python3 *.py *",
+    "git status", "git status *", "git diff", "git diff *", "git log", "git log *",
+    "git show", "git show *", "git branch", "git branch -a", "git branch -v", "git branch -vv",
+    "git branch --list", "git branch --list *", "git branch --show-current", "ls", "ls *",
+    "cat *", "grep *", "head *", "tail *", "wc *", "pwd", "echo", "echo *",
 )
-DEFAULT_RULES = (
-    Rule("default:read-tools", "allow", READ_TOOLS, index=1),
-    Rule("default:edit", "allow", ("edit_file", "write_file"), index=2),
-    Rule("default:git-write", "ask", ("git_add", "git_commit", "git_branch"), index=3),
-    Rule("default:web", "ask", ("web_fetch",), index=4),
-    Rule("default:mcp", "ask", ("mcp__*",), index=5),
-    Rule("default:shell", "allow", ("run_shell",), commands=SHELL_ALLOW, index=6),
-    Rule("default:delete", "ask", ("delete_file",), index=7),
-)
-STRICT_RULES = (
-    Rule("strict:read-tools", "allow", READ_TOOLS, index=1),
-    Rule("strict:edit", "allow", ("edit_file", "write_file", "delete_file"), index=2),
-    Rule("strict:shell", "allow", ("run_shell",), commands=SHELL_ALLOW, index=3),
-)
+
+
+def profile_rules(*, strict: bool, shell_allow: tuple[str, ...]) -> tuple[Rule, ...]:
+    if strict:
+        return (
+            Rule("strict:read-tools", "allow", READ_TOOLS, index=1),
+            Rule("strict:edit", "allow", ("edit_file", "write_file", "delete_file"), index=2),
+            Rule("strict:shell", "allow", ("run_shell",), commands=shell_allow, index=3),
+        )
+    return (
+        Rule("default:read-tools", "allow", READ_TOOLS, index=1),
+        Rule("default:edit", "allow", ("edit_file", "write_file"), index=2),
+        Rule("default:git-write", "ask", ("git_add", "git_commit", "git_branch"), index=3),
+        Rule("default:web", "ask", ("web_fetch",), index=4),
+        Rule("default:mcp", "ask", ("mcp__*",), index=5),
+        Rule("default:shell", "allow", ("run_shell",), commands=shell_allow, index=6),
+        Rule("default:delete", "ask", ("delete_file",), index=7),
+    )
+
+
+# These are the rules of a workspace with no markers; shell decisions rebuild them per command.
+DEFAULT_RULES = profile_rules(strict=False, shell_allow=SHELL_ALLOW)
+STRICT_RULES = profile_rules(strict=True, shell_allow=SHELL_ALLOW)
+
+
+def builtin_shell_allow(workspace: Path) -> tuple[str, ...]:
+    # local: checks → tools → policy import cycle at load
+    from cora.core.checks import present_toolchains
+    active = [TOOLCHAINS[t] for t in present_toolchains(workspace)]
+    ordered = (*(c for tc in active for c in tc.commands), *SHELL_ALLOW,
+               *(f for tc in active for f in tc.file_runs))
+    return tuple(dict.fromkeys(ordered))
 
 
 @dataclass(frozen=True)
@@ -574,7 +592,7 @@ CONFINE_HEADER = "Also denied, whatever the pattern:"
 ASK_SENTENCE = "A command that needs approval is denied, because this run never prompts."
 
 
-def _shell_allow_patterns(settings: PolicySettings) -> list[str]:
+def effective_shell_allow(workspace: Path, settings: PolicySettings) -> tuple[str, ...]:
     pats: list[str] = []
     for r in settings.rules:
         if r.decision != "allow":
@@ -586,10 +604,10 @@ def _shell_allow_patterns(settings: PolicySettings) -> list[str]:
         for p in r.commands or ("*",):
             if p not in pats:
                 pats.append(p)
-    for p in SHELL_ALLOW:
+    for p in builtin_shell_allow(workspace):
         if p not in pats:
             pats.append(p)
-    return pats
+    return tuple(pats)
 
 
 def _confinement_texts(*, network: bool) -> list[str]:
@@ -604,7 +622,7 @@ def _confinement_texts(*, network: bool) -> list[str]:
     return texts
 
 
-def render_policy_rules(settings: PolicySettings, *, approval_mode: str) -> str:
+def render_policy_rules(settings: PolicySettings, *, approval_mode: str, workspace: Path) -> str:
     confine = approval_mode != "policy" and settings.shell_confinement
     tail = [CONFINE_HEADER, *(f"- {t}" for t in _confinement_texts(network=not confine))]
     if approval_mode == "policy":
@@ -612,7 +630,7 @@ def render_policy_rules(settings: PolicySettings, *, approval_mode: str) -> str:
     if confine:
         head = CONFINE_ONLY
     else:
-        pats = _shell_allow_patterns(settings)
+        pats = list(effective_shell_allow(workspace, settings))
         budget = RULES_MAX_CHARS - len("\n".join(tail)) - 1
         head = ALLOW_PREFIX + ", ".join(pats)
         if len(head) > budget:

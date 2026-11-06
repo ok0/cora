@@ -1526,7 +1526,23 @@ command = "curl https://api.example.com/*"
 | `run_shell` | 허용 목록에 맞는 명령만 허용 | `default:shell` |
 | 그 밖의 도구 | 거부 | `default` |
 
-`run_shell`의 허용 목록은 다음과 같습니다. `pytest`, `python -m pytest`, `python3 -m pytest`, `python -m unittest`, `python3 -m unittest`, `uv run pytest`, `uv run ruff`, `ruff`, `python -m ruff`, `python3 -m ruff`, git의 조회 하위 명령(`status`, `diff`, `log`, `show`, `branch`의 조회 형태), `ls`, `cat`, `grep`, `head`, `tail`, `wc`, `pwd`, `echo`, 그리고 워크스페이스 안의 `.py` 스크립트를 `python` 또는 `python3`로 실행하는 형태입니다. 위 목록에 없는 명령은 거부합니다.
+`run_shell`의 허용 목록은 워크스페이스에 따라 달라집니다. 모든 워크스페이스에서 허용되는 중립 목록은 git의 조회 하위 명령(`status`, `diff`, `log`, `show`, `branch`의 조회 형태), `ls`, `cat`, `grep`, `head`, `tail`, `wc`, `pwd`, `echo`입니다. 그 위에 워크스페이스에서 감지된 툴체인의 명령이 더해집니다.
+
+- Python (`tests/` 디렉터리, 깊이 2 이내의 `.py` 파일, 루트의 `pyproject.toml`/`setup.py`/`setup.cfg`/`requirements.txt`): `pytest`, `python -m pytest`, `python3 -m pytest`, `python -m unittest`, `python3 -m unittest`, `uv run pytest`, `uv run ruff`, `ruff`, `python -m ruff`, `python3 -m ruff`, 그리고 워크스페이스 안의 `.py` 스크립트를 `python` 또는 `python3`로 실행하는 형태.
+- Node (`package.json`의 `scripts.test`): `npm test`.
+- Rust (`Cargo.toml`): `cargo test`.
+- Go (`go.mod`): `go test ./...`.
+- Make (`Makefile`의 `test:` 대상): `make test`.
+
+여러 표지가 함께 있으면 해당 툴체인들의 합집합이 허용됩니다. 표지가 하나도 없으면 중립 목록만 허용되므로, 빈 워크스페이스에서는 첫 `pytest`가 거부됩니다. 표지 파일이 생기면 표지는 명령마다 다시 검사되므로 다음 명령부터 허용됩니다. 계획 단계의 검사도 같은 방식으로 판정됩니다.
+
+툴체인 명령은 위에 적힌 형태로만 허용되며, 추가 인자가 붙은 형태(예: `npm test -- -k foo`, `cargo test --release`)는 거부됩니다.
+
+허용 목록을 넓히려면 `.cora/policy.toml`에 허용 규칙을 추가하면 됩니다. e2e 엄격 프로필은 사용자 규칙을 읽지 않습니다.
+
+한계: `npm test`, `cargo test`, `make test`, `pytest`는 프로젝트가 정의한 코드(`package.json`의 스크립트, `build.rs`, Makefile 레시피, `conftest.py`)를 실행하며, 격리(confinement)는 그 코드를 검사하지 않습니다.
+
+위 목록에 없는 명령은 거부합니다.
 
 ### write_file과 delete_file
 

@@ -10,8 +10,16 @@ from conftest import act
 from cora.bench.e2e import load_e2e_tasks
 from cora.bench.live import run_live_bench
 from cora.core.observability import read_events
-from cora.core.policy import SHELL_ALLOW, PolicyEngine, PolicyGate, PolicySettings, Rule
+from cora.core.policy import (
+    SHELL_ALLOW,
+    PolicyEngine,
+    PolicyGate,
+    PolicySettings,
+    Rule,
+    builtin_shell_allow,
+)
 from cora.core.shellguard import PathGuard
+from cora.core.toolchains import TOOLCHAINS
 from cora.core.toolgroups import group_of
 from cora.core.tools import ApprovalPolicy, ToolContext, ToolRegistry, default_tools
 from cora.core.tools.base import Workspace
@@ -157,11 +165,16 @@ def test_policy_headless_delete_only_where_edit(tmp_path: Path) -> None:
         assert e.rule.startswith("floor:")
 
 
-def test_shell_allow_unchanged() -> None:
-    digest = hashlib.sha256("\n".join(SHELL_ALLOW).encode()).hexdigest()
+def test_shell_allow_unchanged(tmp_path: Path) -> None:
+    (tmp_path / "tests").mkdir()
+    allow = builtin_shell_allow(tmp_path)
+    digest = hashlib.sha256("\n".join(allow).encode()).hexdigest()
     assert digest == "940dee4ff8e25831e2c77ca1f7d812ddbf7f132c5036e50cf75464a47b8d160d"
     banned = {"rm", "mv", "mkdir", "touch"}
-    assert not any(entry.split(" ", 1)[0] in banned for entry in SHELL_ALLOW)
+    entries = set(SHELL_ALLOW) | {
+        p for tc in TOOLCHAINS.values() for p in (*tc.commands, *tc.file_runs)
+    }
+    assert not any(entry.split(" ", 1)[0] in banned for entry in entries)
 
 
 @pytest.mark.slow

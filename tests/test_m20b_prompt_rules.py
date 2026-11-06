@@ -89,7 +89,7 @@ def test_explicit_false_matches_pinned(tmp_path):
 def test_on_appends_rendered_rules(tmp_path):
     pinned = json.loads(FIXTURE.read_text("utf-8"))
     on = capture(tmp_path, policy={"prompt_rules": True})
-    rules = render_policy_rules(PolicySettings(), approval_mode="policy")
+    rules = render_policy_rules(PolicySettings(), approval_mode="policy", workspace=tmp_path / "ws")
     for i in (0, 1):
         assert on[i] == pinned[i] + prompts.POLICY_RULES_HEADER + rules
         assert on[i].endswith(rules)
@@ -104,7 +104,9 @@ def test_on_uses_user_policy_file(tmp_path):
         encoding="utf-8",
     )
     on = capture(tmp_path, policy={"prompt_rules": True})
-    rules = render_policy_rules(load_policy(PolicySettings(), ws), approval_mode="policy")
+    rules = render_policy_rules(
+        load_policy(PolicySettings(), ws), approval_mode="policy", workspace=ws
+    )
     assert "make *" in rules
     for prompt in on:
         assert prompt.endswith(rules)

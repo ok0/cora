@@ -15,6 +15,7 @@ from cora.core.policy import (
     PolicySettings,
     Rule,
     Verdict,
+    builtin_shell_allow,
     hint_for,
     load_policy,
     planning_policy,
@@ -73,29 +74,31 @@ def test_hint_for_fallback() -> None:
     assert "workspace root" in hint_for(Verdict("deny", "confine:cd"))
 
 
-def test_render_deterministic_and_bounded() -> None:
+def test_render_deterministic_and_bounded(tmp_path: Path) -> None:
     cases = [
         (PolicySettings(), "policy"),
         (PolicySettings(shell_confinement=True), "ask"),
     ]
     for settings, mode in cases:
-        first = render_policy_rules(settings, approval_mode=mode)
-        assert first == render_policy_rules(settings, approval_mode=mode)
+        first = render_policy_rules(settings, approval_mode=mode, workspace=tmp_path)
+        assert first == render_policy_rules(settings, approval_mode=mode, workspace=tmp_path)
         assert len(first) <= 1500
     many = PolicySettings(rules=tuple(
         Rule(f"u{i}", "allow", ("run_shell",), commands=(f"tool{i} *",), index=i)
         for i in range(300)))
-    text = render_policy_rules(many, approval_mode="policy")
-    assert text == render_policy_rules(many, approval_mode="policy")
+    text = render_policy_rules(many, approval_mode="policy", workspace=tmp_path)
+    assert text == render_policy_rules(many, approval_mode="policy", workspace=tmp_path)
     assert len(text) <= 1500
     assert "… and " in text
     assert " more" in text
 
 
-def test_render_builtin_lists_all_patterns() -> None:
-    text = render_policy_rules(PolicySettings(), approval_mode="policy")
-    for pattern in SHELL_ALLOW:
+def test_render_builtin_lists_all_patterns(tmp_path: Path) -> None:
+    (tmp_path / "tests").mkdir()
+    text = render_policy_rules(PolicySettings(), approval_mode="policy", workspace=tmp_path)
+    for pattern in builtin_shell_allow(tmp_path):
         assert pattern in text
+    assert set(SHELL_ALLOW) < set(builtin_shell_allow(tmp_path))
     assert ASK_SENTENCE in text
     assert "… and" not in text
 
@@ -106,11 +109,13 @@ def test_render_user_file_pattern(tmp_path: Path) -> None:
         '[[rules]]\nid = "mk"\ndecision = "allow"\ntool = "run_shell"\ncommand = "make test"\n',
         encoding="utf-8")
     s = load_policy(PolicySettings(), tmp_path)
-    assert "make test" in render_policy_rules(s, approval_mode="policy")
+    assert "make test" in render_policy_rules(s, approval_mode="policy", workspace=tmp_path)
 
 
-def test_render_confine_mode() -> None:
-    text = render_policy_rules(PolicySettings(shell_confinement=True), approval_mode="ask")
+def test_render_confine_mode(tmp_path: Path) -> None:
+    text = render_policy_rules(
+        PolicySettings(shell_confinement=True), approval_mode="ask", workspace=tmp_path
+    )
     assert text.startswith(CONFINE_ONLY)
     assert ASK_SENTENCE not in text
     assert "Network access is denied." not in text

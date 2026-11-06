@@ -315,7 +315,7 @@ class Agent:
         mode = approval_mode_of(self.ctx.approval)
         if not self.config.policy.prompt_rules or gate is None or gate.mode_for(mode) is None:
             return ""
-        return render_policy_rules(gate.settings, approval_mode=mode)
+        return render_policy_rules(gate.settings, approval_mode=mode, workspace=gate.guard.root)
 
     def _repo_map(self, log: EventLog) -> str:
         c = self.config.context

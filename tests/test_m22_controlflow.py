@@ -4,8 +4,9 @@ import ast
 import re
 from pathlib import Path
 
-from cora.core import policy, shellguard
+from cora.core import checks, policy, shellguard, toolchains
 from cora.core.shellguard import INTERPRETERS
+from cora.core.toolchains import TOOLCHAINS
 
 FIXED_NAMES = frozenset(
     {
@@ -23,6 +24,14 @@ ALLOWLIST: dict[tuple[str, str, str], str] = {
         "system shell sandbox-exec uses to run the confined command; "
         "infrastructure, not per-interpreter rule data; changing it changes behaviour"
     ),
+    ("checks.py", "is_python_workspace", "is_python_workspace"): (
+        "public core function name used by agent self-test gating since M18; "
+        "renaming changes the API"
+    ),
+    ("checks.py", "is_python_workspace", "python"): (
+        "TOOLCHAINS row key whose file markers decide self-test eligibility; "
+        "a data lookup, not a per-toolchain branch"
+    ),
 }
 
 FUNC = (ast.FunctionDef, ast.AsyncFunctionDef)
@@ -30,6 +39,8 @@ WORD = re.compile(r"[a-z0-9]+")
 SOURCES = {
     "shellguard.py": Path(shellguard.__file__),
     "policy.py": Path(policy.__file__),
+    "checks.py": Path(checks.__file__),
+    "toolchains.py": Path(toolchains.__file__),
 }
 PLANTED = '''DATA = {"node": 1}
 def f(name):
@@ -40,6 +51,8 @@ def g(x):
     return PY_RE.fullmatch(x)
 def h(x):
     return x
+def k(x):
+    return x == "rust"
 '''
 
 
@@ -52,8 +65,16 @@ def table_names() -> set[str]:
     return {name.lower() for name in out}
 
 
+def toolchain_names() -> set[str]:
+    out = {tid.lower() for tid in TOOLCHAINS}
+    for tc in TOOLCHAINS.values():
+        for pattern in (*tc.commands, *tc.file_runs, tc.check_command):
+            out.add(pattern.split()[0].lower())
+    return out
+
+
 def forbidden() -> set[str]:
-    return table_names() | FIXED_NAMES
+    return table_names() | FIXED_NAMES | toolchain_names()
 
 
 def _own_items(fn: ast.FunctionDef | ast.AsyncFunctionDef):
@@ -128,7 +149,7 @@ def test_allowlist_entries_used_and_justified():
 
 def test_scanner_flags_planted_name():
     found = {(fn, kind, text) for _, fn, kind, text in scan(PLANTED, "planted.py", forbidden())}
-    assert found == {("f", "str", "node"), ("g", "name", "PY_RE")}
+    assert found == {("f", "str", "node"), ("g", "name", "PY_RE"), ("k", "str", "rust")}
 
 
 def test_name_list_derived_from_table():
@@ -136,3 +157,4 @@ def test_name_list_derived_from_table():
     assert derived <= forbidden()
     assert "gawk" in table_names()
     assert "luajit" in table_names()
+    assert {"rust", "make", "python3", "npm", "cargo"} <= toolchain_names()
