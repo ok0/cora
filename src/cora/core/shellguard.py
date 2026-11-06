@@ -282,6 +282,18 @@ class InterpreterSpec:
     runner_programs: frozenset[str] = frozenset()
     # interpreter entry whose targets the runner may run
     runner_target: str | None = None
+    # option letters that run inline code inside a single-dash cluster
+    cluster_inline_letters: frozenset[str] = frozenset()
+    # cluster letters whose value is the rest of the cluster or the next argument
+    cluster_value_letters: frozenset[str] = frozenset()
+    # whole flag -> shortest accepted abbreviation; every prefix in between runs inline code
+    inline_abbreviations: Mapping[str, str] = field(default_factory=dict)
+    # options may precede the subcommand
+    options_before_subcommand: bool = False
+    # options before the subcommand that take the next argument as their value
+    subcommand_value_options: frozenset[str] = frozenset()
+    # program basenames whose first argument names one of this entry's programs
+    multicall_names: frozenset[str] = frozenset()
     # event -> (rule id, message template)
     messages: Mapping[str, tuple[str, str]] = field(default_factory=dict)
 
@@ -293,7 +305,7 @@ INTERPRETERS: Mapping[str, InterpreterSpec] = MappingProxyType({
         names=frozenset({"sh", "bash", "zsh", "dash", "ksh", "mksh", "fish", "csh", "tcsh",
                          "ash", "busybox"}),
         inline_flags=frozenset({"c"}), stdin_letters=frozenset({"s"}),
-        flag_prefixes=("-", "+"), stdin_is_code=True,
+        flag_prefixes=("-", "+"), stdin_is_code=True, multicall_names=frozenset({"busybox"}),
         messages={"inline": ("confine:shell-c", "'{name} {arg}' runs a string as a command")},
     ),
     "python": InterpreterSpec(
@@ -335,12 +347,14 @@ INTERPRETERS: Mapping[str, InterpreterSpec] = MappingProxyType({
     "deno": InterpreterSpec(
         syntax=SYNTAX_SUBCOMMAND, names=frozenset({"deno"}),
         inline_subcommands=frozenset({"eval", "repl"}), bare_is_inline=True,
+        options_before_subcommand=True, subcommand_value_options=frozenset({"-L", "--log-level"}),
         messages={"inline": ("confine:one-liner", "deno eval and repl run inline code")},
     ),
     "node": InterpreterSpec(
         syntax=SYNTAX_FLAGS, names=frozenset({"node", "nodejs"}), case_insensitive=True,
         inline_flags=frozenset({"-e", "--eval", "-p", "--print", "-i", "--interactive", "-r",
                                 "--require"}),
+        cluster_inline_letters=frozenset("epir"), cluster_value_letters=frozenset("C"),
         stdin_is_code=True, messages=_ONE_LINER,
     ),
     "bun": InterpreterSpec(
@@ -350,11 +364,15 @@ INTERPRETERS: Mapping[str, InterpreterSpec] = MappingProxyType({
     ),
     "ruby": InterpreterSpec(
         syntax=SYNTAX_FLAGS, names=frozenset({"ruby"}), case_insensitive=True,
-        inline_flags=frozenset({"-e"}), stdin_is_code=True, messages=_ONE_LINER,
+        inline_flags=frozenset({"-e"}),
+        cluster_inline_letters=frozenset("e"), cluster_value_letters=frozenset("CEFIiKrx"),
+        stdin_is_code=True, messages=_ONE_LINER,
     ),
     "perl": InterpreterSpec(
         syntax=SYNTAX_FLAGS, names=frozenset({"perl"}), case_insensitive=True,
-        inline_flags=frozenset({"-e", "-E"}), stdin_is_code=True, messages=_ONE_LINER,
+        inline_flags=frozenset({"-e", "-E"}),
+        cluster_inline_letters=frozenset("eE"), cluster_value_letters=frozenset("CdDFiImMVx"),
+        stdin_is_code=True, messages=_ONE_LINER,
     ),
     "php": InterpreterSpec(
         syntax=SYNTAX_FLAGS, names=frozenset({"php"}), case_insensitive=True,
@@ -374,7 +392,8 @@ INTERPRETERS: Mapping[str, InterpreterSpec] = MappingProxyType({
     ),
     "pwsh": InterpreterSpec(
         syntax=SYNTAX_FLAGS, names=frozenset({"pwsh"}), case_insensitive=True,
-        inline_flags=frozenset({"-c", "-command", "-encodedcommand"}),
+        inline_flags=frozenset({"-c", "-command", "-encodedcommand", "-ec"}),
+        inline_abbreviations={"-command": "-c", "-encodedcommand": "-e"},
         stdin_is_code=True, messages=_ONE_LINER,
     ),
     "uv": InterpreterSpec(
@@ -1060,14 +1079,16 @@ def _check_interpreter(spec: InterpreterSpec, name: str, args: list[str],
         _check_expression(spec, args, soft)
         return True
     if spec.syntax == SYNTAX_SUBCOMMAND:
-        if (spec.bare_is_inline and not args) or (args and args[0] in spec.inline_subcommands):
+        sub = _subcommand(spec, args)
+        if (spec.bare_is_inline and not args) or sub in spec.inline_subcommands:
             _say(spec, "inline", soft, name=name)
             return True
         return False
     if spec.syntax == SYNTAX_FLAGS:
         norm = str.lower if spec.case_insensitive else str
         long_flags = tuple(f + "=" for f in spec.inline_flags if f.startswith("--"))
-        if any(norm(a) in spec.inline_flags or norm(a).startswith(long_flags) for a in args):
+        if any(norm(a) in spec.inline_flags or norm(a).startswith(long_flags)
+               or _abbreviates(spec, norm(a)) for a in args) or _inline_cluster(spec, args):
             _say(spec, "inline", soft, name=name)
             return True
         if all(a.startswith("-") for a in args):
@@ -1079,9 +1100,47 @@ def _check_interpreter(spec: InterpreterSpec, name: str, args: list[str],
     raise ValueError(f"unknown interpreter syntax {spec.syntax!r}")
 
 
+def _subcommand(spec: InterpreterSpec, args: list[str]) -> str | None:
+    if not spec.options_before_subcommand:
+        return args[0] if args else None
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if not a.startswith("-"):
+            return a
+        i += 2 if a in spec.subcommand_value_options else 1
+    return None
+
+
+def _abbreviates(spec: InterpreterSpec, arg: str) -> bool:
+    return any(arg.startswith(short) and full.startswith(arg)
+               for full, short in spec.inline_abbreviations.items())
+
+
+def _inline_cluster(spec: InterpreterSpec, args: list[str]) -> bool:
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ("-", "--") or not a.startswith("-"):
+            return False
+        if not a.startswith("--"):
+            for k, ch in enumerate(a[1:]):
+                if ch in spec.cluster_inline_letters:
+                    return True
+                if ch in spec.cluster_value_letters:
+                    if (k == len(a) - 2 and i + 1 < len(args)
+                            and not args[i + 1].startswith("-")):
+                        i += 1
+                    break
+        i += 1
+    return False
+
+
 def _check_shell_options(spec: InterpreterSpec, name: str, args: list[str],
                          stdin_program: Callable[[str], None],
                          soft: Callable[[str, str], None]) -> None:
+    while name in spec.multicall_names and args and _name_matches(spec, args[0]):
+        name, args = args[0], args[1:]
     for a in args:
         if a == "-":
             _stdin(spec, name, stdin_program)

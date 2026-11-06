@@ -226,6 +226,52 @@ def _p_runner_target(spec, hits, records):
     )
 
 
+def _p_cluster_inline_letters(spec, hits, records):
+    args = _args(hits)
+    return all(
+        any(_short(a) and len(a) > 2 and ch in a[1:] for a in args)
+        for ch in spec.cluster_inline_letters
+    )
+
+
+def _p_cluster_value_letters(spec, hits, records):
+    args = _args(hits)
+    return all(
+        any(_short(a) and len(a) > 2 and a[1] == ch for a in args)
+        for ch in spec.cluster_value_letters
+    )
+
+
+def _p_inline_abbreviations(spec, hits, records):
+    args = [a.lower() for a in _args(hits)]
+    return all(
+        any(a.startswith(short) and full.startswith(a) and a not in spec.inline_flags for a in args)
+        for full, short in spec.inline_abbreviations.items()
+    )
+
+
+def _p_options_before_subcommand(spec, hits, records):
+    return any(
+        bool(args)
+        and args[0].startswith("-")
+        and any(x in spec.inline_subcommands for x in args[1:])
+        for _name, args in hits
+    )
+
+
+def _p_subcommand_value_options(spec, hits, records):
+    return all(
+        any(opt in args for _name, args in hits) for opt in spec.subcommand_value_options
+    )
+
+
+def _p_multicall_names(spec, hits, records):
+    return all(
+        any(name == m and bool(args) and _matches(spec, args[0]) for name, args in hits)
+        for m in spec.multicall_names
+    )
+
+
 PREDICATES: dict[str, Callable[[InterpreterSpec, list, list], bool]] = {
     "names": _p_names,
     "name_pattern": _p_name_pattern,
@@ -249,6 +295,12 @@ PREDICATES: dict[str, Callable[[InterpreterSpec, list, list], bool]] = {
     "runner_subcommand": _p_runner_subcommand,
     "runner_programs": _p_runner_programs,
     "runner_target": _p_runner_target,
+    "cluster_inline_letters": _p_cluster_inline_letters,
+    "cluster_value_letters": _p_cluster_value_letters,
+    "inline_abbreviations": _p_inline_abbreviations,
+    "options_before_subcommand": _p_options_before_subcommand,
+    "subcommand_value_options": _p_subcommand_value_options,
+    "multicall_names": _p_multicall_names,
 }
 
 

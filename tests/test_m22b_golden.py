@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 import m22b_baseline as b
+import m22c_cases as c
 from cora.core.policy import SHELL_ALLOW
 from cora.core.toolchains import TOOLCHAINS
 
@@ -71,6 +72,11 @@ def test_baseline_diff_is_intended() -> None:
 
     sources = _sources()
     rows = b.diff_rows(old, new)
+    # M22c tightening of gap-family commands is checked in full by tests/test_m22c_gaps.py
+    gap_rows = [r for r in rows if r[0] in c.GAP_FAMILY]
+    rows = [r for r in rows if r[0] not in c.GAP_FAMILY]
+    for command, ws, mode, before, after in gap_rows:
+        assert after[0] == "deny" and after[1] in c.GAP_RULES, (command, ws, mode, before, after)
     kinds = {"a": 0, "b": 0}
     for command, ws, mode, before, after in rows:
         assert mode != "confine", (command, ws)
@@ -90,8 +96,8 @@ def test_baseline_diff_is_intended() -> None:
     for rec in new:
         if rec["command"] in b.GAP_COMMANDS:
             for ws, modes in rec["ws"].items():
-                assert modes["confine"] == next(
-                    r["ws"][ws]["confine"] for r in old if r["command"] == rec["command"])
+                assert modes["confine"][0] == "deny" and modes["confine"][1] in c.GAP_RULES, (
+                    rec["command"], ws)
                 assert modes["default"][0] == "deny", (rec["command"], ws)
                 assert modes["strict"][0] == "deny", (rec["command"], ws)
 
